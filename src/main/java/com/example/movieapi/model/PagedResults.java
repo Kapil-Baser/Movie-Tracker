@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class MovieByTitleResults {
+public class PagedResults {
     @JsonProperty("page")
     private int page;
     @JsonProperty("results")
