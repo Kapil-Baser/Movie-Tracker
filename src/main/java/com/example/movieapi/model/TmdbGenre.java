@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Genre {
+public class TmdbGenre {
     private int id;
     private String name;
 }
