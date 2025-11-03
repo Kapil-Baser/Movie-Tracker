@@ -1,7 +1,6 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.entity.Genre;
-import com.example.movieapi.model.TmdbGenre;
 import com.example.movieapi.model.TmdbGenreResponse;
 import com.example.movieapi.repository.GenresRepository;
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ public class GenresService {
         return genresRepository.findAll();
     }
 
-    public void syncGenresFromTmdb(List<TmdbGenre> tmdbGenres) {
+    public void syncGenresFromTmdb() {
 
         long existingCount = genresRepository.count();
 
@@ -46,7 +45,7 @@ public class GenresService {
         try {
 
             TmdbGenreResponse response = restClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/trending/movie/").build())
+                    .uri(uriBuilder -> uriBuilder.path("/genre/movie/list").build())
                     .retrieve()
                     .body(TmdbGenreResponse.class);
 
@@ -63,12 +62,13 @@ public class GenresService {
                         genre.setName(tmdbGenre.getName());
                         return genre;
                     })
-                    .collect(Collectors.toList());
+                            .toList();
 
             // Save all genres to database
             genresRepository.saveAll(genres);
 
             logger.info("Successfully synced {} genres from TMDB", genres.size());
+
 
         } catch (Exception e) {
             logger.info("Failed to sync genres from TMDB", e);
