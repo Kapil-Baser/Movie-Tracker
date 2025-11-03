@@ -12,5 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class TmdbGenreResponse {
 
-    List<Genre> genres;
+    @JsonProperty("genres")
+    List<TmdbGenre> tmdbGenres;
 }
