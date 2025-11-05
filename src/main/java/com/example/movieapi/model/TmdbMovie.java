@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Movie {
+public class TmdbMovie {
 
     @JsonProperty("adult")
     private boolean adult;
