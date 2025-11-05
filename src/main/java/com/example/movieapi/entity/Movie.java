@@ -22,6 +22,9 @@ public class Movie {
     @Column(nullable = false)
     private String title;
 
+    @Column(name = "original_title")
+    private String originalTitle;
+
     @Column(columnDefinition = "TEXT")
     private String overview;
 
@@ -32,6 +35,19 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     private Set<Genre> genres = new HashSet<>();
+
+    // US Release Information
+    @Column(name = "us_theatrical_date")
+    private LocalDateTime usTheatricalDate;
+
+    @Column(name = "us_digital_date")
+    private LocalDateTime usDigitalDate;
+
+    @Column(name = "us_physical_date")
+    private LocalDateTime usPhysicalDate;
+
+    @Column(name = "us_certification", length = 20)
+    private String usCertification;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
