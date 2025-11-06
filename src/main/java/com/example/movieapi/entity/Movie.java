@@ -1,8 +1,10 @@
 package com.example.movieapi.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -14,6 +16,8 @@ import java.util.Set;
 @Data
 @Builder
 @Table(name = "movies")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Movie {
 
     @Id
@@ -28,7 +32,7 @@ public class Movie {
     @Column(columnDefinition = "TEXT")
     private String overview;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genres",
             joinColumns = @JoinColumn(name = "movie_id"),
@@ -56,4 +60,17 @@ public class Movie {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return id != null && id.equals(movie.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();  // Use constant hash
+    }
 }
