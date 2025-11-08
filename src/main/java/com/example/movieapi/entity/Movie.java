@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,15 @@ public class Movie {
     @Column(columnDefinition = "TEXT")
     private String overview;
 
+    @Column(name = "backdrop")
+    private String backdropPath;
+
+    @Column(name = "poster")
+    private String posterPath;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genres",
@@ -42,13 +52,13 @@ public class Movie {
 
     // US Release Information
     @Column(name = "us_theatrical_date")
-    private LocalDateTime usTheatricalDate;
+    private LocalDate usTheatricalDate;
 
     @Column(name = "us_digital_date")
-    private LocalDateTime usDigitalDate;
+    private LocalDate usDigitalDate;
 
     @Column(name = "us_physical_date")
-    private LocalDateTime usPhysicalDate;
+    private LocalDate usPhysicalDate;
 
     @Column(name = "us_certification", length = 20)
     private String usCertification;
