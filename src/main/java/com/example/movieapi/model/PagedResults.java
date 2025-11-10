@@ -12,7 +12,7 @@ public class PagedResults {
     @JsonProperty("page")
     private int page;
     @JsonProperty("results")
-    private List<Movie> movieResults;
+    private List<MovieResult> movieResults;
     @JsonProperty("total_pages")
     private int totalPages;
     @JsonProperty("total_results")
