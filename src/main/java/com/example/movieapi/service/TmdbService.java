@@ -77,4 +77,19 @@ public class TmdbService {
 
         return Objects.requireNonNull(response).getResults();
     }
+
+    public List<MovieResultResponse> discoverMovies(int releaseYear, LocalDate minReleaseDate, int releaseType) {
+        TmdbDiscoverResponse response = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                        .queryParam("with_original_language", "en")
+                        .queryParam("primary_release_year", releaseYear)
+                        .queryParam("release_date.gte", minReleaseDate)
+                        .queryParam("release_date.lte", LocalDate.now())
+                        .queryParam("with_release_type", releaseType)
+                        .build())
+                .retrieve()
+                .body(TmdbDiscoverResponse.class);
+
+        return Objects.requireNonNull(response).getResults();
+    }
 }
