@@ -1,22 +1,29 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
+import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.repository.CollectionRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class MovieCollectionService {
 
     private final CollectionRepository collectionRepository;
+    private final MovieMapper movieMapper;
 
-    public MovieCollectionService(CollectionRepository collectionRepository) {
+    @Autowired
+    public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper) {
         this.collectionRepository = collectionRepository;
+        this.movieMapper = movieMapper;
     }
 
     @Transactional
@@ -42,9 +49,10 @@ public class MovieCollectionService {
                 });
     }
 
-    public Set<Movie> getAllMoviesFromCollection(String name) {
+    public List<MovieDto> getAllMoviesFromCollection(String name) {
         return collectionRepository.findByName(name)
-                .map(MovieCollection::getMovies)
-                .orElse(new HashSet<>());
+                .map(collection -> collection.getMovies().stream().toList())
+                .map(movieMapper::toMovieDto)
+                .orElse(new ArrayList<>());
     }
 }
