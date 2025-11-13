@@ -1,0 +1,18 @@
+<div th:fragment="moviesList" class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5">
+        <div class="col-span-2 flex min-h-[50px] items-center rounded-lg shadow-xl">
+            <div>
+                <div class="m-4 max-w-20 border-t pt-2"><p></p></div>
+                <h1 class="m-4 text-5xl">Movies in Cinemas</h1>
+                <span class="m-4 text-5xl">Right Now</span>
+                <p class="m-4 text-2xl font-light">Most popular movies</p>
+                <div class="m-4 border-t-1"></div>
+            </div>
+        </div>
+        <div th:each="movie : ${movies}" class="p-0.5">
+            <img th:src="${movie.posterPath}" class="object-cover rounded-xl mx-auto" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg">
+            <div class="p-1 flex flex-col justify-items-start ml-4">
+                <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
+                <span th:text="${movie.releaseDate}" class="font-semibold text-sm">Nov 7, 2025</span>
+            </div>
+        </div>
+</div>
