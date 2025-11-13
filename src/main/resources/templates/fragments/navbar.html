@@ -1,6 +1,9 @@
-<nav th:fragment="navbar" class="flex justify-between p-1.5 text-shadow-gray-900 bg-amber-400">
+<nav th:fragment="navbar" class="flex justify-between bg-amber-400 p-1.5 text-shadow-gray-900">
     <a th:href="@{/movies}" class="flex items-center">Home</a>
-    <a th:href="@{/movies/now-playing}" class="flex items-center">Now Playing</a>
     <a th:href="@{/movies/upcoming}" class="flex items-center">Upcoming</a>
-    <button class="rounded-xl bg-indigo-600 px-4 py-2 hover:cursor-pointer hover:bg-indigo-700">Register</button>
+    <a th:href="@{/movies/upcoming}" class="flex items-center">TV Shows</a>
+    <div>
+        <button class="rounded-xl border px-4 py-2 hover:cursor-pointer bg-amber-200 hover:bg-amber-300">Log in</button>
+        <button class="rounded-xl bg-indigo-500 border border-indigo-400 px-4 py-2 hover:cursor-pointer hover:bg-indigo-700">Register</button>
+    </div>
 </nav>
