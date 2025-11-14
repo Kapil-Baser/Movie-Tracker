@@ -1,5 +1,6 @@
 package com.example.movieapi.model;
 
+import com.example.movieapi.model.response.MovieResultResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class TmdbUpcomingResponse {
     private int page;
 
     @JsonProperty("results")
-    private List<MovieResult> movieResults;
+    private List<MovieResultResponse> movieResults;
 
     @JsonProperty("total_pages")
     private int totalPages;
