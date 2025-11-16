@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Log in</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, intial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+<nav class="flex justify-between bg-indigo-400 p-1.5 font-medium">
+    <a href="/movies" class="flex items-center">Home</a>
+    <a href="/movies/upcoming" class="flex items-center">Upcoming</a>
+    <a href="/movies/upcoming" class="flex items-center">TV Shows</a>
+</nav>
+
+<div class="flex flex-col justify-center sm:h-screen p-4 bg-gray-900">
+    <div class="max-w-md w-full mx-auto border border-gray-300 rounded-2xl p-8 text-white">
+        <div class="flex justify-center">
+            <svg class="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <div class="text-center mb-6 text-2xl font-semibold">
+            <h3>Registered Successfully!</h3>
+        </div>
+        <div class="text-center">
+            <div>
+                <p>Thank you for registering.</p>
+            </div>
+            <div>
+                <p>Have a great day!</p>
+            </div>
+        </div>
+        <div class="mt-6 text-center">
+            <a th:href="@{/movies}" href="#" class="w-full py-3 px-4 text-sm tracking-wider font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-400 focus:outline-none cursor-pointer">
+                Return to Homepage
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
