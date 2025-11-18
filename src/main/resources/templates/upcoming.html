@@ -11,8 +11,8 @@
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="flex items-center justify-center bg-amber-500 pt-2">
-    <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5">
+<div class="flex items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2">
+    <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5 text-white">
         <div class="col-span-2 flex min-h-[50px] items-center rounded-lg shadow-xl">
             <div>
                 <div class="m-4 max-w-20 border-t pt-2"><p></p></div>
@@ -22,11 +22,11 @@
                 <div class="m-4 border-t-1"></div>
             </div>
         </div>
-        <div th:each="movie : ${movies}" class="max-w-47 rounded-xl p-0.5 shadow-xl">
-            <img th:src="${movie.posterPath}" class="rounded-xl" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg" />
+        <div th:each="movie : ${movies}" class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800">
+            <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}" class="rounded-xl" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg" alt=""/>
             <div class="p-1">
                 <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
-                <span th:text="${movie.releaseDate}" class="text-sm font-semibold">Nov 7, 2025</span>
+                <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
             </div>
         </div>
     </div>
