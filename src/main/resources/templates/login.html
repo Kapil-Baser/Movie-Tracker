@@ -19,7 +19,7 @@
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <div th:if="${error}" class="error-message">
+        <div th:if="${loginError}" >
             <div class="rounded-md bg-red-50 p-2">
                 <div class="flex justify-center">
                     <div class="flex-shrink-0">
@@ -28,7 +28,7 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <h3 th:text="${error}" class="text-sm font-medium text-red-800">Invalid Username and Password</h3>
+                        <h3 th:text="${loginError}" class="text-sm font-medium text-red-800">Invalid Username and Password</h3>
                     </div>
                 </div>
             </div>
