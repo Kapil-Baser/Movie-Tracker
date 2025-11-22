@@ -51,10 +51,11 @@ public class MovieMapper {
     public List<MovieDto> toMovieDto(List<Movie> movies) {
         return movies.stream()
                 .map(movie -> MovieDto.builder()
+                        .id(movie.getId())
                         .title(movie.getTitle())
                         .overview(movie.getOverview())
-                        .backdropPath(imageBaseUrl + movie.getBackdropPath())
-                        .posterPath(imageBaseUrl + movie.getPosterPath())
+                        .backdropPath(movie.getBackdropPath())
+                        .posterPath(movie.getPosterPath())
                         .usDigitalReleaseDate(String.valueOf(movie.getUsDigitalDate()))
                         .releaseDate(movie.getReleaseDate()
                                 .format(DateTimeFormatter
