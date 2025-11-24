@@ -28,18 +28,18 @@ public class AuthenticationController {
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
-            model.addAttribute("error", "Invalid username or password!");
+            model.addAttribute("loginError", "Invalid username or password!");
         }
         return "login";
     }
 
-    @GetMapping("/register")
+    @GetMapping("/registerUser")
     public String showRegisterPage(Model model) {
         model.addAttribute("user", new RegisterUserDto());
-        return "register";
+        return "registerUser";
     }
 
-    @PostMapping("/register/save")
+    @PostMapping("/registerUser/save")
     public String registration(@Valid @ModelAttribute("user") RegisterUserDto userDto,
                                BindingResult result,
                                Model model) {
@@ -48,28 +48,28 @@ public class AuthenticationController {
         userValidator.validate(userDto, result);
 
         if (result.hasErrors()) {
-            return "register";
+            return "registerUser";
         }
 
         try {
 
-            userService.register(userDto);
+            userService.registerUser(userDto);
             log.info("User successfully registered: {}", userDto.getUsername());
 
-            return "register-success";
+            return "registerUser-success";
         } catch (Exception e) {
 
             log.warn("Exception: {}", e.getMessage());
             model.addAttribute("error", "Registration failed. Please try again.");
 
-            return "register";
+            return "registerUser";
         }
 
 
     }
 
-/*    @PostMapping("/register")
-    public ResponseEntity<AppUser> register(@RequestBody RegisterUserDto registerUserDto) {
-        return ResponseEntity.ok(userService.register(registerUserDto));
+/*    @PostMapping("/registerUser")
+    public ResponseEntity<AppUser> registerUser(@RequestBody RegisterUserDto registerUserDto) {
+        return ResponseEntity.ok(userService.registerUser(registerUserDto));
     }*/
 }
