@@ -34,7 +34,7 @@ public class UserService implements UserDetailsService {
         return repository.findByEmail(email);
     }
 
-    public AppUser register(RegisterUserDto dto) {
+    public AppUser registerUser(RegisterUserDto dto) {
         AppUser newUser = new AppUser(dto.getUsername(),
                 dto.getEmail(),
                 passwordEncoder.encode(dto.getPassword()),
