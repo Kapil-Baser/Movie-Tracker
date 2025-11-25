@@ -1,9 +1,7 @@
 package com.example.movieapi.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
@@ -11,7 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"owner", "movies"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "movie_collection")
@@ -21,8 +21,12 @@ public class MovieCollection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    AppUser owner;
 
     @ManyToMany
     @JoinTable(
@@ -48,4 +52,26 @@ public class MovieCollection {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    public void addMovie(Movie movie) {
+        movies.add(movie);
+    }
+
+    public void removeMovie(Movie movie) {
+        movies.remove(movie);
+    }
+
+    public boolean containsMovie(Movie movie) {
+        return movies.contains(movie);
+    }
+
+    public boolean containsMovieWithId(Long movieId) {
+        return movies.stream()
+                .anyMatch(movie -> movie.getId().equals(movieId));
+    }
+
+    public int collectionSize() {
+        return movies.size();
+    }
+
 }
