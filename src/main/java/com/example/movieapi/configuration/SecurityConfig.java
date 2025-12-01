@@ -36,9 +36,9 @@ public class SecurityConfig {
                             .hasRole("ADMIN")
                             .requestMatchers("/user/**")
                             .hasRole("USER")
-                            .requestMatchers("/auth/registerUser/**")
+                            .requestMatchers("/auth/**")
                             .permitAll()
-                            .requestMatchers("/movies", "/movies/upcoming")
+                            .requestMatchers("/webjars/**","/movies", "/movies/upcoming")
                             .permitAll()
                             .anyRequest()
                             .authenticated();
