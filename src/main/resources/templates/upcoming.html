@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{fragments/head :: head}">
-
-    <title>Upcoming movies</title>
+<head th:insert="~{fragments/head :: head (pageTitle='Upcoming movies')}">
 </head>
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
