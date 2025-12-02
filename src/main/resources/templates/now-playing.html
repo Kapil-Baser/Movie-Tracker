@@ -1,18 +1,12 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Now Playing</title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, intial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="~{fragments/head :: head (pageTitle='Now Playing')}">
 </head>
-<body class="bg-gray-900">
+<body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="flex items-center justify-center bg-amber-500 pt-2">
-    <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5">
+<div class="flex items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2">
+    <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5 text-white">
         <div class="col-span-2 flex min-h-[50px] items-center rounded-lg shadow-xl">
             <div>
                 <div class="m-4 max-w-20 border-t pt-2"><p></p></div>
@@ -22,13 +16,36 @@
                 <div class="m-4 border-t-1"></div>
             </div>
         </div>
-        <div th:each="movie : ${movies}" class="max-w-47 rounded-xl p-0.5 shadow-xl">
-            <img th:src="${movie.posterPath}" class="rounded-xl" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg" />
+
+        <div th:replace="~{fragments/movie-card :: movie-card}">
+
+        </div>
+<!--        <div th:each="movie : ${nowPlayingMovies}" class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800">
+            <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}" class="rounded-xl" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg" alt=""/>
             <div class="p-1">
                 <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
-                <span th:text="${movie.releaseDate}" class="text-sm font-semibold">Nov 7, 2025</span>
+                <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
             </div>
-        </div>
+        </div>-->
+
+<!--        <div th:each="movie : ${nowPlayingMovies}"
+             class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800">
+
+            <div class="group relative rounded-xl overflow-hidden">
+                <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}"
+                     class="w-full h-auto block" alt="Poster">
+
+                <div class="absolute inset-0 bg-black/50 opacity-0
+                    group-hover:opacity-100 transition-opacity duration-300">
+                    &lt;!&ndash; Optional: icon, button, etc. &ndash;&gt;
+                </div>
+            </div>
+
+            <div class="p-1">
+                <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
+                <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
+            </div>
+        </div>-->
     </div>
 </div>
 </body>
