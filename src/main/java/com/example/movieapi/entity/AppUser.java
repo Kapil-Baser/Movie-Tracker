@@ -25,17 +25,17 @@ public class AppUser {
     @Column(nullable = false)
     private String password;
 
-    private boolean enable;
+    private boolean enabled;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    public AppUser(String username, String email, String password, boolean enable, Role role) {
+    public AppUser(String username, String email, String password, boolean enabled, Role role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
-        this.enable = enable;
+        this.enabled = enabled;
     }
 }
