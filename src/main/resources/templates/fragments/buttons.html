@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, intial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+            integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+
+    <!-- Confirmation prompt -->
+    <div th:fragment="confirmation-prompt" id="delete-confirmation" class="absolute right-4 bottom-2 text-white font-medium">
+        <p>Are you sure?</p>
+        <button class="bg-amber-900 px-2 rounded-md shadow-md m-0.5">YES</button>
+        <button hx:get="@{/collections/cancel-delete}"
+                hx-target="#delete-confirmation"
+                hx-swap="innerHTML"
+                class="bg-gray-700 px-2 rounded-md shadow-md hover:cursor-pointer">NO</button>
+    </div>
+
+<!-- Delete button   -->
+    <button th:fragment="delete-button" hx:get="@{/collections/delete-confirmation}" hx-target="#confirm-delete" hx-swap="innerHTML" id="delete-button" type="button"
+            class="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 bg-red-600
+                   hover:bg-red-700 text-white rounded-md px-1 border border-red-500 transition-colors duration-200 hover:cursor-pointer">
+        <span style="font-size: 16px; line-height: 1;">✕</span>
+    </button>
+
+    <!-- Favorite button-->
+    <button th:fragment="fav-button (movieId, isFavorited)"
+            sec:authorize="isAuthenticated()"
+            hx:post="@{/collections/favorites/{movie_id}(movie_id=${movieId})}"
+            hx-target="this"
+            hx-swap="outerHTML"
+            th:attr="hx-vals=${'{&quot;' + _csrf.parameterName + '&quot;:&quot;' + _csrf.token + '&quot;}'}"
+            type="button"
+            th:classappend="${isFavorited} ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'"
+            class="absolute top-2 right-2
+               rounded-md bg-none p-1.5 border border-emerald-600
+               text-center text-sm text-white transition-all shadow-sm
+               hover:shadow focus:bg-emerald-500 focus:shadow-none
+               active:bg-slate-700 hover:bg-emerald-700 active:shadow-none
+               disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+
+        <!-- Filled heart if favorited -->
+        <svg th:if="${isFavorited}"
+             xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 16 16"
+             fill="currentColor"
+             class="w-4 h-4 text-red-500">
+            <path d="M2 6.342a3.375 3.375 0 0 1 6-2.088 3.375 3.375 0 0 1 5.997 2.26c-.063 2.134-1.618 3.76-2.955 4.784a14.437 14.437 0 0 1-2.676 1.61c-.02.01-.038.017-.05.022l-.014.006-.004.002h-.002a.75.75 0 0 1-.592.001h-.002l-.004-.003-.015-.006a5.528 5.528 0 0 1-.232-.107 14.395 14.395 0 0 1-2.535-1.557C3.564 10.22 1.999 8.558 1.999 6.38L2 6.342Z" />
+        </svg>
+
+        <!-- Outline heart if not favorited -->
+        <svg th:unless="${isFavorited}"
+             xmlns="http://www.w3.org/2000/svg"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke-width="1.5"
+             stroke="currentColor"
+             class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+        </svg>
+    </button>
+
+<!--Favorite button with hx:vals-->
+<!--    <button sec:authorize="isAuthenticated()" hx:post="@{/collections/favorites/{movie_id}(movie_id=${movie.id})}" hx-target="#added" hx-swap="innerHTML" hx:vals="${ {_csrf.parameterName: _csrf.token } }"
+            type="button" class="absolute top-2 right-2
+                               opacity-0 group-hover:opacity-100
+                               pointer-events-none group-hover:pointer-events-auto
+                               rounded-md bg-none p-1.5 border border-emerald-600
+                               text-center text-sm text-white transition-all shadow-sm
+                               hover:shadow focus:bg-emerald-500 focus:shadow-none
+                               active:bg-slate-700 hover:bg-emerald-700 active:shadow-none
+                               disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+            <path
+                    d="M2 6.342a3.375 3.375 0 0 1 6-2.088 3.375 3.375 0 0 1 5.997 2.26c-.063 2.134-1.618 3.76-2.955 4.784a14.437 14.437 0 0 1-2.676 1.61c-.02.01-.038.017-.05.022l-.014.006-.004.002h-.002a.75.75 0 0 1-.592.001h-.002l-.004-.003-.015-.006a5.528 5.528 0 0 1-.232-.107 14.395 14.395 0 0 1-2.535-1.557C3.564 10.22 1.999 8.558 1.999 6.38L2 6.342Z" />
+        </svg>
+    </button>-->
+
+</body>
+</html>
