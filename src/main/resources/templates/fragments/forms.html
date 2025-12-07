@@ -1,0 +1,61 @@
+<div th:fragment="forgetPassword" class="sm:mx-auto sm:w-full sm:max-w-sm">
+
+    <section class="flex flex-col my-4 text-white space-y-2">
+        <span class="text-2xl font-semibold">Forgot Password?</span>
+        <p>Enter your email and we'll send you instructions to reset your password</p>
+    </section>
+
+    <form th:action="@{/auth/forgetPassSendMail}" th:object="${forgetPasswordDto}" method="POST" class="space-y-4">
+        <!--Form error messages-->
+        <div th:if="${#fields.hasErrors('email')}">
+            <div class="rounded-md bg-red-50 p-2">
+                <div class="flex justify-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 th:errors="*{email}" class="text-sm font-medium text-red-800">Invalid email</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Show when email has been sent-->
+        <div th:if="${forgetPassSuccess}">
+            <div class="rounded-md bg-emerald-600/80 p-2">
+                <div class="flex justify-center">
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 th:text="${forgetPassSuccess}" class="text-sm font-medium text-white">Email sent successfully.</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label for="userEmail" class="block text-sm/6 font-medium text-gray-100">Email address*</label>
+            <div class="mt-2">
+                <!--TODO: change type="text" back to "email" after testing-->
+                <input id="userEmail" type="text" th:field="*{email}" required autocomplete="email"
+                       class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-500 sm:text-sm/6" />
+            </div>
+        </div>
+
+        <div>
+            <button type="submit"
+                    class="flex w-full justify-center rounded-md bg-amber-900 px-3 py-1.5 text-sm/6
+                     font-semibold text-white hover:bg-amber-800 transition-all duration-300 cursor-pointer">Send</button>
+        </div>
+    </form>
+    <div class="flex justify-center mt-4">
+        <a th:href=@{/auth/login} class="font-semibold text-blue-500 cursor-pointer hover:underline underline-offset-6">Back to login</a>
+    </div>
+</div>
