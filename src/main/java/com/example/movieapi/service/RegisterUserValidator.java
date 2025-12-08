@@ -27,7 +27,7 @@ public class RegisterUserValidator implements Validator {
         }
 
         // Checking for email
-        if (userService.loadUserByEmail(userDto.getEmail()).isPresent()) {
+        if (userService.existsByEmail(userDto.getEmail())) {
             errors.rejectValue("email", "email.exists", "An account with this email already exists");
         }
     }
