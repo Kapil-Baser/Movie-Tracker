@@ -1,0 +1,54 @@
+<div th:fragment="successAlert (alertMessage)" th:if="${alertMessage}" role="alert" class="my-3 flex w-full flex-col rounded-md bg-emerald-700/80 p-3 text-sm text-white">
+    <p class="flex text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="mt-0.5 mr-2 h-5 w-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path>
+        </svg>
+        Success
+    </p>
+    <section class="ml-4 p-3 leading-tight">
+        <p th:text="${alertMessage}">Password changed successfully!
+        Please log in again with your new password.</p>
+    </section>
+    <!-- Inline handling of the onclick event to hide the parent div -->
+    <button hx-on:click="this.closest('[role=alert]').classList.add('hidden')" class="absolute top-1.5 right-1.5 flex h-8 w-8 items-center justify-center rounded-md text-white transition-all hover:cursor-pointer hover:bg-white/10 active:bg-white/10" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+    </button>
+</div>
+
+<!--Alert for any email related errors-->
+<!--TODO: Make this fragment more generic-->
+<div th:fragment="email-error-alert" th:if="${#fields.hasErrors('email')}">
+    <div class="rounded-md bg-red-50 p-2 my-4">
+        <div class="flex justify-center">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                          clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 th:errors="*{email}" class="text-sm font-medium text-red-800">Invalid email</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Show when email has been sent-->
+<div th:fragment="success-alert (successType)" th:if="${successType}">
+    <div class="rounded-md bg-emerald-600/80 p-2 my-4">
+        <div class="flex justify-center">
+            <div class="flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 th:text="${successType}" class="text-sm font-medium text-white">Email sent successfully.</h3>
+            </div>
+        </div>
+    </div>
+</div>
