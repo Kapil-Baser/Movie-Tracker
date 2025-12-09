@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="~{fragments/head :: head (pageTitle='Search results')}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2 min-h-screen">
+    <div class="flex items-start justify-center px-4 py-8 sm:px-8 md:px-16 lg:px-32 xl:px-40">
+        <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
+            <div th:each="movie : ${movies}" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl">
+                <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w154' + ${movie.posterPath}" src="http://image.tmdb.org/t/p/w154/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg" alt=""/>
+                <div class="space-y-2 px-4 flex-1 min-w-0">
+                    <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
+                    <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
+                        <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
+                    </div>
+                    <div class="space-x-4">
+                        <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
+                        <span class="text-sm font-semibold text-white">2h 24min</span>
+                    </div>
+                    <div class="rounded-lg bg-emerald-950/50 p-2">
+                        <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Empty/Paging State -->
+            <div  th:if="${#lists.isEmpty(movies)}" class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
+                <p>No movies found 😔</p>
+                <p class="text-sm mt-2 text-gray-400">Try searching or filtering!</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
