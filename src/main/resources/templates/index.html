@@ -1,16 +1,13 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-        lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Movies of Week [[${week}]]</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="~{fragments/head :: head (pageTitle='Reset password') }">
 </head>
 <body>
-    <div th:replace="~{fragments/navbar :: navbar}">
+<div class="min-h-screen grid grid-rows-[auto_1fr] bg-gradient-to-br from-emerald-950 via-emerald-800 to-emerald-950">
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <div class="flex flex-col justify-center p-4">
 
     </div>
-
+</div>
 </body>
 </html>
