@@ -33,4 +33,13 @@ public class AuthenticatedUser implements UserDetails {
     public String getUsername() {
         return user.getUsername();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
 }
