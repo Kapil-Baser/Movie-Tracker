@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:insert="~{fragments/head :: head (pageTitle='Verify Email') }">
+</head>
+<body>
+<div class="min-h-screen grid grid-rows-[auto_1fr] bg-gradient-to-br from-emerald-950 via-emerald-800 to-emerald-950">
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <div class="flex flex-col justify-center">
+        <!-- Verification token expired -->
+        <div class="flex justify-center">
+            <div
+                    class="min-w-[310px] border-emerald-700 border-2 rounded-lg shadow-lg p-4 text-white bg-gradient-to-br from-emerald-900 via-emerald-800/5 to-emerald-900">
+                <div class="flex justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                         class="w-12 h-10 text-red-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="text-center mb-4 text-2xl font-semibold">
+                    <h3 th:text="${errorMessage}">Verification Token Expired</h3>
+                </div>
+                <div class="text-center">
+                    <p>You can request a new token.</p>
+                </div>
+                <form th:action="@{/auth/resendToken}" th:object="${userEmailDto}" method="POST">
+                    <div th:replace="~{fragments/alerts :: email-error-alert}"></div>
+                    <div>
+                        <div class="mt-2 pb-2">
+                            <!--TODO: change type="text" back to "email" after testing-->
+                            <input id="userEmail" type="text" th:field="*{email}" required autocomplete="email"
+                                   placeholder="Enter your email"
+                                   class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-500 sm:text-sm/6" />
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit"
+                                class="flex w-full justify-center rounded-md bg-amber-900 px-3 py-1.5 text-sm/6
+                                 font-semibold text-white hover:bg-amber-800 transition-all duration-300 cursor-pointer">Resend</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
