@@ -12,10 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -65,5 +64,42 @@ public class MovieMapper {
                                 .collect(Collectors.toSet()))
                         .build()
                 ).toList();
+    }
+
+
+    public List<MovieDto> toMovieDto(Set<Movie> movies) {
+        return movies.stream()
+                .map(movie -> MovieDto.builder()
+                        .id(movie.getId())
+                        .title(movie.getTitle())
+                        .overview(movie.getOverview())
+                        .backdropPath(movie.getBackdropPath())
+                        .posterPath(movie.getPosterPath())
+                        .usDigitalReleaseDate(String.valueOf(movie.getUsDigitalDate()))
+                        .releaseDate(movie.getReleaseDate()
+                                .format(DateTimeFormatter
+                                        .ofPattern("MMM d, yyyy", Locale.ENGLISH)))
+                        .genres(movie.getGenres().stream()
+                                .map(Genre::getName)
+                                .collect(Collectors.toSet()))
+                        .build()
+                ).toList();
+    }
+
+    public MovieDto toMovieDto (Movie movie) {
+        return MovieDto.builder()
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .overview(movie.getOverview())
+                .backdropPath(movie.getBackdropPath())
+                .posterPath(movie.getPosterPath())
+                .usDigitalReleaseDate(String.valueOf(movie.getUsDigitalDate()))
+                .releaseDate(movie.getReleaseDate()
+                        .format(DateTimeFormatter
+                                .ofPattern("MMM d, yyyy", Locale.ENGLISH)))
+                .genres(movie.getGenres().stream()
+                        .map(Genre::getName)
+                        .collect(Collectors.toSet()))
+                .build();
     }
 }
