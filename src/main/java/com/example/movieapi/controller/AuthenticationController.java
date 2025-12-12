@@ -17,6 +17,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Controller
 @RequestMapping("/auth")
 @Slf4j
@@ -25,15 +28,17 @@ public class AuthenticationController {
     private final UserService userService;
     private final TokenService tokenService;
     private final PasswordResetTokenService passwordResetTokenService;
+    private final ResetPasswordValidator resetPasswordValidator;
     private final ApplicationEventPublisher eventPublisher;
     private static final String REGISTRATION_PAGE = "register";
     private static final String FORGET_PASSWORD_PAGE = "forget-password";
 
     @Autowired
-    public AuthenticationController(UserService userService, TokenService tokenService, PasswordResetTokenService passwordResetTokenService, ApplicationEventPublisher eventPublisher) {
+    public AuthenticationController(UserService userService, TokenService tokenService, PasswordResetTokenService passwordResetTokenService, ResetPasswordValidator resetPasswordValidator, ApplicationEventPublisher eventPublisher) {
         this.userService = userService;
         this.tokenService = tokenService;
         this.passwordResetTokenService = passwordResetTokenService;
+        this.resetPasswordValidator = resetPasswordValidator;
         this.eventPublisher = eventPublisher;
     }
 
@@ -82,11 +87,8 @@ public class AuthenticationController {
 
     @GetMapping("/resetPassword")
     public String passwordResetPage(@RequestParam("token") String token,
-                                    @Valid @ModelAttribute("passwordResetDto") ResetPasswordDto dto,
-                                    BindingResult result,
                                     RedirectAttributes redirectAttributes,
                                     Model model) {
-        // TODO: validate password dto
         try {
             passwordResetTokenService.validateToken(token);
 
@@ -96,11 +98,28 @@ public class AuthenticationController {
 
             return "redirect:/auth/login";
         }
-        if (result.hasErrors()) {
-            return "reset-token-error";
-        }
-        // Validate the token
 
-        return "reset-token-error";
+        ResetPasswordDto dto = new ResetPasswordDto();
+        dto.setToken(token);
+        model.addAttribute("passwordResetDto", dto);
+        return "reset-password";
+    }
+
+    @PostMapping("/processResetPassword")
+    public String resetPassword(@Valid @ModelAttribute("passwordResetDto") ResetPasswordDto dto,
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes) {
+
+        resetPasswordValidator.validate(dto, result);
+        if (result.hasErrors()) {
+            return "reset-password";
+        }
+        // get the user who is requesting the password reset
+        AppUser user = passwordResetTokenService.getUser(dto.getToken());
+        userService.resetPassword(user, dto.getNewPassword());
+
+        RedirectInfo redirectInfo = new RedirectInfo("Success", "Your password has been changed successfully, you can login now using your new password.");
+        redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
+        return "redirect:/auth/login";
     }
 }
