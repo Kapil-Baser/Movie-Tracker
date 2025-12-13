@@ -1,13 +1,23 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.mapper.MovieMapper;
+import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
+import com.example.movieapi.repository.MoviesRepository;
+import com.example.movieapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,11 +28,17 @@ public class MovieCollectionService {
 
     private final CollectionRepository collectionRepository;
     private final MovieMapper movieMapper;
+    private final UserRepository userRepository;
+    private final MovieService movieService;
+    private final MoviesRepository moviesRepository;
 
     @Autowired
-    public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper) {
+    public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository) {
         this.collectionRepository = collectionRepository;
         this.movieMapper = movieMapper;
+        this.userRepository = userRepository;
+        this.movieService = movieService;
+        this.moviesRepository = moviesRepository;
     }
 
     @Transactional
@@ -48,10 +64,135 @@ public class MovieCollectionService {
                 });
     }
 
+    public List<MovieCollection> getAllUserCollection(Authentication auth) {
+        AppUser user = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+
+        return collectionRepository.findByOwnerId(user.getId());
+    }
+
+    public int getCollectionCount(AuthenticatedUser authenticatedUser) {
+        return collectionRepository.findNumberOfCollectionsByOwnerId(authenticatedUser.getUser().getId());
+    }
+
     public List<MovieDto> getAllMoviesFromCollection(String name) {
         return collectionRepository.findByName(name)
                 .map(collection -> collection.getMovies().stream().toList())
                 .map(movieMapper::toMovieDto)
                 .orElse(new ArrayList<>());
+    }
+
+    public MovieCollection createUserCollection(AppUser user, String name) {
+        MovieCollection collection = new MovieCollection();
+        collection.setName(name);
+        collection.setOwner(user);
+        return collectionRepository.save(collection);
+    }
+
+    public MovieCollection addMoviesToUserCollection(Authentication auth, Long movieId, String collectionName) {
+
+        AppUser user = getCurrentUser(auth);
+        Movie movie = movieService.getMovieById(movieId);
+        MovieCollection collection = collectionRepository.findByOwnerIdAndName(user.getId(), collectionName)
+                .orElseGet(() -> createUserCollection(user, collectionName));
+
+        if (collection.getMovies().contains(movie)) {
+            throw new IllegalArgumentException("Movie already in collection");
+        }
+
+        collection.addMovie(movie);
+        return collectionRepository.save(collection);
+    }
+
+    private AppUser getCurrentUser(Authentication auth) {
+        String username = auth.getName();
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public boolean nameExists(String name, Long userId) {
+        return collectionRepository.existsByNameAndOwnerId(name, userId);
+    }
+
+    @Transactional
+    public MovieCollection getFavoritesCollection(AppUser user) {
+
+        return collectionRepository.findByOwnerIdAndName(user.getId(), "Favorites")
+                .orElseGet(() -> {
+                    log.info("Creating favorites collection for user: {}", user.getUsername());
+                    return createUserCollection(user, "Favorites");
+                });
+    }
+
+    @Transactional
+    public MovieCollection addMovieToFavorites(AuthenticatedUser authenticatedUser, Long movieId) {
+        AppUser user = authenticatedUser.getUser();
+        Movie movie = movieService.getMovieById(movieId);
+
+        MovieCollection favoritesMoviesCollection = getFavoritesCollection(user);
+
+        favoritesMoviesCollection.addMovie(movie);
+
+        return collectionRepository.save(favoritesMoviesCollection);
+    }
+
+    @Transactional
+    public boolean toggleFavorite(AuthenticatedUser authenticatedUser, Long movieId) {
+        AppUser user = authenticatedUser.getUser();
+
+        Movie existing = movieService.getMovieById(movieId);
+
+        MovieCollection favoritesMoviesCollection = getFavoritesCollection(user);
+
+        if (favoritesMoviesCollection.containsMovieWithId(movieId)) {
+            // Remove the movie
+            favoritesMoviesCollection.removeMovie(existing);
+            collectionRepository.save(favoritesMoviesCollection);
+            return false; // Not favorited anymore
+        } else {
+            favoritesMoviesCollection.addMovie(existing);
+            collectionRepository.save(favoritesMoviesCollection);
+            return true; // Now favorited
+        }
+    }
+
+    /**
+     * Get all favorited movie IDs for a user
+     * if no movies exists then return empty set instead of null
+     */
+    public Set<Long> getFavoritedMovieIds(AppUser user) {
+        Set<Long> movieIds = collectionRepository
+                .findAllMovieIdsByOwnerAndName(user, "Favorites");
+
+        return movieIds != null ? movieIds : Collections.emptySet();
+    }
+
+    /**
+     * Helper method to get a collection given a collection id and user who owns the collection
+     * @param collectionId id of collection to obtain
+     * @param user user who owns the collection
+     * @return collection owned by given user and collection id
+     */
+/*    private MovieCollection getCollectionByIdAndOwner(Long collectionId, AppUser user) {
+
+        return collectionRepository.findByIdAndOwner(collectionId, user)
+                .orElseThrow(() -> new RuntimeException("Collection not found with id: " + collectionId));
+
+    }*/
+
+/*    public List<MovieDto> getAllMoviesFromCollection(Long collectionId, AuthenticatedUser authenticatedUser) {
+        // First we get the collection
+        MovieCollection collection = getCollectionByIdAndOwner(collectionId, authenticatedUser.getUser());
+
+        // Get the list of movies in collection
+        Set<Movie> movies = collection.getMovies();
+
+        // Convert the movie list to movie dto
+        return movieMapper.toMovieDto(movies);
+    }*/
+
+    public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionId(collectionId, pageable);
+        return moviesPage.map(movieMapper::toMovieDto);
     }
 }
