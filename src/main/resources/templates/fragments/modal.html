@@ -1,0 +1,109 @@
+<!-- FORM START -->
+<form th:fragment="deactivate-form" hx:post="@{/user/deactivate-account}" hx-target="this" hx-swap="outerHTML" method="POST"
+      th:object="${userPasswordDto}" th:action="@{/deactivate-account}">
+
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+    <div class="bg-emerald-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+            <div
+                    class="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-500/30 sm:mx-0 sm:size-10">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
+                     class="size-6 text-red-400">
+                    <path
+                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                <h3 id="dialog-title" class="text-base font-semibold text-white">
+                    Deactivate account
+                </h3>
+
+                <p class="mt-2 text-sm text-gray-400">
+                    Are you sure you want to deactivate your account? All of your
+                    data will be permanently removed. This action cannot be undone.
+                </p>
+
+                <!-- PASSWORD INPUT -->
+                <div class="mt-4">
+                    <label for="current_password" class="block text-sm font-medium text-gray-300">
+                        Current password
+                    </label>
+                    <input id="current_password" th:field="*{currentPassword}" type="password" required
+                           class="mt-1 block w-full rounded-md bg-gray-600/5 border border-white/10 px-3 py-2 text-white shadow-sm focus:border-red-500 focus:ring focus:ring-red-500/30 sm:text-sm" />
+                </div>
+                <div th:if="${#fields.hasErrors('currentPassword')}" class="mt-2 text-sm text-red-400"
+                     th:errors="*{currentPassword}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="bg-emerald-900 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+        <button type="submit"
+                class="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto">
+            Deactivate
+        </button>
+
+        <button type="button" popovertarget="deactivate-modal" popovertargetaction="hide"
+                class="mt-3 inline-flex w-full justify-center rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white inset-ring inset-ring-white/5 hover:bg-white/20 sm:mt-0 sm:w-auto">
+            Cancel
+        </button>
+    </div>
+</form>
+<!-- FORM END -->
+
+<!--Modal HTML Fragment with hyperscript and htmx-->
+<div th:fragment="movie-collection-form" id="modal" class="fixed inset-0 z-50 flex items-start justify-center bg-black/50" _="on closeModal remove me">
+    <!-- Overlay / click outside -->
+    <div class="absolute inset-0" _="on click trigger closeModal"></div>
+
+    <!-- Modal content -->
+    <div class="relative mt-[10vh] w-full max-w-md rounded-lg bg-emerald-800 p-4 text-white shadow-xl">
+
+        <button
+                class="absolute right-3 top-3 cursor-pointer
+                        p-1 text-red-500"
+                _="on click trigger closeModal"
+        aria-label="Close modal"
+        type="button"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             class="h-6 w-6">
+            <path fill-rule="evenodd"
+                  d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                  clip-rule="evenodd" />
+        </svg>
+        </button>
+
+
+
+        <!-- Movie collection form -->
+        <form th:action="@{/user/collections/add-movie}" th:object="${selectedCollection}" method="POST">
+            <span class="mb-4 text-lg font-semibold" th:text="|Add '*{selectedMovieTitle}' to collection|">Add movie to collection</span>
+            <!-- Hidden field to carry the movieId -->
+            <input type="hidden" th:field="*{selectedMovieId}" />
+
+            <label for="collectionSelect" class="sr-only">Underline select</label>
+            <select id="collectionSelect" th:field="*{selectedCollectionId}" class="lock w-full appearance-none
+                     border-0 border-b-2 border-emerald-400
+                     py-2 text-sm bg-emerald-800
+                     focus:border-emerald-500 focus:outline-none focus:ring-0">
+                <option value="">Choose a collection</option>
+                <!-- Iterate over the list sent from the controller -->
+                <option th:each="col : ${userCollections}" th:value="${col.id}" th:text="${col.name}">
+
+                </option>
+            </select>
+            <div class="flex justify-end mt-4">
+                <button class="cursor-pointer rounded-md bg-amber-900 px-3 py-1 text-sm/6 font-semibold text-white transition-all duration-300 hover:bg-amber-800"
+                        type="submit">ADD</button>
+            </div>
+        </form>
+    </div>
+</div>
