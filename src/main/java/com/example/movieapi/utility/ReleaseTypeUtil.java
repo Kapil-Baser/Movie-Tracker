@@ -10,6 +10,8 @@ public class ReleaseTypeUtil {
     public static final int PHYSICAL = 5;
     public static final int TV = 6;
 
+    private ReleaseTypeUtil() {}
+
     public static String getReleaseTypeName(int type) {
         switch (type) {
             case PREMIERE -> {
