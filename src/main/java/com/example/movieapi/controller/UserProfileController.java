@@ -1,6 +1,8 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.ChangePasswordDto;
+import com.example.movieapi.dto.RedirectInfo;
+import com.example.movieapi.dto.UserPasswordDto;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.ChangePasswordValidator;
 import com.example.movieapi.service.MovieCollectionService;
@@ -92,5 +94,29 @@ public class UserProfileController {
         return "redirect:htmx:/auth/login";
     }
 
+    @GetMapping("/deactivate-modal")
+    public String showDeactivateModal(@ModelAttribute("userPasswordDto") UserPasswordDto dto) {
+        return "fragments/modal :: deactivate-form";
+    }
 
+    @PostMapping("/deactivate-account")
+    public String deactivateUser(@ModelAttribute("userPasswordDto") UserPasswordDto dto,
+                                 BindingResult result,
+                                 @AuthenticationPrincipal AuthenticatedUser user,
+                                 HttpServletRequest request,
+                                 RedirectAttributes redirectAttributes) {
+
+        if(result.hasErrors() || !userService.isValidPassword(user.getUser(), dto.currentPassword())) {
+            result.rejectValue("currentPassword", "password.incorrect", "Current password is incorrect");
+            return "fragments/modal :: deactivate-form";
+        }
+        // Disable the user account and invalidate the session
+        //userService.deactivateUser(user);
+        userService.performLogout(request);
+
+        RedirectInfo redirectInfo = new RedirectInfo("Success", "Your account has been disabled as per your request.");
+        redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
+
+        return "redirect:htmx:/auth/login";
+    }
 }
