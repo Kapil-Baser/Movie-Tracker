@@ -1,6 +1,7 @@
 package com.example.movieapi.configuration;
 
 import com.example.movieapi.exception.CustomAuthenticationFailureHandler;
+import com.example.movieapi.filters.CsrfLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -22,6 +24,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .httpBasic(Customizer.withDefaults())
+                .addFilterAfter(new CsrfLoggingFilter(), CsrfFilter.class)
                 .formLogin(httpForm -> httpForm
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
