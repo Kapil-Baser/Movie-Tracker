@@ -24,7 +24,7 @@
     <div sec:authorize="isAnonymous()">
         <div class="flex">
             <a th:href="@{/auth/login}" class="rounded-md bg-amber-900 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-amber-800 focus:shadow-none active:bg-amber-800 hover:bg-amber-800 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2">Log in</a>
-            <a th:href="@{/auth/register}" class="rounded-md bg-amber-900 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-amber-800 focus:shadow-none active:bg-amber-800 hover:bg-amber-800 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2">Register</a>
+            <a th:href="@{/register}" class="rounded-md bg-amber-900 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-amber-800 focus:shadow-none active:bg-amber-800 hover:bg-amber-800 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2">Register</a>
         </div>
     </div>
 
@@ -32,7 +32,7 @@
     <!-- Show only when logged in -->
     <div sec:authorize="isAuthenticated()">
         <div class="dropdown relative inline-flex mr-4">
-            <button type="button" data-target="dropdown-with-header" class="dropdown-toggle dropdown-menu hidden inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-amber-900 px-4 py-2 text-center text-sm font-semibold text-white shadow-xs transition-all duration-500 hover:bg-amber-800">
+            <button type="button" data-target="dropdown-with-header" class="dropdown-toggle dropdown-menu inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-amber-900 px-4 py-2 text-center text-sm font-semibold text-white shadow-xs transition-all duration-500 hover:bg-amber-800">
                 <div class="block">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.3331 5.83333C13.3331 7.67428 11.8407 9.16667 9.99976 9.16667C8.15881 9.16667 6.66642 7.67428 6.66642 5.83333C6.66642 3.99238 8.15881 2.5 9.99976 2.5C11.8407 2.5 13.3331 3.99238 13.3331 5.83333Z" stroke="black" stroke-width="1.6" />
@@ -50,7 +50,7 @@
                         <a th:href="@{/collections}" class="block px-6 py-2 font-medium text-gray-900 hover:text-indigo-600" href="javascript:;"> My Lists </a>
                     </li>
                     <li>
-                        <a class="block px-6 py-2 font-medium text-gray-900 hover:text-indigo-600" href="javascript:;"> Settings </a>
+                        <a th:href="@{/user/profile}" class="block px-6 py-2 font-medium text-gray-900 hover:text-indigo-600"> Settings </a>
                     </li>
                 </ul>
                 <div class="py-2">
