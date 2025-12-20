@@ -49,5 +49,18 @@
                 </div>
             </div>
         </div>
+
+        <dialog id="deactivate-modal" popover="auto"
+             class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[26rem] max-w-full rounded-lg text-white shadow-xl border-emerald-400/50 border-opacity-20 border-1">
+            <!-- Form for taking in user password to confirm -->
+            <div id="deactivate-dialog-form"></div>
+        </dialog>
+
+        <div class="flex justify-end mt-auto pt-8">
+            <button hx-get="/user/deactivate-modal" hx-target="#deactivate-dialog-form" hx-swap="innerHTML"
+                    popovertarget="deactivate-modal"
+                    class="rounded-md bg-red-800 px-2.5 py-1.5 text-sm font-semibold text-white inset-ring inset-ring-white/5 hover:bg-red-700">Deactivate
+                Account</button>
+        </div>
     </div>
 </div>
