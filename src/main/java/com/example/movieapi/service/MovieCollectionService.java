@@ -31,6 +31,8 @@ public class MovieCollectionService {
     private final UserRepository userRepository;
     private final MovieService movieService;
     private final MoviesRepository moviesRepository;
+    private static final String WATCHED = "Watched";
+    private static final String FAVORITES = "Favorites";
 
     @Autowired
     public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository) {
@@ -64,10 +66,22 @@ public class MovieCollectionService {
                 });
     }
 
+    private MovieCollection getOrCreateCollection(AppUser user, String name) {
+        return collectionRepository.findByOwnerIdAndName(user.getId(), name)
+                .orElseGet(() -> {
+                    log.info("Creating {} collection for user: {}", name, user.getUsername());
+                    return createUserCollection(user, name);
+                });
+    }
+
     public List<MovieCollection> getAllUserCollection(Authentication auth) {
         AppUser user = userRepository.findByUsername(auth.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
 
+        return collectionRepository.findByOwnerId(user.getId());
+    }
+
+    public List<MovieCollection> getAllUserCollection(AppUser user) {
         return collectionRepository.findByOwnerId(user.getId());
     }
 
@@ -116,10 +130,10 @@ public class MovieCollectionService {
     @Transactional
     public MovieCollection getFavoritesCollection(AppUser user) {
 
-        return collectionRepository.findByOwnerIdAndName(user.getId(), "Favorites")
+        return collectionRepository.findByOwnerIdAndName(user.getId(), FAVORITES)
                 .orElseGet(() -> {
                     log.info("Creating favorites collection for user: {}", user.getUsername());
-                    return createUserCollection(user, "Favorites");
+                    return createUserCollection(user, FAVORITES);
                 });
     }
 
@@ -140,9 +154,10 @@ public class MovieCollectionService {
         AppUser user = authenticatedUser.getUser();
 
         Movie existing = movieService.getMovieById(movieId);
-
+        // TODO: use getOrCreateCollection method instead
         MovieCollection favoritesMoviesCollection = getFavoritesCollection(user);
 
+        // TODO: Change the condition to make only one save repo call
         if (favoritesMoviesCollection.containsMovieWithId(movieId)) {
             // Remove the movie
             favoritesMoviesCollection.removeMovie(existing);
@@ -155,13 +170,44 @@ public class MovieCollectionService {
         }
     }
 
+    public boolean toggleWatched(AuthenticatedUser authenticatedUser, Long movieId) {
+        AppUser user = authenticatedUser.getUser();
+
+        Movie existing = movieService.getMovieById(movieId);
+
+        MovieCollection watchedMovies = getOrCreateCollection(user, WATCHED);
+
+        boolean isWatched = watchedMovies.containsMovieWithId(movieId);
+
+        if (isWatched) {
+            watchedMovies.removeMovie(existing);
+        } else {
+            watchedMovies.addMovie(existing);
+        }
+        collectionRepository.save(watchedMovies);
+
+        return !isWatched;
+    }
+
     /**
      * Get all favorited movie IDs for a user
      * if no movies exists then return empty set instead of null
      */
     public Set<Long> getFavoritedMovieIds(AppUser user) {
         Set<Long> movieIds = collectionRepository
-                .findAllMovieIdsByOwnerAndName(user, "Favorites");
+                .findAllMovieIdsByOwnerAndName(user, FAVORITES);
+
+        return movieIds != null ? movieIds : Collections.emptySet();
+    }
+
+    /**
+     * Get all the movie ids watched by the user
+     * @param user the user to inquiry
+     * @return set of already watched movie ids
+     */
+    public Set<Long> getWatchedMovieIds(AppUser user) {
+        Set<Long> movieIds = collectionRepository
+                .findAllMovieIdsByOwnerAndName(user, WATCHED);
 
         return movieIds != null ? movieIds : Collections.emptySet();
     }
