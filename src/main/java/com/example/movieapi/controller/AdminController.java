@@ -3,6 +3,7 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.service.MovieSyncService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,11 @@ public class AdminController {
 
     public AdminController(MovieSyncService movieSyncService) {
         this.movieSyncService = movieSyncService;
+    }
+
+    @GetMapping
+    public String getToken() {
+        return "token";
     }
 
 
