@@ -1,10 +1,11 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.RegisterUserDto;
-import com.example.movieapi.service.RegisterUserValidator;
+import com.example.movieapi.service.validator.RegisterUserValidator;
 import com.example.movieapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ public class RegistrationController {
     private final UserService userService;
     private static final String REGISTRATION_PAGE = "register";
 
+    @Autowired
     public RegistrationController(RegisterUserValidator userValidator, UserService userService) {
         this.userValidator = userValidator;
         this.userService = userService;
@@ -52,12 +54,11 @@ public class RegistrationController {
         }
 
         try {
-
             userService.registerUser(userDto);
             log.info("User successfully registered: {}", userDto.getUsername());
 
             return "register-success";
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
 
             log.warn("Exception: {}", e.getMessage());
             model.addAttribute("error", "Registration failed. Please try again.");
