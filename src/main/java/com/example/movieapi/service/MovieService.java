@@ -14,6 +14,7 @@ import com.example.movieapi.utility.ReleaseTypeUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -32,7 +33,7 @@ public class MovieService {
     private final MoviesRepository moviesRepository;
 
     @Autowired
-    public MovieService(TmdbApiClient apiClient, RestClient client, MovieMapper movieMapper, GenresRepository genresRepository, MoviesRepository moviesRepository) {
+    public MovieService(TmdbApiClient apiClient, @Qualifier("tmdbServiceClient") RestClient client, MovieMapper movieMapper, GenresRepository genresRepository, MoviesRepository moviesRepository) {
         this.apiClient = apiClient;
         this.client = client;
         this.movieMapper = movieMapper;
