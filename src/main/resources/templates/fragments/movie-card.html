@@ -5,10 +5,24 @@
         <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}"
              class="w-full h-full block" alt="Poster">
 
-        <div class="absolute inset-0 bg-black/50 opacity-0
+        <div sec:authorize="isAuthenticated()" class="absolute inset-0 bg-black/50 opacity-0
                     group-hover:opacity-100 transition-opacity duration-300">
-            <!-- Optional: icon, button, etc. -->
         </div>
+        <!-- Include favorite button fragment -->
+        <th:block sec:authorize="isAuthenticated()"
+                  th:replace="~{fragments/buttons :: fav-button(
+                                movieId=${movie.id},
+                                isFavorited=${#sets.contains(favoritedMovieIds, movie.id)})}">
+        </th:block>
+        <!-- Include watched button fragment -->
+        <th:block sec:authorize="isAuthenticated()"
+                  th:replace="~{fragments/buttons :: watched-button(movieId = ${movie.id}, isWatched = ${#sets.contains(watchedMovieIds, movie.id)})}">
+
+        </th:block>
+
+        <th:block th:replace="~{fragments/buttons :: movie-options(movieId=${movie.id}, movieTitle=${movie.title})}">
+
+        </th:block>
     </div>
 
     <div class="p-1">
