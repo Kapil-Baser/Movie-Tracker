@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:insert="~{fragments/head :: head (pageTitle='Watched history')}">
+</head>
+<body>
+
+<div class="min-h-screen grid grid-rows-[auto_1fr] bg-gradient-to-br from-emerald-950 via-emerald-800 to-emerald-950">
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <div class="flex items-start justify-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40">
+        <div class="p-4">
+            <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
+                <th:block th:each="historyMap : ${movieHistoryMap}">
+                    <div class="mb-4">
+                        <p th:text="${#temporals.format(historyMap.key, 'MMM dd, yyyy')}" class="text-sm font-semibold text-white mb-2"></p>
+                        <div class="bg-emerald-700 flex flex-col items-center rounded-md p-2 space-y-2">
+                            <div th:each="watchedMovie : ${historyMap.value}" class="flex rounded-2xl bg-emerald-800 p-2 shadow-xl w-full">
+                                <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w92' + ${watchedMovie.posterPath}" alt="" />
+                                <div class="flex px-4 w-full justify-between">
+                                    <div class="space-y-2">
+                                        <p th:text="${watchedMovie.title}" class="text-2xl text-emerald-200 font-bold">The Lost Princess</p>
+                                        <div class="space-x-2 text-emerald-400 font-semibold">
+                                            <span th:each="genre : ${watchedMovie.genres}" class="inline-block" th:text="${genre}">Action</span>
+                                        </div>
+                                        <div class="space-x-2 text-sm font-thin text-white">
+                                            <span th:text="${watchedMovie.releaseDate}">Oct 16, 2025</span>
+                                            <span th:text="${watchedMovie.runtime}">2h 24min</span>
+                                            <span th:text="${watchedMovie.certification}">TV-PG</span>
+                                        </div>
+                                        <div class="flex space-x-1 items-center text-white font-thin text-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+                                                 class="size-4 fill-yellow-300">
+                                                <path fill-rule="evenodd"
+                                                      d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L7.998 12.08l-3.135 1.915a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z"
+                                                      clip-rule="evenodd" />
+                                            </svg>
+                                            <span th:text="${watchedMovie.rating}">7.8</span>
+                                            <span th:text="|(${watchedMovie.votes})|">(2.6K)</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-white group self-center">
+                                        <button
+                                                class="flex items-center bg-transparent inset-0 ring-1 ring-emerald-500 rounded-lg px-1.5 py-1 shadow-lg hover:bg-emerald-500/20 group transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                                 class="size-4 mr-1 group-hover:fill-emerald-300">
+                                                <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                                                <path fill-rule="evenodd"
+                                                      d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+                                                      clip-rule="evenodd" />
+                                            </svg>
+                                            <span>Mark as unwatched</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
