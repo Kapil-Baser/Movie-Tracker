@@ -1,12 +1,13 @@
-package com.example.movieapi.service;
+package com.example.movieapi.service.validator;
 
 import com.example.movieapi.dto.RegisterUserDto;
+import com.example.movieapi.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class RegisterUserValidator implements Validator {
 
