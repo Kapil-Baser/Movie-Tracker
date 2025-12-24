@@ -6,35 +6,28 @@ import com.example.movieapi.repository.ConfirmationTokenRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class TokenService {
 
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final EmailVerificationService emailVerificationService;
     private final ConfirmationTokenRepository tokenRepository;
 
-    public TokenService(ConfirmationTokenRepository tokenRepository) {
+    public TokenService(PasswordResetTokenService passwordResetTokenService, EmailVerificationService emailVerificationService, ConfirmationTokenRepository tokenRepository) {
+        this.passwordResetTokenService = passwordResetTokenService;
+        this.emailVerificationService = emailVerificationService;
         this.tokenRepository = tokenRepository;
     }
 
-    public Optional<ConfirmationToken> findByToken(String token) {
-        return tokenRepository.findByToken(token);
+    public ConfirmationToken findByUser(AppUser user) {
+        return tokenRepository.findByUser(user).orElseThrow(() -> new IllegalArgumentException("Confirmation token not found"));
     }
 
     public ConfirmationToken save(ConfirmationToken token) {
         return tokenRepository.save(token);
     }
 
-    public ConfirmationToken generateConfirmationToken(AppUser user) {
-        ConfirmationToken token = new ConfirmationToken();
-        token.setToken(UUID.randomUUID().toString());
-        token.setCreatedAt(LocalDateTime.now());
-        token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
-        token.setUser(user);
-
-        return tokenRepository.save(token);
-    }
 
     private boolean isExpired(ConfirmationToken token) {
         return token.getExpiresAt().isBefore(LocalDateTime.now());
@@ -45,23 +38,15 @@ public class TokenService {
         return confirmedAt != null;
     }
 
-    public void confirmToken(String token) {
-
-        ConfirmationToken confirmationToken = findByToken(token)
-                .orElseThrow(() -> new IllegalStateException("Invalid token"));
-
-        if (isVerified(confirmationToken)) {
-            throw new IllegalStateException("User is already verified");
-        }
-
-        if (isExpired(confirmationToken)) {
-            throw new IllegalStateException("Token has expired, please generate a new token");
-        }
-
-        // Update the confirmation time
-        confirmationToken.setConfirmedAt(LocalDateTime.now());
-
-        tokenRepository.save(confirmationToken);
-
+    public String createEmailConfirmationToken(String email) {
+        return emailVerificationService.createToken(email);
     }
+
+    public void validateAndConfirmEmailToken(String token) {
+        emailVerificationService.confirmAndEnable(token);
+    }
+
+/*    public boolean validatePasswordResetToken(String token) {
+        return passwordResetTokenService.validateToken(token);
+    }*/
 }
