@@ -1,7 +1,8 @@
-package com.example.movieapi.service;
+package com.example.movieapi.service.validator;
 
 import com.example.movieapi.dto.ChangePasswordDto;
 import com.example.movieapi.model.AuthenticatedUser;
+import com.example.movieapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,7 +41,7 @@ public class ChangePasswordValidator implements Validator {
         }
 
         // Checking if old password is correct
-        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+        if(!userService.isValidPassword(user.getUser(), dto.getCurrentPassword())) {
             errors.rejectValue("currentPassword", "password.incorrect", "Current password is incorrect");
         }
 
