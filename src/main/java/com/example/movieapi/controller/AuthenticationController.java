@@ -5,8 +5,8 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.event.PasswordResetEvent;
 import com.example.movieapi.exception.ExpiredTokenException;
 import com.example.movieapi.exception.InvalidTokenException;
-import com.example.movieapi.exception.UserAlreadyVerifiedException;
 import com.example.movieapi.service.*;
+import com.example.movieapi.service.validator.ResetPasswordValidator;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/auth")
