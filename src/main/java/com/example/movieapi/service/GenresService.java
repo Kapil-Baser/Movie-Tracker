@@ -4,24 +4,22 @@ import com.example.movieapi.entity.Genre;
 import com.example.movieapi.model.TmdbGenreResponse;
 import com.example.movieapi.repository.GenresRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class GenresService {
-
-    private final Logger logger = LoggerFactory.getLogger(GenresService.class);
 
     private final GenresRepository genresRepository;
     private final RestClient restClient;
 
     @Autowired
-    public GenresService(GenresRepository genresRepository, RestClient restClient) {
+    public GenresService(GenresRepository genresRepository, @Qualifier("tmdbServiceClient") RestClient restClient) {
         this.genresRepository = genresRepository;
         this.restClient = restClient;
     }
@@ -36,11 +34,11 @@ public class GenresService {
         long existingCount = genresRepository.count();
 
         if (existingCount > 0) {
-            logger.info("Genres already exist in database ({}). Skipping sync.", existingCount);
+            log.info("Genres already exist in database ({}). Skipping sync.", existingCount);
             return;
         }
 
-        logger.info("Fetching genres from TMDB API...");
+        log.info("Fetching genres from TMDB API...");
 
         try {
 
@@ -50,7 +48,7 @@ public class GenresService {
                     .body(TmdbGenreResponse.class);
 
             if (response == null || response.getTmdbGenres() == null || response.getTmdbGenres().isEmpty()) {
-                logger.warn("No genres returned from TMDB API");
+                log.warn("No genres returned from TMDB API");
                 return;
             }
 
@@ -62,17 +60,16 @@ public class GenresService {
                         genre.setName(tmdbGenre.getName());
                         return genre;
                     })
-                            .toList();
+                    .toList();
 
             // Save all genres to database
             genresRepository.saveAll(genres);
 
-            logger.info("Successfully synced {} genres from TMDB", genres.size());
+            log.info("Successfully synced {} genres from TMDB", genres.size());
 
 
-        } catch (Exception e) {
-            logger.info("Failed to sync genres from TMDB", e);
-            throw new RuntimeException("Genre sync failed", e);
+        } catch (RuntimeException e) {
+            log.warn("Failed to sync genres from TMDB", e.getMessage());
         }
     }
 }
