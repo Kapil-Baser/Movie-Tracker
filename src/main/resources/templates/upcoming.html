@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div th:replace="~{fragments/movie-card :: movie-card}"></div>
+        <div th:replace="~{fragments/movie-card :: movie-card (movies=${upcoming})}"></div>
     </div>
 </div>
 </body>
