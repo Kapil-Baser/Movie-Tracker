@@ -37,7 +37,7 @@
                 </button>
             </div>
 
-            <div th:if="${redirectSuccess}" th:replace="~{fragments/alerts :: successAlert(alertMessage=${redirectSuccess})}"></div>
+            <div th:if="${redirectInfo}" th:replace="~{fragments/alerts :: genericAlert(alertInfo=${redirectInfo})}"></div>
         </div>
 
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
