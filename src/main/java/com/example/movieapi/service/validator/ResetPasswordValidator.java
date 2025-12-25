@@ -1,4 +1,4 @@
-package com.example.movieapi.service;
+package com.example.movieapi.service.validator;
 
 import com.example.movieapi.dto.ResetPasswordDto;
 import org.springframework.stereotype.Component;
