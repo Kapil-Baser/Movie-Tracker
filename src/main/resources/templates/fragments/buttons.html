@@ -41,10 +41,9 @@
             th:classappend="${isFavorited} ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'"
             class="absolute top-2 right-2
                rounded-md bg-none p-1.5
-               text-white transition-all
-               hover:shadow focus:bg-emerald-500 focus:shadow-none
-               active:bg-slate-700 hover:bg-white/20 active:shadow-none
-               disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+               transition-all
+               hover:shadow
+               hover:bg-white/20">
 
         <!-- Filled heart if favorited -->
         <svg th:if="${isFavorited}"
@@ -66,7 +65,7 @@
     <!-- Watched -->
     <button th:fragment="watched-button (movieId, isWatched)"
             sec:authorize="isAuthenticated()"
-            hx:post="@{/collections/watched/toggle}"
+            hx:post="@{/movies/history/toggle}"
             hx-target="this"
             hx-swap="outerHTML"
             hx:vals="${ {_csrf.parameterName : _csrf.token, movieId : movieId} }"
@@ -74,17 +73,15 @@
             th:classappend="${isWatched} ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'"
             class="absolute top-10 right-2
                rounded-md bg-none p-1.5
-               text-white transition-all
-               hover:shadow focus:bg-emerald-500 focus:shadow-none
-               active:bg-slate-700 hover:bg-white/20 active:shadow-none
-               disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+               transition-all
+               hover:shadow
+               hover:bg-white/20">
 
         <!-- Filled if watched -->
         <svg th:if="${isWatched}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 fill-emerald-500">
             <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
             <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
         </svg>
-
 
         <!-- Outline eye if not watched -->
         <svg th:unless="${isWatched}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
@@ -109,19 +106,19 @@
         </button>
 
         <el-menu anchor="bottom end" popover
-                 class="w-56 origin-top-right divide-y divide-white/10 rounded-md bg-gray-800 outline-1 -outline-offset-1 outline-white/10 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
+                 class="w-56 origin-top-right divide-y divide-emerald-500 rounded-md bg-emerald-700 outline-1 -outline-offset-1 outline-white/10 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
             <div class="py-1">
                 <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-300 focus:bg-white/5 focus:text-white focus:outline-hidden">Notify
+                   class="block px-4 py-2 text-sm text-white focus:bg-emerald-800 focus:text-white focus:outline-hidden">Notify
                     on release</a>
             </div>
             <div class="py-1">
                 <button hx:get="@{/user/collections(movie_id=${movieId}, movie_title=${movieTitle})}" hx-target="body" hx-swap="beforeend" type="button"
-                        class="block text-start px-4 py-2 text-sm text-gray-300 focus:bg-white/5 focus:text-white focus:outline-hidden w-full">Add
+                        class="block text-start px-4 py-2 text-sm text-white focus:bg-emerald-800 focus:text-white focus:outline-hidden w-full cursor-pointer">Add
                     to collection</button>
                 <a href="#"
-                   class="block px-4 py-2 text-sm text-gray-300 focus:bg-white/5 focus:text-white focus:outline-hidden">Add
-                    to watched</a>
+                   class="block px-4 py-2 text-sm text-white focus:bg-emerald-800 focus:text-white focus:outline-hidden">Add
+                    to watchlist</a>
             </div>
         </el-menu>
     </el-dropdown>
