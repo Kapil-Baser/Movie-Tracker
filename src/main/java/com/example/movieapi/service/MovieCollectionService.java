@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -86,7 +85,8 @@ public class MovieCollectionService {
     }
 
     public int getCollectionCount(AuthenticatedUser authenticatedUser) {
-        return collectionRepository.findNumberOfCollectionsByOwnerId(authenticatedUser.getUser().getId());
+        List<MovieCollection> collectionList = collectionRepository.findByOwner(authenticatedUser.getUser());
+        return collectionList.size();
     }
 
     public List<MovieDto> getAllMoviesFromCollection(String name) {
