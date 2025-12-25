@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TraktIds {
-    private String trakt;
+    private Long trakt;
     private String slug;
     private String imdb;
     private Long tmdb;

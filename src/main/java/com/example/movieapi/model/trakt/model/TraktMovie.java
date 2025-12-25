@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -24,13 +25,14 @@ public class TraktMovie {
     @JsonProperty("homepage")
     private String homePage;
     private String status;
-    private double rating;
-    private int votes;
+    private BigDecimal rating;
+    private Long votes;
     private String language;
     private String[] genres;
     @JsonProperty("original_title")
     private String originalTitle;
     private LocalDate released;
+    private String certification;
     @JsonProperty("after_credits")
     private boolean hasAfterCredits;
     @JsonProperty("during_credits")
