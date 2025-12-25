@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MoviesRepository extends JpaRepository<Movie, Long> {
@@ -22,4 +23,10 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     @Query("SELECT m FROM MovieCollection c JOIN c.movies m WHERE c.id = :collectionId")
     Page<Movie> findMoviesByCollectionId(@Param("collectionId") Long collectionId, Pageable pageable);
+
+    boolean existsByTmdbId(Long tmdbId);
+
+    List<Movie> findAllByTmdbIdIn(List<Long> tmdbIds);
+
+    List<Movie> findAllByTraktIdIn(List<Long> traktIds);
 }
