@@ -17,35 +17,9 @@
             </div>
         </div>
 
-        <div th:replace="~{fragments/movie-card :: movie-card}">
+        <div th:replace="~{fragments/movie-card :: movie-card (movies=${nowPlaying})}">
 
         </div>
-<!--        <div th:each="movie : ${nowPlayingMovies}" class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800">
-            <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}" class="rounded-xl" src="http://image.tmdb.org/t/p/w185/oD3Eey4e4Z259XLm3eD3WGcoJAh.jpg" alt=""/>
-            <div class="p-1">
-                <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
-                <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
-            </div>
-        </div>-->
-
-<!--        <div th:each="movie : ${nowPlayingMovies}"
-             class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800">
-
-            <div class="group relative rounded-xl overflow-hidden">
-                <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}"
-                     class="w-full h-auto block" alt="Poster">
-
-                <div class="absolute inset-0 bg-black/50 opacity-0
-                    group-hover:opacity-100 transition-opacity duration-300">
-                    &lt;!&ndash; Optional: icon, button, etc. &ndash;&gt;
-                </div>
-            </div>
-
-            <div class="p-1">
-                <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
-                <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
-            </div>
-        </div>-->
     </div>
 </div>
 </body>
