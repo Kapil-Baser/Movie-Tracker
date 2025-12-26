@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Collections</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, intial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+            integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+            crossorigin="anonymous">
+    </script>
+</head>
+<body>
+    <!-- Fragment for the "Add Collection" form -->
+    <div th:fragment="add-form"
+         class="bg-emerald-800 p-4 rounded-xl mb-4">
+        <h3 class="text-white text-lg mb-3">Create New Collection</h3>
+        <form hx-post="@{/collections/add}"
+              hx-target="#collections-container"
+              hx-swap="innerHTML"
+              th:object="${collectionDto}">
+
+            <div class="mb-3">
+
+                <span th:if="${#fields.hasErrors('name')}"
+                      th:errors="*{name}"
+                      class="text-red-400 text-sm block mb-2">
+                    Error message here
+                </span>
+                
+                <input type="text"
+                   name="name"
+                       th:field="*{name}"
+                   placeholder="Collection name..."
+                   class="w-full p-2 rounded-md mb-3 text-white"
+                   required
+                   autocomplete="off"/>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit"
+                        class="bg-amber-900 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded-md hover:cursor-pointer">
+                    Save
+                </button>
+                <button type="button"
+                        hx-get="/collections/cancel-form"
+                        hx-target="#form-container"
+                        hx-swap="innerHTML"
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md hover:cursor-pointer">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Fragment for the collections list -->
+    <div th:fragment="collections-list">
+        <div th:each="collection : ${collections}"
+             class="relative bg-[url(http://image.tmdb.org/t/p/w1280/4TOVar1q5KfUpe1pZOkYqjBOLyI.jpg)] h-[110px] bg-no-repeat bg-cover rounded-xl mb-2">
+            <a th:href="@{/collections/{collection_id}(collection_id=${collection.id})}" class="group block relative w-full h-full rounded-xl overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 from-5% via-black/60 to-transparent">
+                </div>
+                <div class="relative flex flex-col p-2 h-full justify-end">
+                    <p class="text-xl text-white font-semibold drop-shadow-md" th:text="${collection.name}">Steven Seagal
+                        Collection
+                    </p>
+                    <!-- Using thymeleaf Expression inlining in here -->
+                    <span class="text-amber-700">[[${collection.collectionSize()}]] Titles</span>
+                </div>
+            <!-- Confirmation should appear here -->
+                <div id="confirm-delete">
+                    <button th:replace="~{fragments/buttons :: delete-button}"></button>
+                </div>
+            </a>
+        </div>
+
+        <!-- Empty state -->
+        <div th:if="${collections.isEmpty()}"
+             class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
+            <p>No collections found 😔</p>
+            <p class="text-sm mt-2 text-gray-400">Collections are the perfect way to group films!</p>
+        </div>
+    </div>
+
+    <!-- Cancel form -->
+    <div th:fragment="empty"></div>
+
+
+    <form th:fragment="old-form" th:action="@{/collections/save}" method="POST" th:object="${collectionDto}">
+        <!-- Error goes above the input field -->
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500 text-sm mt-1 flex justify-center">
+                        This collection name already exists
+        </span>
+        <div class="p-2 flex justify-center space-x-4">
+            <label for="name" class="text-white text-md">Name</label>
+            <input th:field="*{name}" th:errorclass="border-b-red-500" type="text"
+                   id="name" value="" name="collectionName" required autocomplete="off"
+                   class="bg-white w-2/4 border-b-emerald-400 border rounded-sm">
+        </div>
+        <div class="flex justify-center space-x-4 mt-2">
+            <button type="submit" class="bg-amber-900 px-4 rounded-md text-white p-2 hover:bg-amber-800 hover:cursor-pointer font-semibold inline-block">SAVE</button>
+            <a th:href="@{/collections}" class="bg-amber-900 px-4 rounded-md text-white p-2 hover:bg-amber-800 font-semibold inline-block">CANCEL</a>
+        </div>
+    </form>
+
+    <!-- error fragment -->
+    <span th:fragment="add-form-with-errors" th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500 text-sm mt-1 flex justify-center">
+                        This collection name already exists
+    </span>
+
+</body>
+</html>
