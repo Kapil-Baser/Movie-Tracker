@@ -30,6 +30,19 @@
         <span style="font-size: 16px; line-height: 1;">✕</span>
     </button>
 
+    <!--YouTube button-->
+    <a th:fragment="youtube-button (trailerUrl)"
+       th:href="@{${trailerUrl}}"
+       th:classappend="${#strings.isEmpty(trailerUrl)} ? 'bg-gray-500 pointer-events-none' : 'bg-red-700 hover:bg-red-600 hover:cursor-pointer group-hover:pointer-events-auto'"
+       target="_blank"
+       class="px-2 py-1 absolute top-2.5 left-2 opacity-0 group-hover:opacity-100 rounded-sm inline-block">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="size-2.5 fill-white">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+        </svg>
+    </a>
+
     <!-- Favorite button-->
     <button th:fragment="fav-button (movieId, isFavorited)"
             sec:authorize="isAuthenticated()"
