@@ -1,35 +1,39 @@
 package com.example.movieapi.service;
 
-import com.example.movieapi.model.MovieResult;
+import com.example.movieapi.model.PagedResults;
 import com.example.movieapi.model.TmdbReleaseDatesResponse;
-import com.example.movieapi.model.TmdbUpcomingResponse;
-import com.example.movieapi.model.response.MovieResultResponse;
-import com.example.movieapi.model.response.TmdbConfigurationResponse;
-import com.example.movieapi.model.response.TmdbDiscoverResponse;
+import com.example.movieapi.model.response.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
+@Slf4j
 public class TmdbService {
 
     private final RestClient restClient;
 
-    public TmdbService(RestClient restClient) {
+    public TmdbService(@Qualifier("tmdbServiceClient") RestClient restClient) {
         this.restClient = restClient;
     }
 
-/*    public List<MovieResultResponse> getUpcomingMovies() {
-        TmdbUpcomingResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/movie/upcoming").build())
+    public PagedResults getTrendingMoviesByDayOrWeek(String timeWindow) {
+        PagedResults pagedResults = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/trending/movie/" + timeWindow)
+                        .build())
                 .retrieve()
-                .body(TmdbUpcomingResponse.class);
+                .body(PagedResults.class);
 
-        return Objects.requireNonNull(response).getMovieResults();
-    }*/
+        return Objects.requireNonNull(pagedResults);
+    }
 
     /*
         This method fetches the release dates of a movie by its id.
@@ -64,13 +68,40 @@ public class TmdbService {
         return Objects.requireNonNull(response);
     }
 
+    public TmdbTrendingMoviesResponse getTrendingMovies(int page) {
+        TmdbTrendingMoviesResponse response = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/movie/now_playing")
+                        .queryParam("page", page)
+                        .build())
+                .retrieve()
+                .body(TmdbTrendingMoviesResponse.class);
+        return Objects.requireNonNull(response);
+    }
+
+    public List<TmdbMovieDetailsResponse> getTrendingMoviesAsync(List<Long> tmdbIds, Executor movieExecutor) {
+        List<CompletableFuture<TmdbMovieDetailsResponse>> futures = tmdbIds.stream()
+                .map(id -> CompletableFuture.supplyAsync(() -> getMovieDetails(id), movieExecutor)
+                        .exceptionally(ex -> {
+                            log.info("Failed to fetch movie with TMDB ID: {}, Exception: {}", id, ex.getMessage());
+                            return null;
+                }))
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
     public List<MovieResultResponse> getUpcomingMovies() {
         TmdbDiscoverResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
                         .queryParam("with_original_language", "en")
                         .queryParam("primary_release_year", LocalDate.now().getYear())
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
-                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(3))
+                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(4))
                         .build())
                 .retrieve()
                 .body(TmdbDiscoverResponse.class);
@@ -91,5 +122,14 @@ public class TmdbService {
                 .body(TmdbDiscoverResponse.class);
 
         return Objects.requireNonNull(response).getResults();
+    }
+
+    public TmdbMovieDetailsResponse getMovieDetails(Long tmdbId) {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/movie/" + tmdbId)
+                        .queryParam("append_to_response", "release_dates")
+                        .build())
+                .retrieve()
+                .body(TmdbMovieDetailsResponse.class);
     }
 }
