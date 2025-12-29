@@ -8,6 +8,8 @@
         <div sec:authorize="isAuthenticated()" class="absolute inset-0 bg-black/50 opacity-0
                     group-hover:opacity-100 transition-opacity duration-300">
         </div>
+        <th:block th:replace="~{fragments/buttons:: youtube-button(trailerUrl = ${movie.trailer})}">
+        </th:block>
         <!-- Include favorite button fragment -->
         <th:block sec:authorize="isAuthenticated()"
                   th:replace="~{fragments/buttons :: fav-button(
