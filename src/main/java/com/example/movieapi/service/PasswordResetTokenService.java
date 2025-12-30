@@ -92,11 +92,9 @@ public class PasswordResetTokenService {
 
     public AppUser getUser(String token) {
         String tokenHash = TokenHashUtil.getHashedToken(token);
-        Optional<PasswordResetToken> resetToken = repository.findByTokenHash(tokenHash);
-        if (resetToken.isPresent()) {
-            return resetToken.get().getUser();
-        } else {
-            throw new UsernameNotFoundException("User not found");
-        }
+
+        return repository.findByTokenHash(tokenHash)
+                .map(PasswordResetToken::getUser)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }
