@@ -31,10 +31,10 @@ public class WatchedMovieService {
         AppUser user = authenticatedUser.getUser();
         Movie movie = movieService.getMovieById(movieId);
 
-        Optional<WatchedMovie> watchedMovieRecord = watchedMovieRepository.findByUserAndMovie(user, movie);
+        Optional<WatchedMovie> optWatchedMovieRecord = watchedMovieRepository.findByUserAndMovie(user, movie);
 
-        if (watchedMovieRecord.isPresent()) {
-            watchedMovieRepository.delete(watchedMovieRecord.get());
+        if (optWatchedMovieRecord.isPresent()) {
+            watchedMovieRepository.delete(optWatchedMovieRecord.get());
             return false;
         } else {
             WatchedMovie watchedMovie = WatchedMovie.builder()
