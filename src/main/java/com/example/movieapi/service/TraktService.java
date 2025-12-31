@@ -1,8 +1,10 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -12,6 +14,7 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 
 @Service
+@Slf4j
 public class TraktService {
 
     private final RestClient traktServiceClient;
@@ -19,6 +22,15 @@ public class TraktService {
 
     public TraktService(@Qualifier("traktServiceClient") RestClient traktServiceClient) {
         this.traktServiceClient = traktServiceClient;
+    }
+
+    public TraktMovie safeFetchMovieDetails(String id) {
+        try {
+            return getExtendedMovieDetails(id);
+        } catch (Exception e) {
+            log.warn("Failed to fetch details for IMDB ID {}: {}", id, e.getMessage());
+            return null;
+        }
     }
 
     public List<TraktTrendingResponse> getTrendingMovies() {
