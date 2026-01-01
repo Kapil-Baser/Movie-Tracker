@@ -5,6 +5,7 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
 import com.example.movieapi.service.MovieService;
+import com.example.movieapi.service.WatchedMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,11 +24,13 @@ public class HomeController {
 
     private final MovieCollectionService collectionService;
     private final MovieService movieService;
+    private final WatchedMovieService watchedMovieService;
 
     @Autowired
-    public HomeController(MovieCollectionService collectionService, MovieService movieService) {
+    public HomeController(MovieCollectionService collectionService, MovieService movieService, WatchedMovieService watchedMovieService) {
         this.collectionService = collectionService;
         this.movieService = movieService;
+        this.watchedMovieService = watchedMovieService;
     }
 
     /**
@@ -41,7 +44,7 @@ public class HomeController {
         if (authenticatedUser != null) {
             AppUser user = authenticatedUser.getUser();
             Set<Long> favoritedMovieIds = collectionService.getFavoritedMovieIds(user);
-            Set<Long> watchedMovieIds = collectionService.getWatchedMovieIds(user);
+            Set<Long> watchedMovieIds = watchedMovieService.getWatchedMoviesIds(user);
 
             model.addAttribute("favoritedMovieIds", favoritedMovieIds);
             model.addAttribute("watchedMovieIds", watchedMovieIds);
@@ -59,15 +62,22 @@ public class HomeController {
     @GetMapping()
     public String nowPlaying(Model model) {
         List<MovieDto> nowPlaying = collectionService.getAllMoviesFromCollection("Now Playing");
-        model.addAttribute("movies", nowPlaying);
+        model.addAttribute("nowPlaying", nowPlaying);
         return "now-playing";
     }
 
     @GetMapping("/upcoming")
     public String upcoming(Model model) {
         List<MovieDto> upcoming = collectionService.getAllMoviesFromCollection("Upcoming");
-        model.addAttribute("movies", upcoming);
+        model.addAttribute("upcoming", upcoming);
         return "upcoming";
+    }
+
+    @GetMapping("/anticipated")
+    public String anticipated(Model model) {
+        List<MovieDto> anticipated = collectionService.getAllMoviesFromCollection("Anticipated");
+        model.addAttribute("anticipatedMovies", anticipated);
+        return "anticipated";
     }
 
     @GetMapping("/search")
