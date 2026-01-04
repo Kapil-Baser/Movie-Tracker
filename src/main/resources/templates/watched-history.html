@@ -9,15 +9,48 @@
     <div class="flex items-start justify-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40">
         <div class="p-4">
             <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
+                <div class="flex w-full justify-end">
+                    <input type="search" id="search"
+                           class="block bg-white rounded-md outline-none p-2 ps-4 text-heading text-sm rounded-base focus-within:ring-2 focus-within:ring-emerald-300"
+                           placeholder="Search"
+                           _="on input or search wait 500ms
+                      call filterMovies()
+
+                    on keyup[Escape]
+                      set my value to ''
+                      call filterMovies()
+
+                    def filterMovies()
+                      set query to my value.toLowerCase()
+
+                      for card in .movie-item
+                        if query is empty
+                          remove .hidden from card
+                        else if card.querySelector('.movie-title').textContent.toLowerCase().includes(query)
+                          remove .hidden from card
+                        else
+                          add .hidden to card
+                        end
+                      end
+
+                      for group in .movie-group
+                        if group.querySelectorAll('.movie-item:not(.hidden)').length is 0
+                          add .hidden to group
+                        else
+                          remove .hidden from group
+                        end
+                      end
+                    end" />
+                </div>
                 <th:block th:each="historyMap : ${movieHistoryMap}">
-                    <div class="mb-4">
-                        <p th:text="${#temporals.format(historyMap.key, 'MMM dd, yyyy')}" class="text-sm font-semibold text-white mb-2"></p>
-                        <div class="bg-emerald-700 flex flex-col items-center rounded-md p-2 space-y-2">
-                            <div th:each="watchedMovie : ${historyMap.value}" class="flex rounded-2xl bg-emerald-800 p-2 shadow-xl w-full">
+                    <div class="mb-4 movie-group">
+                        <p th:text="${#temporals.format(historyMap.key, 'MMM dd, yyyy')}" class="text-sm font-semibold text-white mb-2 group-header"></p>
+                        <div class="bg-emerald-700 flex flex-col items-center rounded-md p-2 space-y-2 group-movies">
+                            <div th:each="watchedMovie : ${historyMap.value}" class="flex rounded-2xl bg-emerald-800 p-2 shadow-xl w-full movie-item">
                                 <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w92' + ${watchedMovie.posterPath}" alt="" />
                                 <div class="flex px-4 w-full justify-between">
                                     <div class="space-y-2">
-                                        <p th:text="${watchedMovie.title}" class="text-2xl text-emerald-200 font-bold">The Lost Princess</p>
+                                        <p th:text="${watchedMovie.title}" class="text-2xl text-emerald-200 font-bold movie-title">The Lost Princess</p>
                                         <div class="space-x-2 text-emerald-400 font-semibold">
                                             <span th:each="genre : ${watchedMovie.genres}" class="inline-block" th:text="${genre}">Action</span>
                                         </div>
