@@ -75,15 +75,15 @@
         </svg>
     </button>
 
-    <!-- Watched -->
-    <button th:fragment="watched-button (movieId, isWatched)"
+    <!-- Watch List -->
+    <button th:fragment="watch-list-button (movieId, isWatchListed)"
             sec:authorize="isAuthenticated()"
-            hx:post="@{/movies/history/toggle}"
+            hx:post="@{/user/collections/watchlist/toggle}"
             hx-target="this"
             hx-swap="outerHTML"
             hx:vals="${ {_csrf.parameterName : _csrf.token, movieId : movieId} }"
             type="button"
-            th:classappend="${isWatched} ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'"
+            th:classappend="${isWatchListed} ? 'opacity-100 pointer-events-auto' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'"
             class="absolute top-10 right-2
                rounded-md bg-none p-1.5
                transition-all
@@ -91,13 +91,13 @@
                hover:bg-white/20">
 
         <!-- Filled if watched -->
-        <svg th:if="${isWatched}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 fill-emerald-500">
+        <svg th:if="${isWatchListed}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 fill-emerald-500">
             <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
             <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
         </svg>
 
         <!-- Outline eye if not watched -->
-        <svg th:unless="${isWatched}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+        <svg th:unless="${isWatchListed}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
@@ -105,7 +105,7 @@
     </button>
 
     <!-- Drop down menu for more options -->
-    <el-dropdown th:fragment="movie-options(movieId, movieTitle)" sec:authorize="isAuthenticated()"
+    <el-dropdown th:fragment="movie-options(movieId, movieTitle, streamingDate)" sec:authorize="isAuthenticated()"
                  class="absolute opacity-0 group-hover:opacity-100 top-18 right-2 inline-block">
         <button
                 class="w-full justify-center gap-x-1.5 p-1.5 rounded-md text-sm font-semibold text-white hover:bg-white/20">
@@ -121,9 +121,10 @@
         <el-menu anchor="bottom end" popover
                  class="w-56 origin-top-right divide-y divide-emerald-500 rounded-md bg-emerald-700 outline-1 -outline-offset-1 outline-white/10 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
             <div class="py-1">
-                <a href="#"
-                   class="block px-4 py-2 text-sm text-white focus:bg-emerald-800 focus:text-white focus:outline-hidden">Notify
-                    on release</a>
+                <button th:disabled="${streamingDate != 'Unknown'}" type="button"
+                   class="block text-start px-4 py-2 text-sm text-white pointer-events-auto hover:cursor-pointer w-full focus:bg-emerald-800 disabled:pointer-events-none disabled:opacity-50">Notify
+                    on release
+                </button>
             </div>
             <div class="py-1">
                 <button hx:get="@{/user/collections(movie_id=${movieId}, movie_title=${movieTitle})}" hx-target="body" hx-swap="beforeend" type="button"
