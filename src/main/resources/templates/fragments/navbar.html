@@ -2,7 +2,7 @@
     <div class="flex items-center mx-3 space-x-8">
         <a th:href="@{/movies}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Home</a>
         <a th:href="@{/movies/upcoming}" class="hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Upcoming</a>
-        <a th:href="@{/movies/upcoming}" class="hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">TV Shows</a>
+        <a th:href="@{/movies/trending}" class="hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Trending</a>
     </div>
 
     <form action="#" th:action="@{/movies/search}" method="GET">
@@ -32,7 +32,7 @@
     <!-- Show only when logged in -->
     <div sec:authorize="isAuthenticated()" class="flex items-center mx-3 space-x-8">
         <div>
-            <a th:href="@{/movies/history}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Watched History</a>
+            <a th:href="@{/user/movies/history}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Watched History</a>
         </div>
         <div class="dropdown relative inline-flex mr-4">
             <button type="button" data-target="dropdown-with-header" class="dropdown-toggle dropdown-menu inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-amber-900 px-4 py-2 text-center text-sm font-semibold text-white shadow-xs transition-all duration-500 hover:bg-amber-800">
