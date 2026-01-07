@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/movies/history")
+@RequestMapping("/user/movies/history")
 public class WatchedHistoryController {
 
     private final WatchedMovieService watchedMovieService;
@@ -43,6 +43,6 @@ public class WatchedHistoryController {
         model.addAttribute("isWatched", isWatched);
         model.addAttribute("movieId", movieId);
 
-        return "fragments/buttons :: watched-button";
+        return "fragments/buttons :: mark-as-watched-unwatched-button";
     }
 }
