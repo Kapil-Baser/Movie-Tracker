@@ -4,6 +4,7 @@ import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
+import com.example.movieapi.entity.WatchedMovie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -32,6 +34,8 @@ public class MovieCollectionService {
     private final MoviesRepository moviesRepository;
     private static final String WATCHED = "Watched";
     private static final String FAVORITES = "Favorites";
+    private static final String WATCHLIST = "WatchList";
+    private static final String TRENDING = "Trending";
 
     @Autowired
     public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository) {
@@ -55,7 +59,6 @@ public class MovieCollectionService {
         return saved;
     }
 
-    @Transactional
     private MovieCollection getOrCreateCollection(String name) {
         return collectionRepository.findByName(name)
                 .orElseGet(() -> {
@@ -240,5 +243,49 @@ public class MovieCollectionService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionId(collectionId, pageable);
         return moviesPage.map(movieMapper::toMovieDto);
+    }
+
+    public Page<MovieDto> getMoviesPagedFromCollection(String collectionName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionNameContainingIgnoreCase(collectionName, pageable);
+        return pagedMovies.map(movieMapper::toMovieDto);
+    }
+
+    public boolean toggleWatchListed(AuthenticatedUser authenticatedUser, Long movieId) {
+        AppUser user = authenticatedUser.getUser();
+        Movie movie = movieService.getMovieById(movieId);
+
+        com.example.movieapi.entity.MovieCollection watchList = getOrCreateCollection(user, WATCHLIST);
+
+        boolean isWatchListed = watchList.containsMovieWithId(movieId);
+
+        if (isWatchListed) {
+            watchList.removeMovie(movie);
+        } else {
+            watchList.addMovie(movie);
+        }
+        collectionRepository.save(watchList);
+
+        return !isWatchListed;
+    }
+
+    public Set<Long> getWatchListedMovieIds(AppUser user) {
+        Set<Long> movieIds = collectionRepository
+                .findAllMovieIdsByOwnerAndName(user, WATCHLIST);
+
+        return movieIds != null ? movieIds : Collections.emptySet();
+    }
+
+    public void addToCollection(String collectionName, List<Movie> movies) {
+        MovieCollection collection = getOrCreateCollection(collectionName);
+
+        movies.forEach(movie -> {
+            if (!collection.containsMovie(movie)) {
+                collection.addMovie(movie);
+            }
+        });
+
+        MovieCollection saved = collectionRepository.save(collection);
+        log.info("Added {} new movies to collection {}", movies.size(), saved.getName());
     }
 }
