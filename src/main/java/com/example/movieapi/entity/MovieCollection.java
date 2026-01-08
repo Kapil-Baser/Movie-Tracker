@@ -36,9 +36,13 @@ public class MovieCollection {
     )
     private Set<Movie> movies = new HashSet<>();
 
-    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
