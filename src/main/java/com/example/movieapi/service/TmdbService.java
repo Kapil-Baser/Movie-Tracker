@@ -4,16 +4,15 @@ import com.example.movieapi.model.PagedResults;
 import com.example.movieapi.model.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 @Service
 @Slf4j
@@ -68,6 +67,13 @@ public class TmdbService {
         return Objects.requireNonNull(response);
     }
 
+    @Retryable(
+            includes = ResourceAccessException.class,
+            maxRetries = 4,
+            jitter = 100,
+            multiplier = 2,
+            maxDelay = 1500
+    )
     public TmdbTrendingMoviesResponse getTrendingMovies(int page) {
         TmdbTrendingMoviesResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/movie/now_playing")
@@ -76,23 +82,6 @@ public class TmdbService {
                 .retrieve()
                 .body(TmdbTrendingMoviesResponse.class);
         return Objects.requireNonNull(response);
-    }
-
-    public List<TmdbMovieDetailsResponse> getTrendingMoviesAsync(List<Long> tmdbIds, Executor movieExecutor) {
-        List<CompletableFuture<TmdbMovieDetailsResponse>> futures = tmdbIds.stream()
-                .map(id -> CompletableFuture.supplyAsync(() -> getMovieDetails(id), movieExecutor)
-                        .exceptionally(ex -> {
-                            log.info("Failed to fetch movie with TMDB ID: {}, Exception: {}", id, ex.getMessage());
-                            return null;
-                }))
-                .toList();
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        return futures.stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .toList();
     }
 
     public List<MovieResultResponse> getUpcomingMovies() {
@@ -131,5 +120,14 @@ public class TmdbService {
                         .build())
                 .retrieve()
                 .body(TmdbMovieDetailsResponse.class);
+    }
+
+    public TmdbMovieDetailsResponse safeGetMovieDetails(Long tmdbId) {
+        try {
+            return getMovieDetails(tmdbId);
+        } catch (Exception e) {
+            log.warn("Failed to fetch details for IMDB ID {}: {}", tmdbId, e.getMessage());
+            return null;
+        }
     }
 }
