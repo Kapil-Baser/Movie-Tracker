@@ -122,6 +122,13 @@ public class TmdbService {
                 .body(TmdbMovieDetailsResponse.class);
     }
 
+    @Retryable(
+            includes = ResourceAccessException.class,
+            maxRetries = 4,
+            jitter = 100,
+            multiplier = 2,
+            maxDelay = 1500
+    )
     public TmdbMovieDetailsResponse safeGetMovieDetails(Long tmdbId) {
         try {
             return getMovieDetails(tmdbId);
