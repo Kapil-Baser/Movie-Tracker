@@ -23,6 +23,9 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM MovieCollection c JOIN c.movies m WHERE c.id = :collectionId")
     Page<Movie> findMoviesByCollectionId(@Param("collectionId") Long collectionId, Pageable pageable);
 
+    @Query("SELECT m FROM MovieCollection mc JOIN mc.movies m WHERE mc.name = :collectionName")
+    Page<Movie> findMoviesByCollectionNameContainingIgnoreCase(String collectionName, Pageable pageable);
+
     boolean existsByTmdbId(Long tmdbId);
 
     List<Movie> findAllByTmdbIdIn(List<Long> tmdbIds);
