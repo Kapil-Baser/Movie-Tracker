@@ -2,7 +2,6 @@ package com.example.movieapi.controller;
 
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
-import com.example.movieapi.service.MovieSyncService;
 import com.example.movieapi.service.TraktService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +17,10 @@ import java.util.List;
 public class TraktApiController {
 
     private final TraktService traktService;
-    private final MovieSyncService movieSyncService;
 
     @Autowired
-    public TraktApiController(TraktService traktService, MovieSyncService movieSyncService) {
+    public TraktApiController(TraktService traktService) {
         this.traktService = traktService;
-        this.movieSyncService = movieSyncService;
     }
 
     @GetMapping("/trending")
