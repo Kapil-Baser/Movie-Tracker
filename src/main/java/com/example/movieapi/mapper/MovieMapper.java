@@ -125,7 +125,7 @@ public class MovieMapper {
                 .backdropPath(movie.getBackdropPath())
                 .posterPath(movie.getPosterPath())
                 .runtime(FormatUtil.formatRuntime(movie.getRuntime()))
-                .usDigitalReleaseDate(String.valueOf(movie.getUsDigitalDate()))
+                .usDigitalReleaseDate(FormatUtil.formatReleaseDate(movie.getUsDigitalDate()))
                 .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
                 .genres(movie.getTmdbGenres())
                 .build();
