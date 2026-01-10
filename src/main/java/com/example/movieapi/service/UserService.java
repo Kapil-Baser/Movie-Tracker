@@ -2,7 +2,6 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.dto.RegisterUserDto;
 import com.example.movieapi.entity.AppUser;
-import com.example.movieapi.entity.PasswordResetToken;
 import com.example.movieapi.event.TokenResendEvent;
 import com.example.movieapi.event.UserRegisteredEvent;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -27,15 +26,13 @@ public class UserService implements UserDetailsService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final PasswordResetTokenService passwordResetTokenService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, PasswordResetTokenService passwordResetTokenService, ApplicationEventPublisher eventPublisher) {
+    public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.passwordResetTokenService = passwordResetTokenService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -92,10 +89,19 @@ public class UserService implements UserDetailsService {
         eventPublisher.publishEvent(new TokenResendEvent(user));
     }
 
-    public void resetPassword(String email) {
-        AppUser user = loadUserByEmail(email);
-        // Generate password reset token
-        PasswordResetToken token = passwordResetTokenService.generatePasswordResetToken(user);
-        // TODO: publish reset password event
+    public void resetPassword(AppUser user, String newPassword) {
+        // Set the new password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        repository.save(user);
+    }
+
+    public boolean isValidPassword(AppUser user, String password) {
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    public void deactivateUser(AuthenticatedUser authenticatedUser) {
+        AppUser user = authenticatedUser.getUser();
+        user.setEnabled(false);
+        repository.save(user);
     }
 }
