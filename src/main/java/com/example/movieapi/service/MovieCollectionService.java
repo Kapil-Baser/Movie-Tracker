@@ -4,7 +4,6 @@ import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
-import com.example.movieapi.entity.WatchedMovie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
@@ -20,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -245,7 +243,7 @@ public class MovieCollectionService {
         return moviesPage.map(movieMapper::toMovieDto);
     }
 
-    public Page<MovieDto> getMoviesPagedFromCollection(String collectionName, int page, int size) {
+    public Page<MovieDto> getPaginatedMoviesFromCollectionByName(String collectionName, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionNameContainingIgnoreCase(collectionName, pageable);
         return pagedMovies.map(movieMapper::toMovieDto);
@@ -279,13 +277,15 @@ public class MovieCollectionService {
     public void addToCollection(String collectionName, List<Movie> movies) {
         MovieCollection collection = getOrCreateCollection(collectionName);
 
-        movies.forEach(movie -> {
+        int newlyAddedMovies =  0;
+        for (Movie movie : movies) {
             if (!collection.containsMovie(movie)) {
                 collection.addMovie(movie);
+                newlyAddedMovies++;
             }
-        });
+        }
 
         MovieCollection saved = collectionRepository.save(collection);
-        log.info("Added {} new movies to collection {}", movies.size(), saved.getName());
+        log.info("Added {} new movies to collection {}", newlyAddedMovies, saved.getName());
     }
 }
