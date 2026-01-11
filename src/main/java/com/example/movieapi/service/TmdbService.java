@@ -84,13 +84,14 @@ public class TmdbService {
         return Objects.requireNonNull(response);
     }
 
-    public List<MovieResultResponse> getUpcomingMovies() {
+    public List<MovieResultResponse> getUpcomingMovies(int page) {
         TmdbDiscoverResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                        .queryParam("page", page)
                         .queryParam("with_original_language", "en")
                         .queryParam("primary_release_year", LocalDate.now().getYear())
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
-                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(4))
+                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(8))
                         .build())
                 .retrieve()
                 .body(TmdbDiscoverResponse.class);
@@ -113,6 +114,13 @@ public class TmdbService {
         return Objects.requireNonNull(response).getResults();
     }
 
+    @Retryable(
+            includes = ResourceAccessException.class,
+            maxRetries = 4,
+            jitter = 100,
+            multiplier = 2,
+            maxDelay = 1500
+    )
     public TmdbMovieDetailsResponse getMovieDetails(Long tmdbId) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/movie/" + tmdbId)
@@ -122,13 +130,7 @@ public class TmdbService {
                 .body(TmdbMovieDetailsResponse.class);
     }
 
-    @Retryable(
-            includes = ResourceAccessException.class,
-            maxRetries = 4,
-            jitter = 100,
-            multiplier = 2,
-            maxDelay = 1500
-    )
+
     public TmdbMovieDetailsResponse safeGetMovieDetails(Long tmdbId) {
         try {
             return getMovieDetails(tmdbId);
