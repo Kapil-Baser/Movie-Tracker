@@ -46,18 +46,6 @@ public class MovieCollectionController {
         return "collections";
     }
 
-/*    @GetMapping("/{collectionId}")
-    public String showCollection(@PathVariable(value = "collectionId") Long collectionId,
-                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-                                 Model model) {
-
-        List<MovieDto> moviesInCollection = collectionService.getAllMoviesFromCollection(collectionId, authenticatedUser);
-        Page<MovieDto> movieDtoPage = collectionService.getMoviesFromCollectionPaged(collectionId, 0, 3);
-        model.addAttribute("movies", moviesInCollection);
-
-        return "collection-page";
-    }*/
-
     @GetMapping("/{collectionId}")
     public String showCollection(@PathVariable(value = "collectionId") Long collectionId,
                                  @RequestParam(value = "page", defaultValue = "1") int pageRequest,
