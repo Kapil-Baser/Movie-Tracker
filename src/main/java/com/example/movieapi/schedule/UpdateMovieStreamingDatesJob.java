@@ -7,11 +7,11 @@ import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CheckForDigitalReleaseDatesJob implements Job {
+public class UpdateMovieStreamingDatesJob implements Job {
 
     private final MovieSyncService movieSyncService;
 
-    public CheckForDigitalReleaseDatesJob(MovieSyncService movieSyncService) {
+    public UpdateMovieStreamingDatesJob(MovieSyncService movieSyncService) {
         this.movieSyncService = movieSyncService;
     }
 
