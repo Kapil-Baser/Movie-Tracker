@@ -19,4 +19,6 @@ public interface MovieSubscriptionRepository extends JpaRepository<MovieSubscrip
     List<Movie> findAllSubscribedMoviesByUser(@Param("user") AppUser user);
 
     Optional<MovieSubscription> findByUserAndMovie(AppUser user, Movie movie);
+
+    List<MovieSubscription> findAllByMovieAndNotifiedFalse(Movie movie);
 }
