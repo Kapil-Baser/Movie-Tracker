@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -25,6 +26,8 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     @Query("SELECT m FROM MovieCollection mc JOIN mc.movies m WHERE mc.name = :collectionName")
     Page<Movie> findMoviesByCollectionNameContainingIgnoreCase(String collectionName, Pageable pageable);
+
+    List<Movie> findAllByUsDigitalDate(LocalDate date);
 
     boolean existsByTmdbId(Long tmdbId);
 
