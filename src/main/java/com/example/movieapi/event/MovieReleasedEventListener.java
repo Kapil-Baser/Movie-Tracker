@@ -5,6 +5,7 @@ import com.example.movieapi.entity.Movie;
 import com.example.movieapi.entity.MovieSubscription;
 import com.example.movieapi.repository.MovieSubscriptionRepository;
 import com.example.movieapi.service.MailService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -29,6 +30,7 @@ public class MovieReleasedEventListener {
 
     @Async
     @EventListener
+    @Transactional
     public void onMovieReleasedEvent(MovieReleasedEvent event) {
         Movie releasedMovie = event.movie();
         List<MovieSubscription> movieSubscriptions = movieSubscriptionRepository.findAllByMovieAndNotifiedFalse(releasedMovie);
@@ -40,7 +42,7 @@ public class MovieReleasedEventListener {
         for (MovieSubscription movieSubscription : movieSubscriptions) {
             AppUser user = movieSubscription.getUser();
             if (user != null) {
-                log.info("User {} found for released movie subscription {}. Sending Email to - {}", user.getUsername(), movieSubscription.getMovie().getTitle(), user.getUsername());
+                log.info("User {} found for released movie subscription {}. Sending Email to - {}", user.getUsername(), movieSubscription.getMovie().getTitle(), user.getEmail());
             }
             movieSubscription.setNotified(true);
             movieSubscription.setNotificationSentAt(LocalDateTime.now());
