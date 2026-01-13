@@ -18,17 +18,26 @@
         </th:block>
         <!-- Include watched button fragment -->
         <th:block sec:authorize="isAuthenticated()"
-                  th:replace="~{fragments/buttons :: watched-button(movieId = ${movie.id}, isWatched = ${#sets.contains(watchedMovieIds, movie.id)})}">
+                  th:replace="~{fragments/buttons :: watch-list-button(movieId = ${movie.id}, isWatchListed = ${#sets.contains(watchListedMovieIds, movie.id)})}">
 
         </th:block>
+        <!-- Bell button for movie subscription -->
+        <th:block sec:authorize="isAuthenticated()"
+                  th:replace="~{fragments/buttons :: subscribe-to-movie (movieId = ${movie.id}, isSubscribed = ${#sets.contains(subscribedMovieIds, movie.id)})}">
+        </th:block>
 
-        <th:block th:replace="~{fragments/buttons :: movie-options(movieId=${movie.id}, movieTitle=${movie.title})}">
+        <th:block th:replace="~{fragments/buttons :: movie-options(movieId = ${movie.id}, movieTitle = ${movie.title}, streamingDate = ${movie.usDigitalReleaseDate})}">
 
         </th:block>
     </div>
 
-    <div class="p-1">
-        <p th:text="${movie.title}" class="font-bold">Now You See Me: Now You Don't</p>
-        <span th:text="${movie.releaseDate}" class="text-sm font-thin">Nov 7, 2025</span>
+    <div class="flex m-1 items-center justify-center">
+        <div class="flex flex-col flex-1 space-y-1">
+            <span th:text="${movie.title}" class="text-sm font-bold">Afterburn</span>
+            <span th:text="${movie.releaseDate}" class="text-xs font-thin">Aug 20, 2025</span>
+            <span class="text-xs font-extralight">Streaming:
+                <span th:text="${movie.usDigitalReleaseDate}">Unknown</span>
+            </span>
+        </div>
     </div>
 </div>
