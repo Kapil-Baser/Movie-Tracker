@@ -1,0 +1,7 @@
+<th:block th:fragment="page (pagedMovies)">
+  <th:block th:each="movie, iterStat : ${pagedMovies.movies}">
+    <th:block th:with="isLast = ${iterStat.last && pagedMovies.hasNext} ? true : false">
+      <div th:replace="~{fragments/movieView-card :: movieCard (movie=${movie}, isLast=${isLast}, nextPage=${pagedMovies.nextPage})}"></div>
+    </th:block>
+  </th:block>
+</th:block>
