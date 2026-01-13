@@ -37,6 +37,13 @@ public class TmdbService {
     /*
         This method fetches the release dates of a movie by its id.
      */
+    @Retryable(
+            includes = ResourceAccessException.class,
+            maxRetries = 4,
+            jitter = 100,
+            multiplier = 2,
+            maxDelay = 1500
+    )
     public TmdbReleaseDatesResponse getReleaseDatesByMovieId(Long movieId) {
         TmdbReleaseDatesResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/movie/" + movieId + "/release_dates").build())
