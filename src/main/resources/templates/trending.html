@@ -8,16 +8,19 @@
 <div class="flex items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2">
     <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5 text-white">
         <div class="col-span-2 flex min-h-[50px] items-center rounded-lg shadow-xl">
-            <div>
-                <div class="m-4 max-w-20 border-t pt-2"><p></p></div>
-                <h1 class="m-4 text-5xl">Trending Movies</h1>
-                <span class="m-4 text-5xl">this Week</span>
-                <p class="m-4 text-2xl font-light">Most watched movies this week</p>
-                <div class="m-4 border-t-1"></div>
+            <div class="m-6 space-y-2">
+                <div class="max-w-20 border-t pt-2"></div>
+                <span class="text-5xl">Movies Trending</span><br>
+                <span class=" text-5xl">this Week</span>
+                <p class="text-2xl font-light">Most watched movies this week</p>
+                <div class="border-t-1"></div>
             </div>
         </div>
 
-        <div th:replace="~{fragments/movieView-card :: movieView-card (movies=${trending})}"></div>
+        <th:block th:replace="~{fragments/page :: trendingPage (pagedMovies = ${pagedMovies})}">
+
+        </th:block>
+
     </div>
 </div>
 </body>

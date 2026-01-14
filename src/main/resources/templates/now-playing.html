@@ -17,9 +17,10 @@
             </div>
         </div>
 
-        <div th:replace="~{fragments/movie-card :: movie-card (movies=${nowPlaying})}">
+        <th:block th:replace="~{fragments/page :: nowPlayingPage (pagedMovies = ${pagedMovies})}">
 
-        </div>
+        </th:block>
+
     </div>
 </div>
 </body>
