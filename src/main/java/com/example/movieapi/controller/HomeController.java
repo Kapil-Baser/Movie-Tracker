@@ -26,8 +26,7 @@ public class HomeController {
     private final MovieCollectionService collectionService;
     private final MovieService movieService;
     private final MovieViewAssemblerService viewAssemblerService;
-    private static final String HAS_NEXT_PAGE = "hasNextPage";
-    private static final String NEXT_PAGE_NUMBER = "nextPage";
+    private static final String PAGED_MOVIES = "pagedMovies";
 
     @Autowired
     public HomeController(MovieCollectionService collectionService, MovieService movieService, MovieViewAssemblerService viewAssemblerService) {
@@ -36,14 +35,8 @@ public class HomeController {
         this.viewAssemblerService = viewAssemblerService;
     }
 
-    // TODO: Refactor this since don't need all this
-    /**
-     * Pre-populating the view with user's favorited movie ids in case user is logged in
-     * @param authenticatedUser to check if user is logged in
-     * @param model to add favorites movies ids and now playing movies back to template
-     */
     @ModelAttribute
-    public void addFavoritedAndWatchListedMovieIds(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
+    public void addUserNameToModel(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
 
         if (authenticatedUser != null) {
             AppUser user = authenticatedUser.getUser();
@@ -51,28 +44,29 @@ public class HomeController {
         }
     }
 
-    @GetMapping()
+    @GetMapping
     public String nowPlaying(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                              Model model) {
-        List<MovieDto> nowPlayingMovieDtoList = collectionService.getAllMoviesFromCollection("Now Playing");
-        List<MovieViewDto> nowPlaying = viewAssemblerService.buildMovieView(authenticatedUser, nowPlayingMovieDtoList);
-        model.addAttribute("nowPlaying", nowPlaying);
+        PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Now Playing", 0);
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
         return "now-playing";
     }
 
-    private PagedMovieView preparePagedMovieView(AuthenticatedUser authenticatedUser,
-                                                 String collectionName,
-                                                 int pageNumber) {
-        Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 15);
-        List<MovieViewDto> movieViewDtos = viewAssemblerService.buildMovieView(authenticatedUser, pagedMovies.getContent());
-        return new PagedMovieView(movieViewDtos, pagedMovies.hasNext(), pagedMovies.getNumber() + 1);
+    @HxRequest
+    @GetMapping("/nowPlaying/paged")
+    public String nowPlayingNextPage(@RequestParam( value = "page", defaultValue = "1") int page,
+                                     @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                     Model model) {
+        PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Now Playing", page);
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
+        return "fragments/page :: nowPlayingPage";
     }
 
     @GetMapping("/upcoming")
     public String upcoming(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                            Model model) {
         PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Upcoming", 0);
-        model.addAttribute("pagedMovies", pagedMovieView);
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
         return "upcoming";
     }
 
@@ -82,18 +76,15 @@ public class HomeController {
                                    @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                    Model model) {
         PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Upcoming", page);
-        model.addAttribute("pagedMovies", pagedMovieView);
-        return "fragments/page :: page";
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
+        return "fragments/page :: upcomingPage";
     }
 
     @GetMapping("/trending")
     public String trending(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                            Model model) {
-        Page<MovieDto> trendingMoviesPaged = collectionService.getPaginatedMoviesFromCollectionByName("Trending", 0, 15);
-        List<MovieViewDto> trendingMovies = viewAssemblerService.buildMovieView(authenticatedUser, trendingMoviesPaged.getContent());
-        model.addAttribute("trending", trendingMovies);
-        model.addAttribute(HAS_NEXT_PAGE, trendingMoviesPaged.hasNext());
-        model.addAttribute(NEXT_PAGE_NUMBER, trendingMoviesPaged.getNumber() + 1);
+        PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Trending", 0);
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
         return "trending";
     }
 
@@ -102,20 +93,10 @@ public class HomeController {
     public String trendingNextPage(@RequestParam(value = "page", defaultValue = "1") int page,
                                    @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                    Model model) {
-        Page<MovieDto> trendingMoviesPaged = collectionService.getPaginatedMoviesFromCollectionByName("Trending", page, 15);
-        List<MovieViewDto> trendingMovies = viewAssemblerService.buildMovieView(authenticatedUser, trendingMoviesPaged.getContent());
-        model.addAttribute("movies", trendingMovies);
-        model.addAttribute(HAS_NEXT_PAGE, trendingMoviesPaged.hasNext());
-        model.addAttribute(NEXT_PAGE_NUMBER, trendingMoviesPaged.getNumber() + 1);
-        return "fragments/movie-page :: movie-page";
+        PagedMovieView pagedMovieView = preparePagedMovieView(authenticatedUser, "Trending", page);
+        model.addAttribute(PAGED_MOVIES, pagedMovieView);
+        return "fragments/page :: trendingPage";
     }
-
-    /*@GetMapping("/upcoming")
-    public String upcoming(Model model) {
-        List<MovieDto> upcoming = collectionService.getAllMoviesFromCollection("Upcoming");
-        model.addAttribute("upcoming", upcoming);
-        return "upcoming";
-    }*/
 
     @GetMapping("/anticipated")
     public String anticipated(Model model) {
@@ -130,5 +111,13 @@ public class HomeController {
         model.addAttribute("movies", movieDtoList);
         model.addAttribute("keyword", keyword);
         return "search-results";
+    }
+
+    private PagedMovieView preparePagedMovieView(AuthenticatedUser authenticatedUser,
+                                                 String collectionName,
+                                                 int pageNumber) {
+        Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 15);
+        List<MovieViewDto> movieViewDtos = viewAssemblerService.buildMovieView(authenticatedUser, pagedMovies.getContent());
+        return new PagedMovieView(movieViewDtos, pagedMovies.hasNext(), pagedMovies.getNumber() + 1);
     }
 }
