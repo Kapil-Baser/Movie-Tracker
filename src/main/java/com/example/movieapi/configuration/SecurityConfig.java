@@ -43,7 +43,7 @@ public class SecurityConfig {
                             .hasRole("USER")
                             .requestMatchers("/auth/**")
                             .permitAll()
-                            .requestMatchers("/webjars/**","/movies", "/movies/upcoming", "/register/**")
+                            .requestMatchers("/webjars/**","/movies/**", "/register/**")
                             .permitAll()
                             .anyRequest()
                             .authenticated();
