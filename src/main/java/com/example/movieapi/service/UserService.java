@@ -69,13 +69,11 @@ public class UserService implements UserDetailsService {
     }
 
     public void changePassword(AuthenticatedUser authenticatedUser, String newPassword) {
-
         AppUser user = authenticatedUser.getUser();
 
         user.setPassword(passwordEncoder.encode(newPassword));
 
         repository.save(user);
-
     }
 
     public void performLogout(HttpServletRequest request) {
@@ -95,8 +93,8 @@ public class UserService implements UserDetailsService {
         repository.save(user);
     }
 
-    public boolean isValidPassword(AppUser user, String password) {
-        return passwordEncoder.matches(password, user.getPassword());
+    public boolean isValidPassword(AppUser user, String rawPassword) {
+        return passwordEncoder.matches(rawPassword, user.getPassword());
     }
 
     public void deactivateUser(AuthenticatedUser authenticatedUser) {
