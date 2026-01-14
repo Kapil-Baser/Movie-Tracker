@@ -1,43 +1,46 @@
-<div th:fragment="movie-card (movies)" th:each="movie : ${movies}"
-     class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800 flex flex-col justify-start">
+<th:block th:fragment="movieCard">
+  <div class="group relative rounded-xl overflow-hidden min-h-67">
+    <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.movieDto.posterPath}"
+         class="w-full h-full block" alt="Poster">
 
-    <div class="group relative rounded-xl overflow-hidden min-h-67">
-        <img th:src="'http://image.tmdb.org/t/p/w185' + ${movie.posterPath}"
-             class="w-full h-full block" alt="Poster">
-
-        <div sec:authorize="isAuthenticated()" class="absolute inset-0 bg-black/50 opacity-0
+    <div sec:authorize="isAuthenticated()" class="absolute inset-0 bg-black/50 opacity-0
                     group-hover:opacity-100 transition-opacity duration-300">
-        </div>
-        <th:block th:replace="~{fragments/buttons:: youtube-button(trailerUrl = ${movie.trailer})}">
-        </th:block>
-        <!-- Include favorite button fragment -->
-        <th:block sec:authorize="isAuthenticated()"
-                  th:replace="~{fragments/buttons :: fav-button(
-                                movieId=${movie.id},
-                                isFavorited=${#sets.contains(favoritedMovieIds, movie.id)})}">
-        </th:block>
-        <!-- Include watched button fragment -->
-        <th:block sec:authorize="isAuthenticated()"
-                  th:replace="~{fragments/buttons :: watch-list-button(movieId = ${movie.id}, isWatchListed = ${#sets.contains(watchListedMovieIds, movie.id)})}">
-
-        </th:block>
-        <!-- Bell button for movie subscription -->
-        <th:block sec:authorize="isAuthenticated()"
-                  th:replace="~{fragments/buttons :: subscribe-to-movie (movieId = ${movie.id}, isSubscribed = ${#sets.contains(subscribedMovieIds, movie.id)})}">
-        </th:block>
-
-        <th:block th:replace="~{fragments/buttons :: movie-options(movieId = ${movie.id}, movieTitle = ${movie.title}, streamingDate = ${movie.usDigitalReleaseDate})}">
-
-        </th:block>
     </div>
+    <th:block th:replace="~{fragments/buttons:: youtube-button(trailerUrl = ${movie.movieDto.trailer})}">
+    </th:block>
+    <div class="absolute top-2 right-2 flex flex-col gap-1 group-hover:opacity-100
+					pointer-events-none group-hover:pointer-events-auto
+					transition-opacity duration-200">
 
-    <div class="flex m-1 items-center justify-center">
-        <div class="flex flex-col flex-1 space-y-1">
-            <span th:text="${movie.title}" class="text-sm font-bold">Afterburn</span>
-            <span th:text="${movie.releaseDate}" class="text-xs font-thin">Aug 20, 2025</span>
-            <span class="text-xs font-extralight">Streaming:
-                <span th:text="${movie.usDigitalReleaseDate}">Unknown</span>
+      <!--Include favorite button fragment-->
+      <th:block sec:authorize="isAuthenticated()"
+                th:replace="~{fragments/buttons :: fav-button(
+                                movieId=${movie.movieDto.id},
+                                isFavorited=${movie.isFavorited})}">
+      </th:block>
+      <!--Include watched button fragment-->
+      <th:block sec:authorize="isAuthenticated()"
+                th:replace="~{fragments/buttons :: watch-list-button(movieId = ${movie.movieDto.id}, isWatchListed = ${movie.isInWatchList})}">
+
+      </th:block>
+      <!--Subscribe (Only render if movie is subscribable)-->
+      <th:block th:if="${movie.isSubscribable}" sec:authorize="isAuthenticated()">
+        <th:block th:replace="~{fragments/buttons :: subscribe-to-movie (movieId = ${movie.movieDto.id}, isSubscribed = ${movie.isSubscribed})}">
+        </th:block>
+      </th:block>
+      <!--Movie options-->
+      <th:block th:replace="~{fragments/buttons :: movie-options(movieId = ${movie.movieDto.id}, movieTitle = ${movie.movieDto.title}, isWatched = ${movie.isWatched})}">
+      </th:block>
+    </div>
+  </div>
+
+  <div class="flex m-1 items-center justify-center">
+    <div class="flex flex-col flex-1 space-y-1">
+      <span th:text="${movie.movieDto.title}" class="text-sm font-bold">Afterburn</span>
+      <span th:text="${movie.movieDto.releaseDate}" class="text-xs font-thin">Aug 20, 2025</span>
+      <span class="text-xs font-extralight">Streaming:
+                <span th:text="${movie.movieDto.usDigitalReleaseDate}">Unknown</span>
             </span>
-        </div>
     </div>
-</div>
+  </div>
+</th:block>
