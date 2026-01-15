@@ -1,6 +1,6 @@
 package com.example.movieapi.configuration;
 
-import com.example.movieapi.schedule.CheckForDigitalReleaseDatesJob;
+import com.example.movieapi.schedule.UpdateMovieStreamingDatesJob;
 import com.example.movieapi.schedule.MovieOutForStreamingPublisher;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ public class QuartzConfig {
     @Bean
     public JobDetail jobDetail() {
          return JobBuilder
-                .newJob(CheckForDigitalReleaseDatesJob.class)
+                .newJob(UpdateMovieStreamingDatesJob.class)
                 .storeDurably()
                 .withIdentity("Fetch_Movie_Digital_Release_Dates")
                 .withDescription("Fetch digital release dates of movies")
@@ -24,7 +24,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail())
                 .withIdentity("Fetch_Movie_Release_Dates_Trigger")
-                .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(5))
+                .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(25))
                 .build();
     }
 
