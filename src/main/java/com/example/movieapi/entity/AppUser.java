@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @Setter
@@ -22,7 +24,6 @@ public class AppUser {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     private boolean enabled;
@@ -31,11 +32,27 @@ public class AppUser {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    public AppUser(String username, String email, String password, boolean enabled, Role role) {
+    @Column(name = "provider")
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
+    @Column(name = "google_access_token", length = 500)
+    private String googleAccessToken;
+    @Column(name = "google_refresh_token", length = 500)
+    private String googleRefreshToken;
+    @Column(name = "google_token_expiry")
+    private Instant googleTokenExpires;
+
+    public AppUser(String username, String email, String password, boolean enabled, Role role, Provider provider, String providerId) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
         this.enabled = enabled;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 }
