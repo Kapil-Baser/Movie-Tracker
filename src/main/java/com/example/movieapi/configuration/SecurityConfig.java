@@ -65,6 +65,7 @@ public class SecurityConfig {
                         )
                         .failureHandler(authenticationFailureHandler())
                         .successHandler(successHandler)
+                        .defaultSuccessUrl("/movies")
                 )
 
                 .logout(logout -> logout
