@@ -9,7 +9,12 @@
     <div class="flex items-start justify-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40">
         <div class="p-4">
             <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
-                <div class="flex w-full justify-end">
+                <div th:if="${#maps.isEmpty(movieHistoryMap)}" class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
+                        <p>Your watch history is empty 😔</p>
+                        <p class="text-sm mt-2 text-gray-400">Add movies to your watch history</p>
+                </div>
+
+                <div class="flex w-full justify-end" th:if="${!#maps.isEmpty(movieHistoryMap)}">
                     <input type="search" id="search"
                            class="block bg-white rounded-md outline-none p-2 ps-4 text-heading text-sm rounded-base focus-within:ring-2 focus-within:ring-emerald-300"
                            placeholder="Search"
