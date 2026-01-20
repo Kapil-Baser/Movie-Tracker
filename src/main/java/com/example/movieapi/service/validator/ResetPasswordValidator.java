@@ -18,6 +18,16 @@ public class ResetPasswordValidator implements Validator {
 
         ResetPasswordDto dto = (ResetPasswordDto) target;
 
+        if (dto.getNewPassword() == null || dto.getNewPassword().isEmpty()) {
+            errors.rejectValue("newPassword", "invalid.password", "New Password Required");
+            return;
+        }
+
+        if (dto.getConfirmNewPassword() == null || dto.getConfirmNewPassword().isEmpty()) {
+            errors.rejectValue("confirmNewPassword", "invalid.password", "Confirm Password Required");
+            return;
+        }
+
         if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
             errors.rejectValue("newPassword", "password.mismatch", "Passwords do not match");
         }
