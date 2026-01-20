@@ -10,7 +10,6 @@ import org.springframework.validation.Errors;
 
 import static org.assertj.core.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class ResetPasswordValidatorTest {
 
     private final ResetPasswordValidator validator = new ResetPasswordValidator();
