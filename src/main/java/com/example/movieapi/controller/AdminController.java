@@ -31,8 +31,9 @@ public class AdminController {
     }
 
     @PostMapping("/sync-release-dates")
-    public ResponseEntity<List<MovieDto>> syncReleaseDates() {
-        return ResponseEntity.ok(movieSyncService.syncDigitalReleaseDates());
+    public ResponseEntity<String> syncReleaseDates() {
+        movieSyncService.fetchAndSyncDigitalReleaseDates();
+        return ResponseEntity.ok("Synced release dates");
     }
 
     @PostMapping("/now-playing")
