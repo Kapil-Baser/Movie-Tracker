@@ -33,21 +33,24 @@ public class ChangePasswordValidator implements Validator {
         ChangePasswordDto dto = (ChangePasswordDto) target;
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AuthenticatedUser user = (AuthenticatedUser) userService.loadUserByUsername(auth.getName());
 
-        // Checking if new passwords match
-        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
-            errors.rejectValue("newPassword", "password.mismatch", "Passwords do not match");
-        }
+        if (auth != null) {
+            AuthenticatedUser user = (AuthenticatedUser) userService.loadUserByUsername(auth.getName());
 
-        // Checking if old password is correct
-        if(!userService.isValidPassword(user.getUser(), dto.getCurrentPassword())) {
-            errors.rejectValue("currentPassword", "password.incorrect", "Current password is incorrect");
-        }
+            // Checking if new passwords match
+            if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+                errors.rejectValue("newPassword", "password.mismatch", "Passwords do not match");
+            }
 
-        // Checking if new password is different from current password
-        if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
-            errors.rejectValue("invalidPassword", "password.invalid", "New password cannot be same as current password");
+            // Checking if old password is correct
+            if(!userService.isValidPassword(user.getUser(), dto.getCurrentPassword())) {
+                errors.rejectValue("currentPassword", "password.incorrect", "Current password is incorrect");
+            }
+
+            // Checking if new password is different from current password
+            if (passwordEncoder.matches(dto.getNewPassword(), user.getPassword())) {
+                errors.rejectValue("currentPassword", "password.invalid", "New password cannot be same as current password");
+            }
         }
     }
 }
