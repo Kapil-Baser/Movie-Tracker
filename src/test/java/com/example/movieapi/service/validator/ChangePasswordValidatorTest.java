@@ -142,7 +142,12 @@ class ChangePasswordValidatorTest {
 
         changePasswordValidator.validate(changePasswordDto, errors);
 
+        String errorCode = errors.getFieldError("currentPassword").getCode();
+
         assertThat(errors.hasErrors()).isTrue();
+        assertThat(errorCode).isEqualTo("password.invalid");
+        verify(userService, times(1)).isValidPassword(null, changePasswordDto.getCurrentPassword());
+        verify(passwordEncoder, times(1)).matches("oldPassword", null);
     }
 
 }
