@@ -170,12 +170,13 @@ public class MovieService {
         // Getting us release dates
         for (TmdbMovieDetailsResponse movieResult : movieResults) {
             List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(movieResult.getReleaseDates().getResults());
+            Movie movie = movieMapper.toEntity(movieResult);
             if (!usReleaseDates.isEmpty()) {
-                Movie movie = movieMapper.toEntity(movieResult);
                 Movie movieWithReleaseDates = processReleaseDates(usReleaseDates, movie);
                 movies.add(movieWithReleaseDates);
             } else {
                 log.info("Movie with IMDB ID: {} does not have a US release date", movieResult.getImdbId());
+                movies.add(movie);
             }
         }
 
