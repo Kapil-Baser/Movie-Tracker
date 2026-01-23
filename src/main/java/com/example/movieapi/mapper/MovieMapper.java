@@ -1,10 +1,7 @@
 package com.example.movieapi.mapper;
 
 import com.example.movieapi.dto.MovieDto;
-import com.example.movieapi.dto.WatchedMovieDto;
-import com.example.movieapi.entity.Genre;
 import com.example.movieapi.entity.Movie;
-import com.example.movieapi.entity.WatchedMovie;
 import com.example.movieapi.model.TmdbGenre;
 import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
@@ -13,19 +10,15 @@ import com.example.movieapi.utility.FormatUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class MovieMapper {
 
-    @Value("${image.base.url}")
-    private String imageBaseUrl;
+    /*@Value("${image.base.url}")
+    private String imageBaseUrl;*/
 
     public Movie toEntity(TraktMovie traktMovie) {
         return Movie.builder()
@@ -95,26 +88,6 @@ public class MovieMapper {
                 ).toList();
     }
 
-
-    public List<MovieDto> toMovieDto(Set<Movie> movies) {
-        return movies.stream()
-                .map(movie -> MovieDto.builder()
-                        .id(movie.getId())
-                        .title(movie.getTitle())
-                        .overview(movie.getOverview())
-                        .backdropPath(movie.getBackdropPath())
-                        .posterPath(movie.getPosterPath())
-                        .usDigitalReleaseDate(String.valueOf(movie.getUsDigitalDate()))
-                        .releaseDate(movie.getReleaseDate()
-                                .format(DateTimeFormatter
-                                        .ofPattern("MMM d, yyyy", Locale.ENGLISH)))
-                        .genres(movie.getGenres().stream()
-                                .map(Genre::getName)
-                                .collect(Collectors.toSet()))
-                        .build()
-                ).toList();
-    }
-
     public MovieDto toMovieDto (Movie movie) {
         return MovieDto.builder()
                 .id(movie.getId())
@@ -129,21 +102,5 @@ public class MovieMapper {
                 .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
                 .genres(movie.getTmdbGenres())
                 .build();
-    }
-
-    public WatchedMovieDto toWatchedMovieDto(WatchedMovie watchedMovie) {
-        Movie movie = watchedMovie.getMovie();
-        return WatchedMovieDto.builder()
-                .title(movie.getTitle())
-                .movieId(String.valueOf(movie.getId()))
-                .posterPath(movie.getPosterPath())
-                .releaseDate(releaseDateFormatter(movie.getReleaseDate()))
-                .watchedAt(watchedMovie.getWatchedAt().toLocalDate())
-                .build();
-    }
-
-    // TODO: make other methods use this formatter too
-    private String releaseDateFormatter(LocalDate localDate) {
-        return localDate.format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH));
     }
 }
