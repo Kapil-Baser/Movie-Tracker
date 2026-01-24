@@ -64,7 +64,7 @@ public class SecurityConfig {
                                 .authorizationRequestResolver(resolver)
                         )
                         .failureHandler(authenticationFailureHandler())
-                        .defaultSuccessUrl("/movies")
+
                         .successHandler(successHandler)
                 )
 
