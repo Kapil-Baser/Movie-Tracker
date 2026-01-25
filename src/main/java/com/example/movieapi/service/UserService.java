@@ -2,6 +2,7 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.dto.RegisterUserDto;
 import com.example.movieapi.entity.AppUser;
+import com.example.movieapi.entity.Provider;
 import com.example.movieapi.event.TokenResendEvent;
 import com.example.movieapi.event.UserRegisteredEvent;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -28,6 +29,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
+
     @Autowired
     public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
@@ -51,13 +53,34 @@ public class UserService implements UserDetailsService {
                 dto.getEmail(),
                 passwordEncoder.encode(dto.getPassword()),
                 false,
-                roleRepository.findByName("ROLE_USER")
+                roleRepository.findByName("ROLE_USER"),
+                Provider.LOCAL,
+                null
                 );
 
         AppUser savedUser = repository.save(newUser);
 
         eventPublisher.publishEvent(new UserRegisteredEvent(savedUser));
     }
+
+    /*public AppUser registerGoogleUser(OidcUser oidcUser) {
+        if (oidcUser != null) {
+            AppUser newUser = new AppUser();
+            newUser.setEmail(oidcUser.getEmail());
+            newUser.setUsername(oidcUser.getName());
+            newUser.setPassword(null);
+            newUser.setProvider(Provider.GOOGLE);
+            newUser.setProviderId(oidcUser.getSubject());
+            newUser.setGoogleAccessToken(accessToken.getTokenValue());
+            newUser.setGoogleTokenExpires(LocalDateTime.from(accessToken.getExpiresAt()));
+            newUser.setEnabled(true);
+            newUser.setRole(roleRepository.findByName("ROLE_USER"));
+            if (userRequest.getAdditionalParameters().containsKey("refresh_token")) {
+                newUser.setGoogleRefreshToken((String) userRequest.getAdditionalParameters().get("refresh_token"));
+            }
+            return userRepository.save(newUser);
+        }
+    }*/
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
