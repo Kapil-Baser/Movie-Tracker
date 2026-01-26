@@ -81,7 +81,8 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/movies/**",
                                 "/register/**",
-                                "/error"
+                                "/error",
+                                "/favicon.ico"
                         )
                                 .permitAll()
                                 .anyRequest()
