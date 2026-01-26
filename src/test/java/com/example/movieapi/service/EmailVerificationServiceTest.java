@@ -2,15 +2,13 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.ConfirmationToken;
+import com.example.movieapi.exception.InvalidTokenException;
 import com.example.movieapi.repository.ConfirmationTokenRepository;
 import com.example.movieapi.repository.UserRepository;
-import org.assertj.core.api.Assertions;
+import com.example.movieapi.utility.TokenHashUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -20,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,7 +100,51 @@ class EmailVerificationServiceTest {
         }
 
         verify(confirmationTokenRepository).save(any(ConfirmationToken.class));
+    }
 
+    @Test
+    void confirmAndEnable_shouldConfirmAndEnable_whenTokenIsValidAndNotAlreadyConfirmed() {
+        String rawToken = "rawToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+        AppUser user = new AppUser();
+        user.setEnabled(false);
+
+        ConfirmationToken token = new ConfirmationToken();
+        token.setRevoked(false);
+        token.setUser(user);
+        token.setTokenHash(hashedToken);
+        token.setConfirmedAt(null);
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+
+        when(confirmationTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(token));
+
+        emailVerificationService.confirmAndEnable(rawToken);
+
+        InOrder inOrder = inOrder(confirmationTokenRepository, userRepository);
+
+        inOrder.verify(confirmationTokenRepository).findByTokenHash(hashedToken);
+        inOrder.verify(confirmationTokenRepository).save(token);
+        inOrder.verify(userRepository).save(user);
+
+        assertThat(token.isRevoked()).isTrue();
+        assertThat(token.getConfirmedAt()).isNotNull();
+
+        assertThat(user.isEnabled()).isTrue();
+    }
+
+    @Test
+    void confirmAndEnable_throwsException_whenTokenIsInvalid() {
+        String rawInvalid = "invalidToken";
+        String  hashedInvalid = TokenHashUtil.getHashedToken(rawInvalid);
+
+        when(confirmationTokenRepository.findByTokenHash(hashedInvalid)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> emailVerificationService.confirmAndEnable(rawInvalid))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessage("This token is invalid");
+
+        verify(confirmationTokenRepository).findByTokenHash(hashedInvalid);
+        verifyNoInteractions(userRepository);
     }
 
 }
