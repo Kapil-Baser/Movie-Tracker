@@ -110,9 +110,6 @@ public class Movie {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-/*    @OneToMany(mappedBy = "movie")
-    private MovieSubscription movieSubscription;*/
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
