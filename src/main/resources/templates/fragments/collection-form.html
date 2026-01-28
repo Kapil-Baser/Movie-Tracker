@@ -18,55 +18,16 @@
     <div th:fragment="add-form"
          class="bg-emerald-800 p-4 rounded-xl mb-4">
         <h3 class="text-white text-lg mb-3">Create New Collection</h3>
-        <form hx:post="@{/collections/add}"
-              hx-target="this"
-              hx-swap="outerHTML"
-              hx:vals="${ {_csrf.parameterName : _csrf.token} }"
-              th:object="${collectionDto}">
-
-            <div class="mb-3">
-                <div th:if="${error}" class="error-message">
-                    <p th:text="${error}"></p>
-                </div>
-
-                <span th:if="${#fields.hasErrors('name')}"
-                      th:errors="*{name}"
-                      class="text-red-400 text-sm block mb-2">
-                    Error message here
-                </span>
-                
-                <input type="text"
-                   name="name"
-                       th:field="*{name}"
-                   placeholder="Collection name..."
-                   class="w-full p-2 rounded-md mb-3 text-white"
-                   required
-                   autocomplete="off"/>
-            </div>
-
-            <div class="flex gap-2">
-                <button type="submit"
-                        class="bg-amber-900 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded-md hover:cursor-pointer">
-                    Save
-                </button>
-                <button type="button"
-                        hx-get="/collections/cancel-form"
-                        hx-target="#form-container"
-                        hx-swap="innerHTML"
-                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md hover:cursor-pointer">
-                    Cancel
-                </button>
-            </div>
-        </form>
+        <th:block th:replace="~{fragments/collection-form :: collection-add-form}"></th:block>
     </div>
+
 <!--Form for collection adding-->
 <form th:fragment="collection-add-form"
       hx:post="@{/collections/add}"
       hx-target="this"
       hx-swap="outerHTML"
       hx:vals="${ {_csrf.parameterName : _csrf.token} }"
-
-      th:object="${collectionDto}">
+      th:object="${newCollectionDto}">
 
     <div class="mb-3">
 
@@ -78,7 +39,7 @@
               th:errors="*{name}"
               class="text-red-400 text-sm block mb-2">
                     Error message here
-                </span>
+        </span>
 
         <input type="text"
                name="name"
@@ -167,7 +128,7 @@
     <div th:fragment="empty"></div>
 
 
-    <form th:fragment="old-form" th:action="@{/collections/save}" method="POST" th:object="${collectionDto}">
+    <form th:fragment="old-form" th:action="@{/collections/save}" method="POST" th:object="${newCollectionDto}">
         <!-- Error goes above the input field -->
         <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500 text-sm mt-1 flex justify-center">
                         This collection name already exists
