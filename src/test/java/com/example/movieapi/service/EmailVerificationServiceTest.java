@@ -2,7 +2,9 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.ConfirmationToken;
+import com.example.movieapi.exception.ExpiredTokenException;
 import com.example.movieapi.exception.InvalidTokenException;
+import com.example.movieapi.exception.UserAlreadyVerifiedException;
 import com.example.movieapi.repository.ConfirmationTokenRepository;
 import com.example.movieapi.repository.UserRepository;
 import com.example.movieapi.utility.TokenHashUtil;
@@ -144,6 +146,50 @@ class EmailVerificationServiceTest {
                 .hasMessage("This token is invalid");
 
         verify(confirmationTokenRepository).findByTokenHash(hashedInvalid);
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void confirmAndEnable_shouldThrowException_whenTokenIsAlreadyConfirmed() {
+        String rawToken = "rawToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+
+        ConfirmationToken token = new ConfirmationToken();
+        token.setUser(new AppUser());
+        token.setRevoked(true);
+        token.setConfirmedAt(LocalDateTime.now());
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+
+        when(confirmationTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> emailVerificationService.confirmAndEnable(rawToken))
+                .isInstanceOf(UserAlreadyVerifiedException.class)
+                .hasMessage("Your email is already confirmed");
+
+        verify(confirmationTokenRepository).findByTokenHash(hashedToken);
+        verify(confirmationTokenRepository, never()).save(any(ConfirmationToken.class));
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void confirmAndEnable_shouldThrowException_whenTokenIsExpired() {
+        String rawToken = "rawToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+
+        ConfirmationToken token = new ConfirmationToken();
+        token.setUser(new AppUser());
+        token.setRevoked(false);
+        token.setConfirmedAt(null);
+        token.setExpiresAt(LocalDateTime.now().minusMinutes(5));
+
+        when(confirmationTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> emailVerificationService.confirmAndEnable(rawToken))
+                .isInstanceOf(ExpiredTokenException.class)
+                .hasMessage("This token has expired");
+
+        verify(confirmationTokenRepository).findByTokenHash(hashedToken);
+        verify(confirmationTokenRepository, never()).save(any(ConfirmationToken.class));
         verifyNoInteractions(userRepository);
     }
 
