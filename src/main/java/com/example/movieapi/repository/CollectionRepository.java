@@ -47,4 +47,6 @@ public interface CollectionRepository extends JpaRepository<MovieCollection, Lon
             "WHERE mc.owner = :owner AND mc.name = :collectionName")
     Set<Long> findAllMovieIdsByOwnerAndName(@Param("owner") AppUser owner,
                                             @Param("collectionName") String collectionName);
+
+    void deleteByOwnerAndId(AppUser owner, Long collectionId);
 }
