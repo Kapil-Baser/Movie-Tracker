@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CollectionDto {
+public class NewCollectionDto {
 
     @NotBlank(message = "Name cannot be blank or empty.")
     @Size(min = 6, max = 255, message = "Collection name must be between 6 and 255 characters.")
