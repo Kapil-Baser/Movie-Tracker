@@ -201,41 +201,12 @@ public class MovieCollectionService {
         return movieIds != null ? movieIds : Collections.emptySet();
     }
 
-    /**
-     * Get all the movie ids watched by the user
-     * @param user the user to inquiry
-     * @return set of already watched movie ids
-     */
-    public Set<Long> getWatchedMovieIds(AppUser user) {
+    public Set<Long> getWatchListedMovieIds(AppUser user) {
         Set<Long> movieIds = collectionRepository
-                .findAllMovieIdsByOwnerAndName(user, WATCHED);
+                .findAllMovieIdsByOwnerAndName(user, WATCHLIST);
 
         return movieIds != null ? movieIds : Collections.emptySet();
     }
-
-    /**
-     * Helper method to get a collection given a collection id and user who owns the collection
-     * @param collectionId id of collection to obtain
-     * @param user user who owns the collection
-     * @return collection owned by given user and collection id
-     */
-/*    private MovieCollection getCollectionByIdAndOwner(Long collectionId, AppUser user) {
-
-        return collectionRepository.findByIdAndOwner(collectionId, user)
-                .orElseThrow(() -> new RuntimeException("Collection not found with id: " + collectionId));
-
-    }*/
-
-/*    public List<MovieDto> getAllMoviesFromCollection(Long collectionId, AuthenticatedUser authenticatedUser) {
-        // First we get the collection
-        MovieCollection collection = getCollectionByIdAndOwner(collectionId, authenticatedUser.getUser());
-
-        // Get the list of movies in collection
-        Set<Movie> movies = collection.getMovies();
-
-        // Convert the movie list to movie dto
-        return movieMapper.toMovieDto(movies);
-    }*/
 
     public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -267,13 +238,6 @@ public class MovieCollectionService {
         return !isWatchListed;
     }
 
-    public Set<Long> getWatchListedMovieIds(AppUser user) {
-        Set<Long> movieIds = collectionRepository
-                .findAllMovieIdsByOwnerAndName(user, WATCHLIST);
-
-        return movieIds != null ? movieIds : Collections.emptySet();
-    }
-
     public void addToCollection(String collectionName, List<Movie> movies) {
         MovieCollection collection = getOrCreateCollection(collectionName);
 
@@ -287,5 +251,12 @@ public class MovieCollectionService {
 
         MovieCollection saved = collectionRepository.save(collection);
         log.info("Added {} new movies to collection {}", newlyAddedMovies, saved.getName());
+    }
+
+    @Transactional
+    public void deleteCollectionByUserAndId(AuthenticatedUser authenticatedUser, Long collectionId) {
+        AppUser user = authenticatedUser.getUser();
+        collectionRepository.deleteByOwnerAndId(user, collectionId);
+        log.info("Deleted {} collection from collection repository", collectionId);
     }
 }
