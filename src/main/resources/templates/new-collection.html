@@ -1,4 +1,4 @@
-
+<!--TODO: Remove as this is old way and this takes the user to new page to create a collection which I am not doing right now-->
 <!doctype html>
 <html lang="en">
 <head th:insert="~{fragments/head :: head (pageTitle='Create a collection')}">
@@ -12,7 +12,7 @@
 
             <div><h2 class="text-3xl text-center pb-2 text-white border-b-1">New Collection</h2></div>
 
-            <form th:action="@{/collections/save}" method="POST" th:object="${collectionDto}">
+            <form th:action="@{/collections/save}" method="POST" th:object="${newCollectionDto}">
                 <!-- Error goes above the input field -->
                 <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-500 text-sm mt-1 flex justify-center">
                         This collection name already exists
