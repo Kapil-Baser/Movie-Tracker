@@ -7,11 +7,13 @@ import com.example.movieapi.entity.WatchedMovie;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.WatchedMovieRepository;
 import com.example.movieapi.utility.FormatUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,5 +82,17 @@ public class WatchedMovieService {
         return watchedMovies.stream()
                 .map(Movie::getId)
                 .collect(Collectors.toSet());
+    }
+
+    @Transactional
+    public void markAsUnwatched(AppUser user, Long movieId) {
+        watchedMovieRepository.deleteByUserAndMovieId(user, movieId);
+    }
+
+    public int getWatchedMoviesCount(AppUser user, LocalDate watchedAtDate) {
+        LocalDateTime startDate = watchedAtDate.atStartOfDay();
+        LocalDateTime endDate = watchedAtDate.plusDays(1).atStartOfDay();
+
+        return watchedMovieRepository.findCountByUserAndWatchedAt(user, startDate, endDate);
     }
 }
