@@ -25,4 +25,9 @@ public interface WatchedMovieRepository extends JpaRepository<WatchedMovie, Long
     List<WatchedMovie> findByUserAndWatchedAtBetween(AppUser user, LocalDateTime start, LocalDateTime end);
 
     Optional<WatchedMovie> findByUserAndMovie(AppUser user, Movie movie);
+
+    void deleteByUserAndMovieId(AppUser user, Long movieId);
+
+    @Query("SELECT Count(wm.movie) FROM WatchedMovie wm WHERE wm.user = :user AND wm.watchedAt BETWEEN :startDate AND :endDate")
+    int findCountByUserAndWatchedAt(@Param("user") AppUser user, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
