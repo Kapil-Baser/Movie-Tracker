@@ -1,11 +1,13 @@
 package com.example.movieapi.entity;
 
+import com.example.movieapi.model.AuthenticatedUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -76,6 +78,10 @@ public class MovieCollection {
 
     public int collectionSize() {
         return movies.size();
+    }
+
+    public String formattedCollectionSize() {
+        return movies.size() < 2 ? movies.size() + " Title" : movies.size() + " Titles";
     }
 
 }
