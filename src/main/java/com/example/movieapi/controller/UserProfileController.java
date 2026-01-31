@@ -81,7 +81,7 @@ public class UserProfileController {
         }
 
         // Changing the password and saving the user
-        //userService.changePassword(authenticatedUser, changePasswordDto.getNewPassword());
+        userService.changePassword(authenticatedUser, changePasswordDto.getNewPassword());
 
         // Invalidate the current session and log the current user out
         userService.performLogout(request);
@@ -108,7 +108,7 @@ public class UserProfileController {
             return "fragments/modal :: deactivate-form";
         }
         // Disable the user account and invalidate the session
-        //userService.deactivateUser(user);
+        userService.deactivateUser(user);
         userService.performLogout(request);
 
         RedirectInfo redirectInfo = new RedirectInfo("Success", "Your account has been disabled as per your request.");
