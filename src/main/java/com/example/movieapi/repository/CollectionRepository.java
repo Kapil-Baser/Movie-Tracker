@@ -2,6 +2,8 @@ package com.example.movieapi.repository;
 
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
@@ -38,6 +40,8 @@ public interface CollectionRepository extends JpaRepository<MovieCollection, Lon
     List<MovieCollection> findByOwner(AppUser owner);
 
     List<MovieCollection> findByOwnerId(Long ownerId);
+
+    Page<MovieCollection> findByOwner(AppUser owner, Pageable pageable);
 
     // Get all movie IDs in a collection
     @Query("SELECT m.id FROM MovieCollection mc JOIN mc.movies m WHERE mc.id = :collectionId")
