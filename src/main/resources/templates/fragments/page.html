@@ -22,3 +22,19 @@
     </th:block>
   </th:block>
 </th:block>
+
+<div th:fragment="collectionPage (collectionView)" id="collections-container">
+  <th:block th:each="collection, iterStat : ${collectionView.collections}">
+    <th:block th:with="isLast = ${iterStat.last && collectionView.hasNext} ? true : false">
+      <div th:replace="~{fragments/collection-card :: collection-card (collection = ${collection}, isLast=${isLast}, nextPage=${collectionView.nextPage})}"></div>
+    </th:block>
+
+  </th:block>
+
+  <!-- Empty state -->
+  <div th:if="${collectionView.collections.isEmpty()}"
+       class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
+    <p>No collections found 😔</p>
+    <p class="text-sm mt-2 text-gray-400">Collections are the perfect way to group films!</p>
+  </div>
+</div>
