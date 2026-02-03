@@ -1,0 +1,33 @@
+<!--Card for individual collection div-->
+<div th:fragment="collection-card(collection, isLast, nextPage)"
+     class="collection-card relative bg-emerald-950 h-[110px] rounded-xl mb-2"
+     th:attr="hx-get=${isLast} ? @{/collections/nextPage(page = ${nextPage})} : null,
+              hx-trigger=${isLast} ? 'revealed' : null,
+              hx-swap=${isLast} ? 'afterend' : null">
+
+  <a th:href="@{/collections/{collection_id}(collection_id=${collection.id})}" class="group block relative w-full h-full rounded-xl overflow-hidden">
+
+    <div class="absolute inset-0 bg-black/40"></div>
+
+    <div class="relative flex flex-col p-2 h-full justify-end">
+      <p class="text-xl text-white font-semibold drop-shadow-md" th:text="${collection.name}">Steven Seagal
+        Collection
+      </p>
+      <!-- Using thymeleaf Expression inlining in here -->
+      <span th:text="${collection.formattedSize}" class="text-amber-700"></span>
+    </div>
+
+    <button hx:delete="@{/collections/delete(collection_id=${collection.id})}"
+            hx-confirm="Are you sure?"
+            hx-target="closest .collection-card"
+            hx-swap="outerHTML"
+            hx:vals="${ {_csrf.parameterName : _csrf.token} }"
+            type="button" class="absolute right-2 bottom-2
+                                   opacity-0 group-hover:opacity-100
+                                   bg-red-600 hover:bg-red-700 hover:cursor-pointer
+                                   text-white rounded-md px-2
+                                   transition-opacity duration-200">
+      ✕
+    </button>
+  </a>
+</div>
