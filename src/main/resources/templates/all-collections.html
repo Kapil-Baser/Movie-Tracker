@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="~{fragments/head :: head (pageTitle='Collections')}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2 min-h-screen h-screen">
+  <div class="flex items-start justify-center px-4 py-8 sm:px-8 md:px-16 lg:px-32 xl:px-40">
+    <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
+
+      <div><h2 class="text-3xl text-center pb-2 text-white">All Collections</h2></div>
+
+      <div class="flex items-center justify-end">
+        <!-- HTMX button to load the form -->
+        <button
+                hx-get="/collections/add-form"
+                hx-target="#form-container"
+                hx-swap="innerHTML"
+                class="bg-amber-900 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded-full transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Container where the form will appear -->
+      <div id="form-container">
+
+      </div>
+
+      <!-- Container for collections list -->
+      <div th:replace="~{fragments/page :: collectionPage(collectionView = ${collectionView})}">
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
