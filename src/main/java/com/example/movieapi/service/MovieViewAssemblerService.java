@@ -1,10 +1,16 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.CollectionDto;
+import com.example.movieapi.dto.CollectionView;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.dto.MovieViewDto;
 import com.example.movieapi.entity.AppUser;
+import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,5 +72,26 @@ public class MovieViewAssemblerService {
                 .isSubscribable(MoviePolicyService.isMovieSubscribable(movieDto.releaseDate(), movieDto.usDigitalReleaseDate()))
                 .isWatched(watchedMovieIds.contains(movieDto.id()))
                 .build();
+    }
+
+    // TODO: Refactor this or make a collection view builder service
+    public CollectionView buildAllCollectionView(AuthenticatedUser authenticatedUser, int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Page<MovieCollection> movieCollectionsPage = collectionService.getAllUserCollectionPaged(authenticatedUser.getUser(), pageable);
+
+        if (movieCollectionsPage.hasContent()) {
+            List<MovieCollection> movieCollections = movieCollectionsPage.getContent();
+            List<CollectionDto> collectionDtos = movieCollections.stream()
+                    .map(mc -> {
+                        Long id = mc.getId();
+                        String name = mc.getName();
+                        String size = mc.formattedCollectionSize();
+                        return new CollectionDto(id, name, size);
+                    }).toList();
+
+            return new CollectionView(collectionDtos, movieCollectionsPage.hasNext(), movieCollectionsPage.getNumber() + 1);
+        }
+
+        return new CollectionView(List.of(), movieCollectionsPage.hasNext(), movieCollectionsPage.getNumber());
     }
 }
