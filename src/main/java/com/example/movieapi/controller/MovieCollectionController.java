@@ -1,11 +1,13 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.dto.CollectionDto;
+import com.example.movieapi.dto.CollectionView;
+import com.example.movieapi.dto.NewCollectionDto;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
+import com.example.movieapi.service.MovieViewAssemblerService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,22 +30,40 @@ import java.util.List;
 public class MovieCollectionController {
 
     private final MovieCollectionService collectionService;
+    private final MovieViewAssemblerService movieViewAssemblerService;
+    private static final String COLLECTION_PAGE = "collections";
 
-
+    // TODO: Don't think I need this
     @PostMapping("/{collectionName}/{movieId}")
     public ResponseEntity<MovieCollection> addMovie(
             @PathVariable String collectionName,
             @PathVariable Long movieId,
             Authentication auth) {
-
         return ResponseEntity.ok(collectionService.addMoviesToUserCollection(auth, movieId, collectionName));
     }
 
-    @GetMapping()
-    public String collectionsPage(Authentication auth, Model model) {
+    /*@GetMapping()
+    public String showCollectionsPage(Authentication auth, Model model) {
         List<MovieCollection> collections = collectionService.getAllUserCollection(auth);
         model.addAttribute("collections", collections);
-        return "collections";
+        return COLLECTION_PAGE;
+    }*/
+
+    @GetMapping
+    public String showAllCollections(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
+        CollectionView collectionView = movieViewAssemblerService.buildAllCollectionView(authenticatedUser, 0);
+        model.addAttribute("collectionView", collectionView);
+        return "all-collections";
+    }
+
+    @HxRequest
+    @GetMapping("/nextPage")
+    public String collectionsNextPage(@RequestParam(name = "page", defaultValue = "1") int page,
+                                      @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                      Model model) {
+        CollectionView collectionView = movieViewAssemblerService.buildAllCollectionView(authenticatedUser, page);
+        model.addAttribute("collectionView", collectionView);
+        return "fragments/page :: collectionPage";
     }
 
     @GetMapping("/{collectionId}")
@@ -68,7 +88,7 @@ public class MovieCollectionController {
     @HxRequest
     @GetMapping("/add-form")
     public String showAddForm(Model model) {
-        model.addAttribute("collectionDto", new CollectionDto());
+        model.addAttribute("newCollectionDto", new NewCollectionDto());
         return "fragments/collection-form :: add-form";
     }
 
@@ -79,40 +99,42 @@ public class MovieCollectionController {
         return "fragments/collection-form :: empty";
     }
 
-    @GetMapping("/new")
-    public String newCollection(Model model) {
-        model.addAttribute("collectionDto", new CollectionDto());
-        return "new-collection";
-    }
-
-    // HTMX endpoint: Add new collection to user collections
+    @HxRequest
     @PostMapping("/add")
-    public String addCollection(@Valid @ModelAttribute("collectionDto") CollectionDto collectionDto,
+    public String addCollection(@Valid @ModelAttribute("newCollectionDto") NewCollectionDto newCollectionDto,
                                 BindingResult bindingResult,
                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                 Model model) {
 
         if (bindingResult.hasErrors()) {
             // Returning the form with errors
-            model.addAttribute("collectionDto", new CollectionDto());
-            return "fragments/collection-form :: add-form";
+            model.addAttribute("newCollectionDto", newCollectionDto);
+            return "fragments/collection-form :: collection-add-form";
         }
 
         AppUser user = authenticatedUser.getUser();
 
-        if (collectionService.nameExists(collectionDto.getName(), user.getId())) {
+        if (collectionService.nameExists(newCollectionDto.getName(), user.getId())) {
             bindingResult.rejectValue("name", "name.duplicate", "This collection name already exists");
-            model.addAttribute("collectionDto", new CollectionDto());
-            return "fragments/collection-form :: add-form";
+            model.addAttribute("newCollectionDto", newCollectionDto);
+            return "fragments/collection-form :: collection-add-form";
         }
 
-        collectionService.createUserCollection(user, collectionDto.getName());
+        MovieCollection collection = collectionService.createUserCollection(user, newCollectionDto.getName());
 
-        return "fragments/collection-form :: collection-list";
+        model.addAttribute("collection", collection);
+
+        return "redirect:htmx:/collections";
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        collectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/save")
-    public String saveCollection(@Valid @ModelAttribute("collectionDto") CollectionDto collectionDto,
+    public String saveCollection(@Valid @ModelAttribute("collectionDto") NewCollectionDto newCollectionDto,
                                  BindingResult result,
                                  @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
@@ -122,12 +144,12 @@ public class MovieCollectionController {
 
         AppUser user = authenticatedUser.getUser();
 
-        if (collectionService.nameExists(collectionDto.getName(), user.getId())) {
+        if (collectionService.nameExists(newCollectionDto.getName(), user.getId())) {
             result.rejectValue("name", "name.duplicate", "This collection name already exists");
             return "new-collection";
         }
 
-        collectionService.createUserCollection(user, collectionDto.getName());
+        collectionService.createUserCollection(user, newCollectionDto.getName());
 
         return "redirect:/collections";
     }
