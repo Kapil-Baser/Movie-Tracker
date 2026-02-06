@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -41,7 +40,7 @@ public class PasswordResetTokenService {
 
         List<PasswordResetToken> active = repository.findAllByUserAndConfirmedAtIsNullAndRevokedFalse(user);
         for (PasswordResetToken token : active) {
-            token.setRevoked(false);
+            token.setRevoked(true);
             token.setConfirmedAt(LocalDateTime.now());
         }
         repository.saveAll(active);
