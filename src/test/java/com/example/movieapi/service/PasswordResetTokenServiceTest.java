@@ -2,6 +2,7 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.PasswordResetToken;
+import com.example.movieapi.exception.ExpiredTokenException;
 import com.example.movieapi.exception.InvalidTokenException;
 import com.example.movieapi.repository.PasswordResetTokenRepository;
 import com.example.movieapi.utility.TokenHashUtil;
@@ -128,6 +129,51 @@ class PasswordResetTokenServiceTest {
                 .isInstanceOf(InvalidTokenException.class)
                 .hasMessage("Invalid Token");
 
+        verify(passwordResetTokenRepository, never()).save(any(PasswordResetToken.class));
+    }
+
+    @Test
+    void validateToken_shouldThrowExpiredTokenException_whenTokenIsExpired() {
+        String rawToken = "expiredToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setRevoked(false);
+        resetToken.setTokenHash(hashedToken);
+        resetToken.setExpiresAt(LocalDateTime.now().minusHours(1));
+
+        when(passwordResetTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(resetToken));
+
+        assertThatThrownBy(() -> passwordResetTokenService.validateToken(rawToken))
+                .isInstanceOf(ExpiredTokenException.class)
+                .hasMessage("Token has expired");
+
+        assertThat(resetToken.isRevoked()).isFalse();
+        assertThat(resetToken.getConfirmedAt()).isNull();
+
+        verify(passwordResetTokenRepository, never()).save(any(PasswordResetToken.class));
+    }
+
+    @Test
+    void validateToken_shouldThrowExpiredTokenException_whenTokenIsAlreadyConfirmed() {
+        String rawToken = "expiredToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setRevoked(true);
+        resetToken.setTokenHash(hashedToken);
+        resetToken.setExpiresAt(LocalDateTime.now().plusHours(1));
+        resetToken.setConfirmedAt(LocalDateTime.now());
+
+        when(passwordResetTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(resetToken));
+
+        assertThatThrownBy(() -> passwordResetTokenService.validateToken(rawToken))
+                .isInstanceOf(ExpiredTokenException.class)
+                .hasMessage("Token has expired");
+
+
+        assertThat(resetToken.isRevoked()).isTrue();
+        assertThat(resetToken.getConfirmedAt()).isNotNull();
         verify(passwordResetTokenRepository, never()).save(any(PasswordResetToken.class));
     }
 
