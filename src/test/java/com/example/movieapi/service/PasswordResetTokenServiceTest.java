@@ -6,6 +6,7 @@ import com.example.movieapi.exception.ExpiredTokenException;
 import com.example.movieapi.exception.InvalidTokenException;
 import com.example.movieapi.repository.PasswordResetTokenRepository;
 import com.example.movieapi.utility.TokenHashUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.*;
 class PasswordResetTokenServiceTest {
 
     private final String email = "vaild@example.com";
+    private final String rawToken = "rawToken";
 
     @Mock
     private PasswordResetTokenRepository passwordResetTokenRepository;
@@ -32,6 +34,15 @@ class PasswordResetTokenServiceTest {
 
     @InjectMocks
     private PasswordResetTokenService passwordResetTokenService;
+
+    @BeforeEach
+    void setUp() {
+        AppUser appUser = new AppUser();
+        appUser.setEmail(email);
+
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setUser(appUser);
+    }
 
     @Test
     void createToken_shouldCreateAndSaveToken_whenUserExists() {
@@ -175,6 +186,37 @@ class PasswordResetTokenServiceTest {
         assertThat(resetToken.isRevoked()).isTrue();
         assertThat(resetToken.getConfirmedAt()).isNotNull();
         verify(passwordResetTokenRepository, never()).save(any(PasswordResetToken.class));
+    }
+
+    @Test
+    void getUser_shouldReturnUser_whenTokenExists() {
+        String rawToken = "rawToken";
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+        AppUser appUser = new AppUser();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setUser(appUser);
+        resetToken.setTokenHash(hashedToken);
+
+        when(passwordResetTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.of(resetToken));
+
+        AppUser returnedUser = passwordResetTokenService.getUser(rawToken);
+
+        assertThat(returnedUser).isNotNull();
+        assertThat(resetToken.getUser()).isEqualTo(returnedUser);
+        assertThat(resetToken.getTokenHash()).isEqualTo(hashedToken);
+    }
+
+    @Test
+    void getUser_shouldThrowException_whenTokenDoesNotExist() {
+        String hashedToken = TokenHashUtil.getHashedToken(rawToken);
+
+        when(passwordResetTokenRepository.findByTokenHash(hashedToken)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> passwordResetTokenService.getUser(rawToken))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("User not found");
+
+
     }
 
 }
