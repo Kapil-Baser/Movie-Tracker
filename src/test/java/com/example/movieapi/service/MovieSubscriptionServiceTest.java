@@ -5,22 +5,20 @@ import com.example.movieapi.entity.Movie;
 import com.example.movieapi.entity.MovieSubscription;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.MovieSubscriptionRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +27,7 @@ class MovieSubscriptionServiceTest {
     private AppUser appUser;
     private AuthenticatedUser authenticatedUser;
     private Movie movie;
-    private Long movieId = 1L;
+    private final Long movieId = 1L;
 
     @Mock
     private MovieService movieService;
@@ -117,5 +115,38 @@ class MovieSubscriptionServiceTest {
         movieSubscriptionService.toggleSubscription(authenticatedUser, movieId);
 
         verify(movieSubscriptionRepository, never()).save(movieSubscription);
+    }
+
+    @Test
+    void getSubscribedMovieIds_shouldReturnEmptySet_whenUserHasNoSubscriptions() {
+        when(movieSubscriptionRepository.findAllSubscribedMoviesByUser(appUser)).thenReturn(Collections.emptyList());
+
+        Set<Long> result = movieSubscriptionService.getSubscribedMovieIds(appUser);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getSubscribedMovieIds_shouldReturnMovieIds_whenUserHasSubscriptions() {
+        Movie movie1 = new Movie();
+        movie1.setId(movieId);
+        Movie movie2 = new Movie();
+        movie2.setId(2L);
+        Movie movie3 = new Movie();
+        movie3.setId(3L);
+        when(movieSubscriptionRepository.findAllSubscribedMoviesByUser(appUser)).thenReturn(List.of(movie1, movie2, movie3));
+
+        Set<Long> result = movieSubscriptionService.getSubscribedMovieIds(appUser);
+
+        assertThat(result).containsExactlyInAnyOrder(1L, 2L, 3L);
+    }
+
+    @Test
+    void getSubscribedMovieIds_shouldCallRepositoryWithCorrectUser() {
+        when(movieSubscriptionRepository.findAllSubscribedMoviesByUser(appUser)).thenReturn(Collections.emptyList());
+
+        movieSubscriptionService.getSubscribedMovieIds(appUser);
+
+        verify(movieSubscriptionRepository).findAllSubscribedMoviesByUser(appUser);
     }
 }
