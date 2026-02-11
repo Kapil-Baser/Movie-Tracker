@@ -1,4 +1,4 @@
-package com.example.movieapi.model;
+package com.example.movieapi.model.tmdb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
