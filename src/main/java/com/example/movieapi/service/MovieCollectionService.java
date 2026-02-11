@@ -85,6 +85,10 @@ public class MovieCollectionService {
         return collectionRepository.findByOwnerId(user.getId());
     }
 
+    public Page<MovieCollection> getAllUserCollectionPaged(AppUser user, Pageable pageable) {
+        return collectionRepository.findByOwner(user, pageable);
+    }
+
     public int getCollectionCount(AuthenticatedUser authenticatedUser) {
         List<MovieCollection> collectionList = collectionRepository.findByOwner(authenticatedUser.getUser());
         return collectionList.size();
