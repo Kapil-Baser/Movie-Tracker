@@ -1,7 +1,6 @@
 package com.example.movieapi.event;
 
 import com.example.movieapi.entity.Movie;
-import com.example.movieapi.model.TmdbMovie;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.service.MovieService;
