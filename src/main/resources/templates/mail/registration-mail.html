@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+<div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <h2 style="color: #2c3e50;">Welcome to Movie Tracker!</h2>
+    <p>Hi <strong th:text="${userName}">User</strong>,</p>
+    <p>Thanks for joining us! Please verify your email address to get started:</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a th:href="${verificationUrl}"
+           style="background-color: #3498db; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Verify My Email
+        </a>
+    </div>
+
+    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+    <p style="word-break: break-all;">
+        <a th:href="${verificationUrl}" th:text="${verificationUrl}">link</a>
+    </p>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+    <p style="font-size: 0.8em; color: #888;">
+        This link will expire in 1 hour. If you did not create an account, please ignore this email.
+    </p>
+</div>
+</body>
+</html>
