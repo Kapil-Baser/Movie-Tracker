@@ -51,7 +51,7 @@ public class PasswordResetTokenService {
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .tokenHash(hash)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(120))
+                .expiresAt(LocalDateTime.now().plusMinutes(60))
                 .revoked(false)
                 .user(user)
                 .build();
