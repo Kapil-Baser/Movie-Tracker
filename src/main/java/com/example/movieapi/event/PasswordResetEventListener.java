@@ -34,7 +34,7 @@ public class PasswordResetEventListener {
                 mailService.sendPasswordResetEmail(email, link);
                 log.info("Password reset token: {} for user: {}", token, event.email());
             } catch (MessagingException e) {
-                log.error("Error while sending registration email", e);
+                log.error("Error while sending password reset email", e);
                 throw new EmailFailedException(e.getMessage());
             }
         }
