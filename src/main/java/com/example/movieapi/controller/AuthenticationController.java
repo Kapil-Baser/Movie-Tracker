@@ -23,17 +23,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthenticationController {
 
     private final UserService userService;
-    private final TokenService tokenService;
     private final PasswordResetTokenService passwordResetTokenService;
     private final ResetPasswordValidator resetPasswordValidator;
     private final ApplicationEventPublisher eventPublisher;
-    private static final String REGISTRATION_PAGE = "register";
     private static final String FORGET_PASSWORD_PAGE = "forget-password";
+    private static final String LOGIN_REDIRECT = "redirect:/auth/login";
 
     @Autowired
-    public AuthenticationController(UserService userService, TokenService tokenService, PasswordResetTokenService passwordResetTokenService, ResetPasswordValidator resetPasswordValidator, ApplicationEventPublisher eventPublisher) {
+    public AuthenticationController(UserService userService, PasswordResetTokenService passwordResetTokenService, ResetPasswordValidator resetPasswordValidator, ApplicationEventPublisher eventPublisher) {
         this.userService = userService;
-        this.tokenService = tokenService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.resetPasswordValidator = resetPasswordValidator;
         this.eventPublisher = eventPublisher;
@@ -79,7 +77,7 @@ public class AuthenticationController {
 
         redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
 
-        return "redirect:/auth/login";
+        return LOGIN_REDIRECT;
     }
 
     @GetMapping("/resetPassword")
@@ -93,7 +91,7 @@ public class AuthenticationController {
             RedirectInfo redirectInfo = new RedirectInfo("Error", "Invalid or expired token");
             redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
 
-            return "redirect:/auth/login";
+            return LOGIN_REDIRECT;
         }
 
         ResetPasswordDto dto = new ResetPasswordDto();
@@ -117,6 +115,6 @@ public class AuthenticationController {
 
         RedirectInfo redirectInfo = new RedirectInfo("Success", "Your password has been changed successfully, you can login now using your new password.");
         redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
-        return "redirect:/auth/login";
+        return LOGIN_REDIRECT;
     }
 }
