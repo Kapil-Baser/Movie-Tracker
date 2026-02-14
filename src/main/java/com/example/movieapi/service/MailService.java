@@ -1,5 +1,6 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.MovieDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import java.time.LocalDate;
 public class MailService {
 
     private final JavaMailSender mailSender;
-
     private final TemplateEngine templateEngine;
 
     @Autowired
@@ -59,6 +59,38 @@ public class MailService {
 
         helper.setTo(to);
         helper.setSubject("Registration Confirmation");
+        helper.setText(htmlBody, true);
+
+        mailSender.send(message);
+    }
+
+    public void sendPasswordResetEmail(String to, String link) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("resetUrl", link);
+
+        String htmlBody = templateEngine.process("/mail/reset-password", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject("Reset Your Password");
+        helper.setText(htmlBody, true);
+
+        mailSender.send(message);
+    }
+
+    public void sendMovieOutForStreamingEmail(String to, MovieDto movie) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("movie", movie);
+
+        String htmlBody = templateEngine.process("/mail/movie-out-streaming", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(to);
+        helper.setSubject(movie.title() + " is streaming now");
         helper.setText(htmlBody, true);
 
         mailSender.send(message);
