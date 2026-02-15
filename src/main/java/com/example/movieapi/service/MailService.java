@@ -84,7 +84,7 @@ public class MailService {
         Context context = new Context();
         context.setVariable("movie", movie);
 
-        String htmlBody = templateEngine.process("/mail/movie-out-streaming", context);
+        String htmlBody = templateEngine.process("/mail/out-for-streaming", context);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
