@@ -18,7 +18,7 @@
     <div style="display: flex; flex-direction: column; margin-left: 10px;">
                 <span th:text="${movie.title}" style="font-size: 24px; list-style: 32px; color: oklch(88.962% 0.15979 169.348); font-weight: bold;">Regretting
                     You</span>
-      <span style="display: inline-block; color: oklch(0.765 0.177 163.223); font-weight: 600;">Drama</span>
+      <span th:each="genre : ${movie.genres}" style="display: inline-block; color: oklch(0.765 0.177 163.223); font-weight: 600;" th:text="${genre}">Drama</span>
       <div
               style="font-size: 12px; line-height: 20px; font-weight: 100; display: flex; flex-direction: column; color: oklch(88.19% 0.1148 173.143);">
         <span th:text="${movie.releaseDate}">Jan 13, 2026</span>
