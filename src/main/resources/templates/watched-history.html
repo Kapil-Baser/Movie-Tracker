@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:hx="http://www.w3.org/1999/xhtml">
 <head th:insert="~{fragments/head :: head (pageTitle='Watched history')}">
 </head>
 <body>
@@ -48,10 +49,10 @@
                     end" />
                 </div>
                 <th:block th:each="historyMap : ${movieHistoryMap}">
-                    <div class="mb-4 movie-group">
+                    <div class="mb-4 movies-container">
                         <p th:text="${#temporals.format(historyMap.key, 'MMM dd, yyyy')}" class="text-sm font-semibold text-white mb-2 group-header"></p>
-                        <div class="bg-emerald-700 flex flex-col items-center rounded-md p-2 space-y-2 group-movies">
-                            <div th:each="watchedMovie : ${historyMap.value}" class="flex rounded-2xl bg-emerald-800 p-2 shadow-xl w-full movie-item">
+                        <div class="bg-emerald-700 flex flex-col items-center rounded-md p-2 space-y-2 movies-group">
+                            <div th:each="watchedMovie : ${historyMap.value}" class="flex rounded-2xl bg-emerald-800 p-2 shadow-xl sm:w-160 movie-item">
                                 <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w92' + ${watchedMovie.posterPath}" alt="" />
                                 <div class="flex px-4 w-full justify-between">
                                     <div class="space-y-2">
@@ -75,9 +76,12 @@
                                             <span th:text="|(${watchedMovie.votes})|">(2.6K)</span>
                                         </div>
                                     </div>
-                                    <div class="text-white group self-center">
-                                        <button
-                                                class="flex items-center bg-transparent inset-0 ring-1 ring-emerald-500 rounded-lg px-1.5 py-1 shadow-lg hover:bg-emerald-500/20 group transition-all hover:cursor-pointer">
+                                    <div class="text-white group self-center shrink-0">
+                                        <button hx-delete="/user/movies/history/unwatched"
+                                                hx:vals="${ {_csrf.parameterName : _csrf.token, movieId : watchedMovie.movieId, date : historyMap.key} }"
+                                                hx-swap="outerHTML"
+                                                hx-target="closest .movie-item"
+                                                class="flex items-center bg-transparent inset-0 ring-1 ring-emerald-500 rounded-lg px-1.5 py-1 shadow-lg hover:bg-emerald-500/20 group transition-all hover:cursor-pointer" type="button">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                                  class="size-4 mr-1 group-hover:fill-emerald-300">
                                                 <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
