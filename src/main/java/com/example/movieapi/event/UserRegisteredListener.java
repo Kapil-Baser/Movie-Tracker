@@ -27,7 +27,7 @@ public class UserRegisteredListener {
         log.info("Generating token for user: {}", event.user().getUsername());
         String token = emailVerificationService.createToken(event.user().getEmail());
         log.info("Successfully generated token: {}", token);
-        // TODO: Send email to user
+
         String to = event.user().getEmail();
         String name = event.user().getUsername();
         String link = "http://localhost:8080/auth/confirm?token=" + token;
