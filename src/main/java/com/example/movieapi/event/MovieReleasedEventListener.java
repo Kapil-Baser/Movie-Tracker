@@ -1,13 +1,16 @@
 package com.example.movieapi.event;
 
+import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.entity.MovieSubscription;
 import com.example.movieapi.entity.Provider;
 import com.example.movieapi.exception.GoogleCalendarException;
+import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.repository.MovieSubscriptionRepository;
 import com.example.movieapi.service.GoogleCalendarService;
 import com.example.movieapi.service.MailService;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +29,14 @@ public class MovieReleasedEventListener {
     private final MovieSubscriptionRepository movieSubscriptionRepository;
     private final MailService mailService;
     private final GoogleCalendarService googleCalendarService;
+    private final MovieMapper movieMapper;
 
     @Autowired
-    public MovieReleasedEventListener(MovieSubscriptionRepository movieSubscriptionRepository, MailService mailService, GoogleCalendarService googleCalendarService) {
+    public MovieReleasedEventListener(MovieSubscriptionRepository movieSubscriptionRepository, MailService mailService, GoogleCalendarService googleCalendarService, MovieMapper movieMapper) {
         this.movieSubscriptionRepository = movieSubscriptionRepository;
         this.mailService = mailService;
         this.googleCalendarService = googleCalendarService;
+        this.movieMapper = movieMapper;
     }
 
     @Async
@@ -57,6 +62,13 @@ public class MovieReleasedEventListener {
                         log.info("Calendar event for movie {} successfully created for user {}", releasedMovie.getTitle(), user.getEmail());
                     } catch (IOException e) {
                         throw new GoogleCalendarException(e.getMessage());
+                    }
+                } else {
+                    try {
+                        MovieDto movieDto = movieMapper.toMovieDto(releasedMovie);
+                        mailService.sendMovieOutForStreamingEmail(user.getEmail(), movieDto);
+                    } catch (MessagingException e) {
+                        throw new  GoogleCalendarException(e.getMessage());
                     }
                 }
             }
