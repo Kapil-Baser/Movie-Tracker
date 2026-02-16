@@ -30,10 +30,8 @@ public class MovieCollectionService {
     private final UserRepository userRepository;
     private final MovieService movieService;
     private final MoviesRepository moviesRepository;
-    private static final String WATCHED = "Watched";
     private static final String FAVORITES = "Favorites";
     private static final String WATCHLIST = "WatchList";
-    private static final String TRENDING = "Trending";
 
     @Autowired
     public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository) {
@@ -72,13 +70,6 @@ public class MovieCollectionService {
                     log.info("Creating {} collection for user: {}", name, user.getUsername());
                     return createUserCollection(user, name);
                 });
-    }
-
-    public List<MovieCollection> getAllUserCollection(Authentication auth) {
-        AppUser user = userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
-
-        return collectionRepository.findByOwnerId(user.getId());
     }
 
     public List<MovieCollection> getAllUserCollection(AppUser user) {
@@ -133,65 +124,22 @@ public class MovieCollectionService {
     }
 
     @Transactional
-    public MovieCollection getFavoritesCollection(AppUser user) {
-
-        return collectionRepository.findByOwnerIdAndName(user.getId(), FAVORITES)
-                .orElseGet(() -> {
-                    log.info("Creating favorites collection for user: {}", user.getUsername());
-                    return createUserCollection(user, FAVORITES);
-                });
-    }
-
-    @Transactional
-    public MovieCollection addMovieToFavorites(AuthenticatedUser authenticatedUser, Long movieId) {
-        AppUser user = authenticatedUser.getUser();
-        Movie movie = movieService.getMovieById(movieId);
-
-        MovieCollection favoritesMoviesCollection = getFavoritesCollection(user);
-
-        favoritesMoviesCollection.addMovie(movie);
-
-        return collectionRepository.save(favoritesMoviesCollection);
-    }
-
-    @Transactional
     public boolean toggleFavorite(AuthenticatedUser authenticatedUser, Long movieId) {
         AppUser user = authenticatedUser.getUser();
 
         Movie existing = movieService.getMovieById(movieId);
-        // TODO: use getOrCreateCollection method instead
-        MovieCollection favoritesMoviesCollection = getFavoritesCollection(user);
+        MovieCollection favoritesMoviesCollection = getOrCreateCollection(user, FAVORITES);
 
-        // TODO: Change the condition to make only one save repo call
-        if (favoritesMoviesCollection.containsMovieWithId(movieId)) {
-            // Remove the movie
+        boolean isFavorated = favoritesMoviesCollection.getMovies().contains(existing);
+
+        if (isFavorated) {
             favoritesMoviesCollection.removeMovie(existing);
-            collectionRepository.save(favoritesMoviesCollection);
-            return false; // Not favorited anymore
         } else {
             favoritesMoviesCollection.addMovie(existing);
-            collectionRepository.save(favoritesMoviesCollection);
-            return true; // Now favorited
         }
-    }
 
-    public boolean toggleWatched(AuthenticatedUser authenticatedUser, Long movieId) {
-        AppUser user = authenticatedUser.getUser();
-
-        Movie existing = movieService.getMovieById(movieId);
-
-        MovieCollection watchedMovies = getOrCreateCollection(user, WATCHED);
-
-        boolean isWatched = watchedMovies.containsMovieWithId(movieId);
-
-        if (isWatched) {
-            watchedMovies.removeMovie(existing);
-        } else {
-            watchedMovies.addMovie(existing);
-        }
-        collectionRepository.save(watchedMovies);
-
-        return !isWatched;
+        collectionRepository.save(favoritesMoviesCollection);
+        return !isFavorated;
     }
 
     /**
