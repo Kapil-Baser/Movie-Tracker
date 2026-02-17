@@ -1,7 +1,7 @@
 package com.example.movieapi.service;
 
-import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
+import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class TraktService {
         return traktServiceClient
                 .get()
                 .uri(uriBuilder -> uriBuilder.path("/movies/trending")
-                        .queryParam("page", 1)
+                        .queryParam("page", 2)
                         .queryParam("limit", 20)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
@@ -88,6 +88,15 @@ public class TraktService {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<TraktMostAnticipatedResponse>>() {
+                });
+    }
+
+    public List<TraktAllVideosResponse> getAllVideos(Long movieId) {
+        return traktServiceClient.get()
+                .uri("/movies/" + movieId + "/videos")
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<TraktAllVideosResponse>>() {
                 });
     }
 }
