@@ -66,10 +66,11 @@ public class AdminController {
 
     @PostMapping("/update-youtube-trailers")
     public ResponseEntity<String> updateMoviesWithTrailers() {
-        return ResponseEntity.ok("");
+        movieSyncService.syncYouTubeTrailers();
+        return ResponseEntity.ok("Updated YouTube trailers");
     }
-    // TODO: change to POST
-    @GetMapping("/details/{movie_id}")
+
+    @PostMapping("/details/{movie_id}")
     public ResponseEntity<TmdbMovieDetailsResponse> getMovieDetails(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(movieSyncService.getMovieDetails(movieId));
     }
