@@ -18,6 +18,8 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     List<Movie> findByUsDigitalDateIsNull();
 
+    List<Movie> findAllByTrailerIsNull();
+
     @Query("SELECT m.id FROM Movie m")
     List<Long> findAllMovieIds();
 
