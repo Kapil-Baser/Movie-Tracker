@@ -1,7 +1,7 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.model.PagedResults;
-import com.example.movieapi.model.TmdbReleaseDatesResponse;
+import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
