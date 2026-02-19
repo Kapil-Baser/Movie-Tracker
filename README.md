@@ -19,3 +19,12 @@ A Spring Boot application to track movies, keep a watch history, make a movie co
 - Maven
 - Docker
   
+## Screenshots
+### Homepage
+![homepage](https://github.com/Kapil-Baser/movieapi/blob/main/screenshots/homepage.png)
+### Login
+![login](https://github.com/Kapil-Baser/movieapi/blob/main/screenshots/login.png)
+### Watch History
+![Watch-history](https://github.com/Kapil-Baser/movieapi/blob/main/screenshots/watch-history.png)
+### Collection
+![collection](https://github.com/Kapil-Baser/movieapi/blob/main/screenshots/collection.png)
