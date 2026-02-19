@@ -7,6 +7,8 @@ import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.*;
 import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
+import com.example.movieapi.model.tmdb.model.TmdbCountryRelease;
+import com.example.movieapi.model.tmdb.model.TmdbReleaseDate;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.repository.GenresRepository;
 import com.example.movieapi.repository.MoviesRepository;
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -364,6 +364,10 @@ public class MovieService {
 
     public List<Movie> moviesOutForStreamingToday() {
         return moviesRepository.findAllByUsDigitalDate(LocalDate.now());
+    }
+
+    public List<Movie> moviesWithNoTrailers() {
+        return moviesRepository.findAllByTrailerIsNull();
     }
 
     public List<Long> getAllMoviesIds() {

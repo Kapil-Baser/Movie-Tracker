@@ -1,11 +1,16 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.model.PagedResults;
-import com.example.movieapi.model.TmdbReleaseDatesResponse;
+import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbDiscoverResponse;
+import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.service.TmdbService;
+import com.example.movieapi.service.TraktService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -13,9 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class ApiController {
 
     private final TmdbService tmdbService;
+    private final TraktService traktService;
 
-    public ApiController(TmdbService tmdbService) {
+    @Autowired
+    public ApiController(TmdbService tmdbService, TraktService traktService) {
         this.tmdbService = tmdbService;
+        this.traktService = traktService;
     }
 
     @GetMapping("/trending/{time_window}")
@@ -31,5 +39,10 @@ public class ApiController {
     @GetMapping("/movie/trending/horror")
     public ResponseEntity<TmdbDiscoverResponse> trendingHorrorMovies() {
         return ResponseEntity.ok(tmdbService.getTrendingHorrorMovies());
+    }
+
+    @GetMapping("/movies/videos/{movie_id}")
+    public ResponseEntity<List<TraktAllVideosResponse>> getVidoes(@PathVariable("movie_id") Long movieId) {
+        return ResponseEntity.ok(traktService.getAllVideos(movieId));
     }
 }
