@@ -3,6 +3,7 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.ChangePasswordDto;
 import com.example.movieapi.dto.RedirectInfo;
 import com.example.movieapi.dto.UserPasswordDto;
+import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.validator.ChangePasswordValidator;
 import com.example.movieapi.service.MovieCollectionService;
@@ -60,8 +61,13 @@ public class UserProfileController {
 
     @HxRequest
     @GetMapping("/account/settings")
-    public String showAccountSettingsPage(@ModelAttribute("changePasswordDto") ChangePasswordDto changePasswordDto) {
-
+    public String showAccountSettingsPage(@ModelAttribute("changePasswordDto") ChangePasswordDto changePasswordDto,
+                                          @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                          Model model) {
+        AppUser user = authenticatedUser.getUser();
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            return "fragments/setup-password :: set-password";
+        }
         return "fragments/change-password :: password-change";
     }
 
