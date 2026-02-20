@@ -5,12 +5,15 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.event.PasswordResetEvent;
 import com.example.movieapi.exception.ExpiredTokenException;
 import com.example.movieapi.exception.InvalidTokenException;
+import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.*;
 import com.example.movieapi.service.validator.ResetPasswordValidator;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -116,5 +119,16 @@ public class AuthenticationController {
         RedirectInfo redirectInfo = new RedirectInfo("Success", "Your password has been changed successfully, you can login now using your new password.");
         redirectAttributes.addFlashAttribute("redirectInfo", redirectInfo);
         return LOGIN_REDIRECT;
+    }
+
+    @HxRequest
+    @PostMapping("/profile/setup-password")
+    public String requestPasswordSetup(@AuthenticationPrincipal AuthenticatedUser user, Model model) {
+        String email =  user.getEmail();
+
+        eventPublisher.publishEvent(new PasswordResetEvent(email));
+
+        model.addAttribute("email", email);
+        return "fragments/setup-password :: set-password-success";
     }
 }
