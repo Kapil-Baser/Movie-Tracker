@@ -7,7 +7,6 @@ import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.utility.FormatUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -16,9 +15,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class MovieMapper {
-
-    /*@Value("${image.base.url}")
-    private String imageBaseUrl;*/
 
     public Movie toEntity(TraktMovie traktMovie) {
         return Movie.builder()
