@@ -1,13 +1,9 @@
 package com.example.movieapi.entity;
 
-import com.example.movieapi.model.AuthenticatedUser;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
