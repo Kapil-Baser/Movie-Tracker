@@ -52,6 +52,10 @@ public class WatchedMovieService {
         AppUser user = authenticatedUser.getUser();
 
         List<WatchedMovie> watchedMovies = watchedMovieRepository.findByUserOrderByWatchedAtDesc(user);
+        if (watchedMovies.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
         List<WatchedMovieDto> watchedMoviesDto = watchedMovies.stream()
                 .map(watchedMovie -> {
                     Movie movie = watchedMovie.getMovie();
