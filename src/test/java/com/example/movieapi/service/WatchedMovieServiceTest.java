@@ -198,4 +198,60 @@ class WatchedMovieServiceTest {
 
         assertThat(watchedMoviesIds).isEmpty();
     }
+
+    @Test
+    void getWatchedMoviesIds_shouldReturnMovieIds() {
+        AppUser user = new AppUser();
+        Movie movie = new Movie();
+        movie.setId(1L);
+
+        Movie  movie2 = new Movie();
+        movie2.setId(2L);
+
+        when(watchedMovieRepository.findAllWatchedMoviesByUser(user)).thenReturn(List.of(movie, movie2));
+
+        Set<Long> watchedMoviesIds = watchedMovieService.getWatchedMoviesIds(user);
+
+        assertThat(watchedMoviesIds).hasSize(2).containsExactlyInAnyOrder(1L, 2L);
+    }
+
+    @Test
+    void markAsUnwatched_shouldCallRepositoryDelete() {
+        AppUser user = new AppUser();
+        Long movieId = 1L;
+
+        watchedMovieService.markAsUnwatched(user, movieId);
+
+        verify(watchedMovieRepository).deleteByUserAndMovieId(user, movieId);
+    }
+
+    @Test
+    void getWatchedMoviesCount_shouldCallRepositoryWithCorrectDateRange() {
+        AppUser user = new AppUser();
+        LocalDate watchedAtDate =  LocalDate.of(2025, 12, 10);
+
+        watchedMovieService.getWatchedMoviesCount(user, watchedAtDate);
+
+        ArgumentCaptor<LocalDateTime> startDateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        ArgumentCaptor<LocalDateTime> endDateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+
+        verify(watchedMovieRepository).findCountByUserAndWatchedAt(any(AppUser.class), startDateCaptor.capture(), endDateCaptor.capture());
+
+        LocalDateTime startDate = startDateCaptor.getValue();
+        LocalDateTime endDate = endDateCaptor.getValue();
+
+        assertThat(startDate).isEqualTo(LocalDateTime.of(LocalDate.of(2025, 12, 10), LocalTime.MIDNIGHT));
+        assertThat(endDate).isEqualTo(LocalDateTime.of(LocalDate.of(2025, 12, 11), LocalTime.MIDNIGHT));
+    }
+
+    @Test
+    void getWatchedMoviesCount_shouldReturnRepositoryResult() {
+        AppUser user = new AppUser();
+
+        when(watchedMovieRepository.findCountByUserAndWatchedAt(any(AppUser.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(5);
+
+        int result = watchedMovieService.getWatchedMoviesCount(user, LocalDate.of(2025, 12, 10));
+
+        assertThat(result).isEqualTo(5);
+    }
 }
