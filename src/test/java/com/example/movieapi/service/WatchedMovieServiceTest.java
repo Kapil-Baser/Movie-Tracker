@@ -143,4 +143,59 @@ class WatchedMovieServiceTest {
         assertThat(watchedMovieDto.getVotes()).isEqualTo(movie.getVotes());
         assertThat(watchedMovieDto.getMovieId()).isEqualTo(String.valueOf(watchedMovie.getMovie().getId()));
     }
+
+    @Test
+    void getWatchedMovies_shouldGroupByWatchedDate() {
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
+
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("title");
+        movie.setPosterPath("/path/to/image");
+        movie.setRuntime(139);
+        movie.setTmdbGenres(Set.of("Action", "Drama"));
+        movie.setRating(BigDecimal.valueOf(8.0));
+        movie.setCertification("R");
+        movie.setReleaseDate(LocalDate.of(2025, 12, 10));
+        movie.setVotes(999L);
+
+        WatchedMovie watchedMovie1 = new WatchedMovie();
+        watchedMovie1.setMovie(movie);
+        watchedMovie1.setUser(authenticatedUser.getUser());
+        watchedMovie1.setWatchedAt(LocalDateTime.of(LocalDate.of(2025, 12, 10), LocalTime.MIDNIGHT));
+
+        WatchedMovie watchedMovie2 = new WatchedMovie();
+        watchedMovie2.setMovie(movie);
+        watchedMovie2.setUser(authenticatedUser.getUser());
+        watchedMovie2.setWatchedAt(LocalDateTime.of(LocalDate.of(2025, 12, 10), LocalTime.MIDNIGHT));
+
+        WatchedMovie watchedMovie3 = new WatchedMovie();
+        watchedMovie3.setMovie(movie);
+        watchedMovie3.setUser(authenticatedUser.getUser());
+        watchedMovie3.setWatchedAt(LocalDateTime.of(LocalDate.of(2025, 12, 12), LocalTime.MIDNIGHT));
+
+        when(watchedMovieRepository.findByUserOrderByWatchedAtDesc(authenticatedUser.getUser())).thenReturn(List.of(watchedMovie1, watchedMovie2, watchedMovie3));
+
+        Map<LocalDate, List<WatchedMovieDto>> watchedMovies = watchedMovieService.getWatchedMovies(authenticatedUser);
+
+        assertThat(watchedMovies).isNotEmpty()
+                .containsKeys(LocalDate.of(2025, 12, 10), LocalDate.of(2025, 12, 12));
+
+        List<WatchedMovieDto> watchedList1 = watchedMovies.get(LocalDate.of(2025, 12, 10));
+        List<WatchedMovieDto> watchedList2 = watchedMovies.get(LocalDate.of(2025, 12, 12));
+
+        assertThat(watchedList1).hasSize(2);
+        assertThat(watchedList2).hasSize(1);
+    }
+
+    @Test
+    void getWatchedMoviesIds_shouldReturnEmptySet_whenNoneWatched() {
+        AppUser user = new AppUser();
+
+        when(watchedMovieRepository.findAllWatchedMoviesByUser(user)).thenReturn(new ArrayList<>());
+
+        Set<Long> watchedMoviesIds = watchedMovieService.getWatchedMoviesIds(user);
+
+        assertThat(watchedMoviesIds).isEmpty();
+    }
 }
