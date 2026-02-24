@@ -6,6 +6,7 @@ import com.example.movieapi.entity.Movie;
 import com.example.movieapi.entity.WatchedMovie;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.WatchedMovieRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class WatchedMovieServiceTest {
 
+    AppUser user;
+    AuthenticatedUser authenticatedUser;
+
     @Mock
     WatchedMovieRepository watchedMovieRepository;
     @Mock
@@ -32,16 +36,21 @@ class WatchedMovieServiceTest {
     @InjectMocks
     WatchedMovieService watchedMovieService;
 
+    @BeforeEach
+    void setUp() {
+        user = new AppUser();
+        authenticatedUser = new AuthenticatedUser(user);
+    }
+
     @Test
     void toggleWatched_shouldCreateRecord_whenMovieNotYetWatched() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
         Long  movieId = 1L;
         Movie movie = new Movie();
         movie.setId(movieId);
 
         when(movieService.getMovieById(movieId)).thenReturn(movie);
 
-        when(watchedMovieRepository.findByUserAndMovie(authenticatedUser.getUser(), movie)).thenReturn(Optional.empty());
+        when(watchedMovieRepository.findByUserAndMovie(user, movie)).thenReturn(Optional.empty());
 
         boolean result = watchedMovieService.toggleWatched(authenticatedUser, movieId);
 
@@ -55,7 +64,7 @@ class WatchedMovieServiceTest {
 
         assertThat(watchedMovie).isNotNull();
         assertThat(watchedMovie.getMovie()).isEqualTo(movie);
-        assertThat(watchedMovie.getUser()).isEqualTo(authenticatedUser.getUser());
+        assertThat(watchedMovie.getUser()).isEqualTo(user);
         assertThat(watchedMovie.getWatchedAt()).isNotNull();
 
         verify(watchedMovieRepository, never()).delete(watchedMovie);
@@ -63,18 +72,17 @@ class WatchedMovieServiceTest {
 
     @Test
     void toggleWatched_shouldDeleteRecord_whenAlreadyWatched() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
         Long  movieId = 1L;
         Movie movie = new Movie();
         movie.setId(movieId);
 
         WatchedMovie watchedMovie = new WatchedMovie();
         watchedMovie.setMovie(movie);
-        watchedMovie.setUser(authenticatedUser.getUser());
+        watchedMovie.setUser(user);
 
         when(movieService.getMovieById(movieId)).thenReturn(movie);
 
-        when(watchedMovieRepository.findByUserAndMovie(authenticatedUser.getUser(), movie)).thenReturn(Optional.of(watchedMovie));
+        when(watchedMovieRepository.findByUserAndMovie(user, movie)).thenReturn(Optional.of(watchedMovie));
 
         boolean result = watchedMovieService.toggleWatched(authenticatedUser, movieId);
 
@@ -85,7 +93,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void toggleWatched_shouldPropagateException_whenMovieNotFound() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
 
         when(movieService.getMovieById(anyLong())).thenThrow(RuntimeException.class);
 
@@ -96,7 +103,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMovies_shouldReturnEmptyMap_whenUserHasNoWatchedMovies() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
 
         when(watchedMovieRepository.findByUserOrderByWatchedAtDesc(authenticatedUser.getUser())).thenReturn(Collections.emptyList());
 
@@ -107,7 +113,7 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMovies_shouldMapEntityToDtoCorrectly() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
+
         Movie movie = new Movie();
         movie.setId(1L);
         movie.setTitle("title");
@@ -146,7 +152,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMovies_shouldGroupByWatchedDate() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(new AppUser());
 
         Movie movie = new Movie();
         movie.setId(1L);
@@ -190,7 +195,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMoviesIds_shouldReturnEmptySet_whenNoneWatched() {
-        AppUser user = new AppUser();
 
         when(watchedMovieRepository.findAllWatchedMoviesByUser(user)).thenReturn(new ArrayList<>());
 
@@ -201,7 +205,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMoviesIds_shouldReturnMovieIds() {
-        AppUser user = new AppUser();
         Movie movie = new Movie();
         movie.setId(1L);
 
@@ -217,7 +220,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void markAsUnwatched_shouldCallRepositoryDelete() {
-        AppUser user = new AppUser();
         Long movieId = 1L;
 
         watchedMovieService.markAsUnwatched(user, movieId);
@@ -227,7 +229,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMoviesCount_shouldCallRepositoryWithCorrectDateRange() {
-        AppUser user = new AppUser();
         LocalDate watchedAtDate =  LocalDate.of(2025, 12, 10);
 
         watchedMovieService.getWatchedMoviesCount(user, watchedAtDate);
@@ -246,7 +247,6 @@ class WatchedMovieServiceTest {
 
     @Test
     void getWatchedMoviesCount_shouldReturnRepositoryResult() {
-        AppUser user = new AppUser();
 
         when(watchedMovieRepository.findCountByUserAndWatchedAt(any(AppUser.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(5);
 
