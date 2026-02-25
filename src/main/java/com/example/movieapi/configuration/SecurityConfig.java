@@ -82,7 +82,8 @@ public class SecurityConfig {
                                 "/movies/**",
                                 "/register/**",
                                 "/error",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/tailwind.css"
                         )
                                 .permitAll()
                                 .anyRequest()
