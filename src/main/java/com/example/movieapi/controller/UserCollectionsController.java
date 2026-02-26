@@ -58,4 +58,11 @@ public class UserCollectionsController {
         // TODO: add movie to collection
         return "redirect:/movies";
     }
+
+    @GetMapping("/collections/delete-config")
+    public String showDeleteCollectionConfirmation(@RequestParam("collection_id") Long collectionId,
+                                                   Model model) {
+        model.addAttribute("collectionId", collectionId);
+        return "fragments/buttons :: modal-delete";
+    }
 }
