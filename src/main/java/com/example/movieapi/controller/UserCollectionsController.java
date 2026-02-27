@@ -4,6 +4,8 @@ import com.example.movieapi.dto.SelectedCollectionDto;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,10 +61,19 @@ public class UserCollectionsController {
         return "redirect:/movies";
     }
 
+    @HxRequest
     @GetMapping("/collections/delete-config")
     public String showDeleteCollectionConfirmation(@RequestParam("collection_id") Long collectionId,
                                                    Model model) {
         model.addAttribute("collectionId", collectionId);
         return "fragments/buttons :: modal-delete";
+    }
+
+    @HxRequest
+    @DeleteMapping("/collections/delete")
+    public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId,
+                                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        //movieCollectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
+        return ResponseEntity.ok().build();
     }
 }
