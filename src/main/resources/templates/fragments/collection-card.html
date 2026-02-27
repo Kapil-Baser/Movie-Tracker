@@ -1,9 +1,10 @@
 <!--Card for individual collection div-->
 <div th:fragment="collection-card(collection, isLast, nextPage)"
+     th:id="|collection-card-${collection.id}|"
      class="collection-card relative bg-emerald-950 h-[110px] rounded-xl mb-2"
      th:attr="hx-get=${isLast} ? @{/collections/nextPage(page = ${nextPage})} : null,
               hx-trigger=${isLast} ? 'revealed' : null,
-              hx-swap=${isLast} ? 'afterend' : null">
+              hx-swap=${isLast} ? 'afterend' : null" xmlns="http://www.w3.org/1999/html">
 
   <a th:href="@{/collections/{collection_id}(collection_id=${collection.id})}" class="group block relative w-full h-full rounded-xl overflow-hidden">
 
@@ -17,7 +18,22 @@
       <span th:text="${collection.formattedSize}" class="text-amber-700"></span>
     </div>
 
-    <button hx:delete="@{/collections/delete(collection_id=${collection.id})}"
+    !-- Trigger button
+    <button type="button"
+            hx:get="@{/user/collections/delete-config(collection_id=${collection.id})}"
+            hx-target="#modal-delete-btn"
+            hx-swap="outerHTML"
+            hx-trigger="click"
+            hx-on::after-request="document.getElementById('delete-dialog').showModal()"
+            class="absolute right-2 bottom-2
+                                   opacity-0 group-hover:opacity-100
+                                   bg-red-600 hover:bg-red-700 hover:cursor-pointer
+                                   text-white rounded-md px-2
+                                   transition-opacity duration-200">
+    ✕
+    </button>
+
+    <!--<button hx:delete="@{/collections/delete(collection_id=${collection.id})}"
             hx-confirm="Are you sure?"
             hx-target="closest .collection-card"
             hx-swap="outerHTML"
@@ -28,6 +44,6 @@
                                    text-white rounded-md px-2
                                    transition-opacity duration-200">
       ✕
-    </button>
+    </button>-->
   </a>
 </div>
