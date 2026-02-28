@@ -57,7 +57,8 @@ public class UserCollectionsController {
         Long movieId = dto.getSelectedMovieId();
         Long collectionId = dto.getSelectedCollectionId();
 
-        // TODO: add movie to collection
+        movieCollectionService.addMovieToUserCollection(movieId, collectionId);
+        //TODO: Update the fragment when movie is added instead of reloading the page
         return "redirect:/movies";
     }
 
