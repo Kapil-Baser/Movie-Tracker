@@ -57,7 +57,9 @@
 <!-- FORM END -->
 
 <!--Modal HTML Fragment with hyperscript and htmx-->
-<div th:fragment="movie-collection-form" id="modal" class="fixed inset-0 z-50 flex items-start justify-center bg-black/50" _="on closeModal remove me">
+<div th:fragment="movie-collection-form" id="modal"
+     class="fixed inset-0 z-50 flex items-start justify-center bg-black/50"
+     _="on closeModal remove me">
     <!-- Overlay / click outside -->
     <div class="absolute inset-0" _="on click trigger closeModal"></div>
 
@@ -80,8 +82,6 @@
                   clip-rule="evenodd" />
         </svg>
         </button>
-
-
 
         <!-- Movie collection form -->
         <form th:action="@{/user/collections/add-movie}" th:object="${selectedCollection}" method="POST">
