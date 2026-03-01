@@ -114,6 +114,17 @@ public class MovieCollectionService {
         return collectionRepository.save(collection);
     }
 
+    public MovieCollection addMovieToUserCollection(Long movieId, Long collectionId) {
+        Movie movie = movieService.getMovieById(movieId);
+        MovieCollection collection = collectionRepository.getReferenceById(collectionId);
+
+        if (collection.getMovies().contains(movie)) {
+            throw new IllegalArgumentException("Movie already in collection");
+        }
+        collection.addMovie(movie);
+        return collectionRepository.save(collection);
+    }
+
     private AppUser getCurrentUser(Authentication auth) {
         String username = auth.getName();
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
