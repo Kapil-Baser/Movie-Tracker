@@ -1,9 +1,6 @@
 package com.example.movieapi.service;
 
-import com.example.movieapi.dto.CollectionDto;
-import com.example.movieapi.dto.CollectionView;
-import com.example.movieapi.dto.MovieDto;
-import com.example.movieapi.dto.MovieViewDto;
+import com.example.movieapi.dto.*;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -93,5 +90,18 @@ public class MovieViewAssemblerService {
         }
 
         return new CollectionView(List.of(), movieCollectionsPage.hasNext(), movieCollectionsPage.getNumber());
+    }
+
+    public List<CollectionOptionDto> buildCollectionOptions(AuthenticatedUser authenticatedUser, Long movieId) {
+        // First we get all the user collections
+        List<MovieCollection> collections = collectionService.getAllUserCollection(authenticatedUser.getUser());
+
+        return collections.stream()
+                .map(collection -> new CollectionOptionDto(
+                        collection.getName(),
+                        collection.getId(),
+                        collection.containsMovieWithId(movieId))
+                )
+                .toList();
     }
 }
