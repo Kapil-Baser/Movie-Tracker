@@ -1,10 +1,15 @@
 package com.example.movieapi.controller;
 
+import com.example.movieapi.dto.CollectionOptionDto;
 import com.example.movieapi.dto.SelectedCollectionDto;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
+import com.example.movieapi.service.MovieService;
+import com.example.movieapi.service.MovieViewAssemblerService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -18,9 +23,12 @@ import java.util.List;
 public class UserCollectionsController {
 
     private final MovieCollectionService movieCollectionService;
+    private final MovieViewAssemblerService movieViewAssemblerService;
 
-    public UserCollectionsController(MovieCollectionService movieCollectionService) {
+    @Autowired
+    public UserCollectionsController(MovieCollectionService movieCollectionService, MovieViewAssemblerService movieViewAssemblerService) {
         this.movieCollectionService = movieCollectionService;
+        this.movieViewAssemblerService = movieViewAssemblerService;
     }
 
     @PostMapping("/collections/watchlist/toggle")
@@ -40,7 +48,7 @@ public class UserCollectionsController {
                                          @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                          Model model) {
 
-        List<MovieCollection> collections = movieCollectionService.getAllUserCollection(authenticatedUser.getUser());
+        List<CollectionOptionDto> collections = movieViewAssemblerService.buildCollectionOptions(authenticatedUser, movieId);
 
         // Pre-populating the movieId, which I want to carry over to the post request of form
         SelectedCollectionDto dto = new SelectedCollectionDto();
@@ -53,13 +61,15 @@ public class UserCollectionsController {
     }
 
     @PostMapping("/collections/add-movie")
-    public String addMovieToCollection(@ModelAttribute SelectedCollectionDto dto) {
+    @HxTrigger("show-toast")
+    public String addMovieToCollection(@ModelAttribute SelectedCollectionDto dto, Model model) {
         Long movieId = dto.getSelectedMovieId();
         Long collectionId = dto.getSelectedCollectionId();
 
         movieCollectionService.addMovieToUserCollection(movieId, collectionId);
         //TODO: Update the fragment when movie is added instead of reloading the page
-        return "redirect:/movies";
+        model.addAttribute("message", "Movie added Successfully");
+        return "fragments/toasts :: success";
     }
 
     @HxRequest
