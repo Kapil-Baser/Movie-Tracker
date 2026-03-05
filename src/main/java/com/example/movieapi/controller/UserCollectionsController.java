@@ -2,13 +2,10 @@ package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.CollectionOptionDto;
 import com.example.movieapi.dto.SelectedCollectionDto;
-import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
-import com.example.movieapi.service.MovieService;
 import com.example.movieapi.service.MovieViewAssemblerService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
-import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxTrigger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,15 +57,16 @@ public class UserCollectionsController {
         return "fragments/modal :: movie-collection-form";
     }
 
+    @HxRequest
     @PostMapping("/collections/add-movie")
-    @HxTrigger("show-toast")
     public String addMovieToCollection(@ModelAttribute SelectedCollectionDto dto, Model model) {
         Long movieId = dto.getSelectedMovieId();
         Long collectionId = dto.getSelectedCollectionId();
+        String title = dto.getSelectedMovieTitle();
 
         movieCollectionService.addMovieToUserCollection(movieId, collectionId);
-        //TODO: Update the fragment when movie is added instead of reloading the page
-        model.addAttribute("message", "Movie added Successfully");
+
+        model.addAttribute("message",  title + " added successfully to Collection");
         return "fragments/toasts :: success";
     }
 
@@ -84,7 +82,7 @@ public class UserCollectionsController {
     @DeleteMapping("/collections/delete")
     public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId,
                                                  @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        //movieCollectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
+        movieCollectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
         return ResponseEntity.ok().build();
     }
 }
