@@ -84,7 +84,12 @@
         </button>
 
         <!-- Movie collection form -->
-        <form th:action="@{/user/collections/add-movie}" th:object="${selectedCollection}" method="POST">
+        <form hx:post="@{/user/collections/add-movie}"
+              hx-target="#toast-container"
+              hx-swap="beforeend"
+              hx:vals="${ {_csrf.parameterName : _csrf.token} }"
+              _="on htmx:afterRequest(detail) if detail.successful remove #modal"
+              th:object="${selectedCollection}">
             <span class="mb-4 text-lg font-semibold" th:text="|Add '*{selectedMovieTitle}' to collection|">Add movie to collection</span>
             <!-- Hidden field to carry the movieId -->
             <input type="hidden" th:field="*{selectedMovieId}" />
@@ -96,7 +101,9 @@
                      focus:border-emerald-500 focus:outline-none focus:ring-0">
                 <option value="">Choose a collection</option>
                 <!-- Iterate over the list sent from the controller -->
-                <option th:each="col : ${userCollections}" th:value="${col.id}" th:text="${col.name}">
+                <option th:each="col : ${userCollections}" th:value="${col.id}"
+                        th:text="${col.name}"
+                        th:disabled="${col.alreadyContainsMovie}" th:classappend="${col.alreadyContainsMovie} ? 'opacity-50 cursor-not-allowed'">
 
                 </option>
             </select>
