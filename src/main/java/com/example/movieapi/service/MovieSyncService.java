@@ -229,24 +229,6 @@ public class MovieSyncService {
         return movieMapper.toMovieDto(updatedMovies);
     }
 
-    /*@Transactional
-    public void fetchAndSyncDigitalReleaseDates() {
-        List<Movie> moviesWithNoDigitalReleaseDates = movieService.getMoviesWithNoDigitalReleaseDate();
-        if (moviesWithNoDigitalReleaseDates.isEmpty()) {
-            log.info("All movies in database have a digital release date already");
-            return;
-        }
-        log.info("There are {} movies with no Digital release date", moviesWithNoDigitalReleaseDates.size());
-
-        List<Movie> moviesWithReleaseDates = fetchDigitalReleaseDatesAsync(moviesWithNoDigitalReleaseDates);
-        log.info("Fetched {} movies with digital release dates", moviesWithReleaseDates.size());
-        moviesWithReleaseDates.forEach(movie ->  log.info("Fetched movie with ID: {} and release date: {}", movie.getId(), movie.getUsDigitalDate()));
-
-        // Saving all returned movies
-        List<Movie> savedMovies = movieService.saveAll(moviesWithReleaseDates);
-        log.info("Saved {} movies with digital release dates",savedMovies.size());
-    }*/
-
     @Transactional
     public void fetchAndSyncDigitalReleaseDates() {
         List<Movie> pendingMovies = movieService.getMoviesWithNoDigitalReleaseDate();
@@ -304,37 +286,6 @@ public class MovieSyncService {
             log.info("Saved {} movies with digital release dates", saved.size());
             return saved;
         }, executor);
-    }
-
-    private List<Movie> fetchDigitalReleaseDatesAsync(List<Movie> moviesWithNoDigitalReleaseDates) {
-        Executor executor = getMovieExecutor(Math.min(moviesWithNoDigitalReleaseDates.size(), 30));
-
-        List<CompletableFuture<Movie>> futures = moviesWithNoDigitalReleaseDates.stream()
-                .map(movie ->
-                     CompletableFuture.supplyAsync(() -> fetchReleaseDateFromTmdbAndUpdateAsync(movie), executor)
-                            .exceptionally(ex -> {
-                                log.warn("Failed to get released date of movie ID: {}, Exception: {}",movie.getTmdbId(), ex.getMessage());
-                                return null;
-                            })
-                )
-                .toList();
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        return futures.stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private Movie fetchReleaseDateFromTmdbAndUpdateAsync(Movie movie) {
-        TmdbReleaseDatesResponse response = safeFetchMovieReleaseDates(movie.getTmdbId());
-        if (response == null || response.getResults().isEmpty()) {
-            return null;
-        }
-
-        List<TmdbCountryRelease> allReleases = response.getResults();
-        return movieService.setUsReleaseDates(movie, allReleases);
     }
 
     @Transactional
