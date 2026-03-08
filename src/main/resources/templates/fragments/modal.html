@@ -93,6 +93,7 @@
             <span class="mb-4 text-lg font-semibold" th:text="|Add '*{selectedMovieTitle}' to collection|">Add movie to collection</span>
             <!-- Hidden field to carry the movieId -->
             <input type="hidden" th:field="*{selectedMovieId}" />
+            <input type="hidden" th:field="*{selectedMovieTitle}" />
 
             <label for="collectionSelect" class="sr-only">Underline select</label>
             <select id="collectionSelect" th:field="*{selectedCollectionId}" class="lock w-full appearance-none
