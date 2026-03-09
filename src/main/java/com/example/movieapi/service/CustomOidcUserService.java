@@ -19,12 +19,10 @@ public class CustomOidcUserService extends OidcUserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final UserService userService;
 
-    public CustomOidcUserService(UserRepository userRepository, RoleRepository roleRepository, UserService userService) {
+    public CustomOidcUserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.userService = userService;
     }
 
     @Override
@@ -33,7 +31,7 @@ public class CustomOidcUserService extends OidcUserService {
 
         OAuth2AccessToken accessToken = userRequest.getAccessToken();
 
-        // Loading the User if exists
+        // Loading the User if user does not exist then create a new one
         AppUser appUser = userRepository.findByEmail(oidcUser.getEmail())
                         .orElseGet(() -> {
                             AppUser newUser = new AppUser();
