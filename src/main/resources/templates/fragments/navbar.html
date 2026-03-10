@@ -34,16 +34,14 @@
         <div>
             <a th:href="@{/user/movies/history}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Watched History</a>
         </div>
-        <div class="dropdown relative inline-flex mr-4">
-            <button type="button" data-target="dropdown-with-header" class="dropdown-toggle dropdown-menu inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-amber-900 px-4 py-2 text-center text-sm font-semibold text-white shadow-xs transition-all duration-500 hover:bg-amber-800">
-                <div class="block">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13.3331 5.83333C13.3331 7.67428 11.8407 9.16667 9.99976 9.16667C8.15881 9.16667 6.66642 7.67428 6.66642 5.83333C6.66642 3.99238 8.15881 2.5 9.99976 2.5C11.8407 2.5 13.3331 3.99238 13.3331 5.83333Z" stroke="black" stroke-width="1.6" />
-                        <path d="M9.99976 11.6667C7.62619 11.6667 5.54235 12.752 4.36109 14.3865C3.73609 15.2513 3.42359 15.6837 3.88775 16.5918C4.35192 17.5 5.12342 17.5 6.66642 17.5H13.3331C14.8761 17.5 15.6476 17.5 16.1118 16.5918C16.5759 15.6837 16.2634 15.2513 15.6384 14.3865C14.4572 12.752 12.3733 11.6667 9.99976 11.6667Z" stroke="black" stroke-width="1.6" />
-                    </svg>
-                </div>
+        <div class="relative inline-flex mr-4">
+            <button type="button" class="dropdown-toggle dropdown-menu inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-amber-900 px-4 py-2 text-center text-sm font-semibold text-white shadow-xs transition-all duration-500 hover:bg-amber-800">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.3331 5.83333C13.3331 7.67428 11.8407 9.16667 9.99976 9.16667C8.15881 9.16667 6.66642 7.67428 6.66642 5.83333C6.66642 3.99238 8.15881 2.5 9.99976 2.5C11.8407 2.5 13.3331 3.99238 13.3331 5.83333Z" stroke="black" stroke-width="1.6" />
+                    <path d="M9.99976 11.6667C7.62619 11.6667 5.54235 12.752 4.36109 14.3865C3.73609 15.2513 3.42359 15.6837 3.88775 16.5918C4.35192 17.5 5.12342 17.5 6.66642 17.5H13.3331C14.8761 17.5 15.6476 17.5 16.1118 16.5918C16.5759 15.6837 16.2634 15.2513 15.6384 14.3865C14.4572 12.752 12.3733 11.6667 9.99976 11.6667Z" stroke="black" stroke-width="1.6" />
+                </svg>
                 <span th:text="${#authentication.principal.email}">Username</span>
-                <svg class="dropdown-open:rotate-180 h-2.5 w-2.5 text-white" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="size-2.5 text-white" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 5L8.16086 10.6869C8.35239 10.8637 8.64761 10.8637 8.83914 10.6869L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
                 </svg>
             </button>
@@ -64,24 +62,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const dropdownToggle = document.querySelector('.dropdown-toggle');
-    const dropdownMenu = document.getElementById('dropdown-with-header');
-
-    dropdownToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('hidden');
-        dropdownToggle.classList.toggle('dropdown-open');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-            dropdownMenu.classList.add('hidden');
-            dropdownToggle.classList.remove('dropdown-open');
-        }
-    });
-});
-    </script>
 </nav>
