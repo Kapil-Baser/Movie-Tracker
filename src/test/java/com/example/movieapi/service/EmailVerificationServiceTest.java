@@ -34,12 +34,16 @@ class EmailVerificationServiceTest {
     @InjectMocks
     EmailVerificationService emailVerificationService;
 
-    private static final String VALID_EMAIL = "user@example.com";
+    @Captor
+    ArgumentCaptor<ConfirmationToken> confirmationTokenCaptor;
+
+    static final String VALID_EMAIL = "user@example.com";
+
+    AppUser user = new AppUser();
 
 
     @Test
     void createToken_shouldCreateAndSaveNewToken_whenUserExists() {
-        AppUser user = new AppUser();
 
         when(userRepository.findByEmail(VALID_EMAIL)).thenReturn(Optional.of(user));
         when(confirmationTokenRepository.findAllByUserAndConfirmedAtIsNullAndRevokedFalse(user)).thenReturn(List.of());
@@ -50,7 +54,6 @@ class EmailVerificationServiceTest {
 
         verify(confirmationTokenRepository).saveAll(anyList());
 
-        ArgumentCaptor<ConfirmationToken> confirmationTokenCaptor = ArgumentCaptor.forClass(ConfirmationToken.class);
         verify(confirmationTokenRepository).save(confirmationTokenCaptor.capture());
 
         ConfirmationToken savedToken = confirmationTokenCaptor.getValue();
@@ -77,7 +80,7 @@ class EmailVerificationServiceTest {
 
     @Test
     void createToken_shouldRevokeAllExistingActiveTokens_beforeCreatingANewToken() {
-        AppUser user = new AppUser();
+
         List<ConfirmationToken> tokens = new ArrayList<>(List.of(new ConfirmationToken(), new ConfirmationToken()));
 
         tokens.forEach(t -> {
@@ -108,7 +111,6 @@ class EmailVerificationServiceTest {
     void confirmAndEnable_shouldConfirmAndEnable_whenTokenIsValidAndNotAlreadyConfirmed() {
         String rawToken = "rawToken";
         String hashedToken = TokenHashUtil.getHashedToken(rawToken);
-        AppUser user = new AppUser();
         user.setEnabled(false);
 
         ConfirmationToken token = new ConfirmationToken();
@@ -155,7 +157,7 @@ class EmailVerificationServiceTest {
         String hashedToken = TokenHashUtil.getHashedToken(rawToken);
 
         ConfirmationToken token = new ConfirmationToken();
-        token.setUser(new AppUser());
+        token.setUser(user);
         token.setRevoked(true);
         token.setConfirmedAt(LocalDateTime.now());
         token.setExpiresAt(LocalDateTime.now().plusMinutes(5));
@@ -177,7 +179,7 @@ class EmailVerificationServiceTest {
         String hashedToken = TokenHashUtil.getHashedToken(rawToken);
 
         ConfirmationToken token = new ConfirmationToken();
-        token.setUser(new AppUser());
+        token.setUser(user);
         token.setRevoked(false);
         token.setConfirmedAt(null);
         token.setExpiresAt(LocalDateTime.now().minusMinutes(5));
