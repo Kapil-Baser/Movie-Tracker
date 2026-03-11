@@ -13,6 +13,20 @@
 </head>
 <body>
 
+    <!--Back to Top button-->
+    <div th:fragment="backToTop" class="fixed right-[2rem] bottom-[2rem] border border-emerald-600 bg-transparent w-[44px] h-[44px] flex items-center justify-center rounded-md"
+         _="on intersection(intersecting) from #top-sentinel
+            if intersecting hide me
+            else show me">
+        <button _="on click go to the top of the body"
+                class="cursor-pointer" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                 class="size-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+            </svg>
+        </button>
+    </div>
+
     <!-- Confirmation prompt -->
     <div th:fragment="confirmation-prompt" id="delete-confirmation" class="absolute right-4 bottom-2 text-white font-medium">
         <p>Are you sure?</p>
