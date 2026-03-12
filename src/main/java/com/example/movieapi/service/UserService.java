@@ -10,6 +10,7 @@ import com.example.movieapi.repository.RoleRepository;
 import com.example.movieapi.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -63,27 +64,8 @@ public class UserService implements UserDetailsService {
         eventPublisher.publishEvent(new UserRegisteredEvent(savedUser));
     }
 
-    /*public AppUser registerGoogleUser(OidcUser oidcUser) {
-        if (oidcUser != null) {
-            AppUser newUser = new AppUser();
-            newUser.setEmail(oidcUser.getEmail());
-            newUser.setUsername(oidcUser.getName());
-            newUser.setPassword(null);
-            newUser.setProvider(Provider.GOOGLE);
-            newUser.setProviderId(oidcUser.getSubject());
-            newUser.setGoogleAccessToken(accessToken.getTokenValue());
-            newUser.setGoogleTokenExpires(LocalDateTime.from(accessToken.getExpiresAt()));
-            newUser.setEnabled(true);
-            newUser.setRole(roleRepository.findByName("ROLE_USER"));
-            if (userRequest.getAdditionalParameters().containsKey("refresh_token")) {
-                newUser.setGoogleRefreshToken((String) userRequest.getAdditionalParameters().get("refresh_token"));
-            }
-            return userRepository.save(newUser);
-        }
-    }*/
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         var user = repository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(("User not found")));
         var authenticatedUser = new AuthenticatedUser(user);
@@ -104,11 +86,11 @@ public class UserService implements UserDetailsService {
         logoutHandler.logout(request, null, null);
     }
 
-    public void resendToken(String email) {
+    /*public void resendToken(String email) {
         AppUser user = loadUserByEmail(email);
 
         eventPublisher.publishEvent(new TokenResendEvent(user));
-    }
+    }*/
 
     public void resetPassword(AppUser user, String newPassword) {
         // Set the new password
