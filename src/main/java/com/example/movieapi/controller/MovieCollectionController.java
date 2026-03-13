@@ -14,14 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/collections")
@@ -31,23 +29,7 @@ public class MovieCollectionController {
 
     private final MovieCollectionService collectionService;
     private final MovieViewAssemblerService movieViewAssemblerService;
-    private static final String COLLECTION_PAGE = "collections";
-
-    // TODO: Don't think I need this
-    @PostMapping("/{collectionName}/{movieId}")
-    public ResponseEntity<MovieCollection> addMovie(
-            @PathVariable String collectionName,
-            @PathVariable Long movieId,
-            Authentication auth) {
-        return ResponseEntity.ok(collectionService.addMoviesToUserCollection(auth, movieId, collectionName));
-    }
-
-    /*@GetMapping()
-    public String showCollectionsPage(Authentication auth, Model model) {
-        List<MovieCollection> collections = collectionService.getAllUserCollection(auth);
-        model.addAttribute("collections", collections);
-        return COLLECTION_PAGE;
-    }*/
+    private static final String COLLECTION_DTO = "newCollectionDto";
 
     @GetMapping
     public String showAllCollections(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
@@ -88,7 +70,7 @@ public class MovieCollectionController {
     @HxRequest
     @GetMapping("/add-form")
     public String showAddForm(Model model) {
-        model.addAttribute("newCollectionDto", new NewCollectionDto());
+        model.addAttribute(COLLECTION_DTO, new NewCollectionDto());
         return "fragments/collection-form :: add-form";
     }
 
@@ -108,7 +90,7 @@ public class MovieCollectionController {
 
         if (bindingResult.hasErrors()) {
             // Returning the form with errors
-            model.addAttribute("newCollectionDto", newCollectionDto);
+            model.addAttribute(COLLECTION_DTO, newCollectionDto);
             return "fragments/collection-form :: collection-add-form";
         }
 
@@ -116,7 +98,7 @@ public class MovieCollectionController {
 
         if (collectionService.nameExists(newCollectionDto.getName(), user.getId())) {
             bindingResult.rejectValue("name", "name.duplicate", "This collection name already exists");
-            model.addAttribute("newCollectionDto", newCollectionDto);
+            model.addAttribute(COLLECTION_DTO, newCollectionDto);
             return "fragments/collection-form :: collection-add-form";
         }
 
