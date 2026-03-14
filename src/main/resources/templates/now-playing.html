@@ -5,6 +5,8 @@
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
+<div id="top-sentinel" class="absolute top-0 h-[1px] w-[1px]"></div>
+
 <div class="flex items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2">
     <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5 text-white">
         <div class="col-span-2 flex min-h-[50px] items-center rounded-lg shadow-xl">
@@ -22,7 +24,7 @@
         </th:block>
         <!-- Container for toast notifications -->
         <div id="toast-container" class="fixed top-5 right-5 flex flex-col gap-2 z-50"></div>
-
+        <th:block th:replace="~{fragments/buttons :: backToTop}"></th:block>
     </div>
 </div>
 </body>
