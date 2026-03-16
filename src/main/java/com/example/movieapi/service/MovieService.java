@@ -165,24 +165,29 @@ public class MovieService {
             return List.of();
         }
 
-        List<Movie> movies = new ArrayList<>();
-
         // Getting us release dates
-        for (TmdbMovieDetailsResponse movieResult : movieResults) {
+        List<Movie> moviesUpdatedWithReleaseDates = processReleaseDatesOfTmdbMovies(movieResults);
+
+        return moviesRepository.saveAll(moviesUpdatedWithReleaseDates);
+    }
+
+    private List<Movie> processReleaseDatesOfTmdbMovies(List<TmdbMovieDetailsResponse> tmdbMovies) {
+        List<Movie> moviesToBeUpdated = new ArrayList<>();
+
+        for (TmdbMovieDetailsResponse movieResult : tmdbMovies) {
             List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(movieResult.getReleaseDates().getResults());
             Movie movie = movieMapper.toEntity(movieResult);
             if (!usReleaseDates.isEmpty()) {
                 Movie movieWithReleaseDates = processReleaseDates(usReleaseDates, movie);
-                movies.add(movieWithReleaseDates);
+                moviesToBeUpdated.add(movieWithReleaseDates);
             } else {
                 log.info("Movie with IMDB ID: {} does not have a US release date", movieResult.getImdbId());
-                movies.add(movie);
+                moviesToBeUpdated.add(movie);
             }
         }
 
-        return moviesRepository.saveAll(movies);
+        return moviesToBeUpdated;
     }
-
 
     @Transactional
     public List<Movie> saveMovies(List<MovieResultResponse> movieResults) {
