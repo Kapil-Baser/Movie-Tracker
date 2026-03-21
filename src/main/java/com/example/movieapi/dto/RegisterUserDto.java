@@ -1,8 +1,6 @@
 package com.example.movieapi.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,18 +12,26 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RegisterUserDto {
 
-    @NotEmpty(message = "Username is required")
+    @NotBlank(message = "Username is required")
     @Size(min = 4, max = 50, message = "Username must be between 4 and 50 characters")
+    @Pattern(
+            regexp = "^(?=\\S+$).*$",
+            message = "Spaces are not allowed in username"
+    )
     private String username;
 
-    @NotEmpty(message = "Email is required")
+    @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")
     private String email;
 
-    @NotEmpty(message = "Password is required")
-    @Size(min = 4, message = "Password must be at least 4 characters")
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).*$",
+            message = "Password must contain at least one digit, one uppercase, one lowercase, one special character (@#$%^&+=!), and no spaces"
+    )
     private String password;
 
-    @NotEmpty(message = "Password confirmation is required")
+    @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
 }
