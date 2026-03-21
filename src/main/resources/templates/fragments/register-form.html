@@ -2,39 +2,35 @@
     <div class="text-center mb-12 text-2xl font-bold">
         <h3>Register Now</h3>
     </div>
-    <div th:if="${error}" class="error-message">
+    <div th:if="${error}" class="text-red-600">
         <p th:text="${error}"></p>
     </div>
-    <form th:action="@{/register/process-registration}" th:object="${user}" method="POST">
+    <form th:action="@{/register}" th:object="${registerUserDto}" method="POST">
         <div class="space-y-6">
-            <div>
-                <label for="username" class="text-sm font-medium mb-2 block">Username</label>
-                <input id="username" autocomplete="username" name="username" th:field="*{username}" type="text" required th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''" class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-emerald-500"
-                       placeholder="Username" />
-                <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
-                    <p th:errors="*{username}"></p>
-                </div>
+
+            <label for="username" class="text-sm font-medium mb-2 block">Username</label>
+            <input id="username" autocomplete="username" name="username" th:field="*{username}" type="text" required th:classappend="${#fields.hasErrors('username')} ? 'border-red-500' : 'border-gray-300'" class="text-slate-900 bg-white border w-full text-sm px-4 py-3 rounded-md outline-emerald-500"
+                   placeholder="Username" />
+            <div th:if="${#fields.hasErrors('username')}" class="text-red-600">
+                <p th:errors="*{username}"></p>
             </div>
-            <div>
-                <label for="email" class="text-sm font-medium mb-2 block">Email</label>
-                <input id="email" name="email" type="email" required autocomplete="email" th:field="*{email}" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter email" />
-                <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
-                    <p th:errors="*{email}"></p>
-                </div>
+
+            <label for="email" class="text-sm font-medium mb-2 block">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email" th:field="*{email}" th:classappend="${#fields.hasErrors('email')} ? 'border-red-500' : 'border-gray-300'" class="text-slate-900 bg-white border w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter email" />
+            <div th:if="${#fields.hasErrors('email')}" class="text-red-600">
+                <p th:errors="*{email}"></p>
             </div>
-            <div>
-                <label for="password" class="text-sm font-medium mb-2 block">Password</label>
-                <input id="password" name="password" type="password" th:field="*{password}" required autocomplete="current-password" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter password" />
-                <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback">
-                    <p th:errors="*{password}"></p>
-                </div>
+
+            <label for="password" class="text-sm font-medium mb-2 block">Password</label>
+            <input id="password" name="password" type="password" th:field="*{password}" required autocomplete="current-password" th:classappend="${#fields.hasErrors('password')} ? 'border-red-500' : 'border-gray-300'" class="text-slate-900 bg-white border w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter password" />
+            <div th:if="${#fields.hasErrors('password')}" class="text-red-600">
+                <p th:errors="*{password}"></p>
             </div>
-            <div>
-                <label for="confirmPassword" class="text-sm font-medium mb-2 block">Confirm Password</label>
-                <input id="confirmPassword" type="password" required th:field="*{confirmPassword}" autocomplete="current-password" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''" class="text-slate-900 bg-white border border-gray-300 w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter confirm password" />
-                <div th:if="${#fields.hasErrors('confirmPassword')}" class="invalid-feedback">
-                    <p th:errors="*{confirmPassword}"></p>
-                </div>
+
+            <label for="confirmPassword" class="text-sm font-medium mb-2 block">Confirm Password</label>
+            <input id="confirmPassword" type="password" required th:field="*{confirmPassword}" autocomplete="current-password" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'border-red-500' : 'border-gray-300'" class="text-slate-900 bg-white border w-full text-sm px-4 py-3 rounded-md outline-emerald-500" placeholder="Enter confirm password" />
+            <div th:if="${#fields.hasErrors('confirmPassword')}" class="text-red-600">
+                <p th:errors="*{confirmPassword}"></p>
             </div>
 
             <div class="flex items-center">
