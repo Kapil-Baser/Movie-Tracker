@@ -29,20 +29,18 @@ public class RegistrationController {
         this.userService = userService;
     }
 
-
-    @ModelAttribute("user")
+    @ModelAttribute("registerUserDto")
     public RegisterUserDto registerUserDto() {
         return new RegisterUserDto();
     }
-
 
     @GetMapping
     public String showRegisterPage() {
         return REGISTRATION_PAGE;
     }
 
-    @PostMapping("/process-registration")
-    public String registration(@Valid @ModelAttribute("user") RegisterUserDto userDto,
+    @PostMapping
+    public String registration(@Valid @ModelAttribute("registerUserDto") RegisterUserDto userDto,
                                BindingResult result,
                                Model model) {
 
