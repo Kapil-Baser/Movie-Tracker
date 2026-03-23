@@ -3,9 +3,10 @@
 <head th:insert="~{fragments/head :: head (pageTitle='Now Playing')}">
 </head>
 <body>
-    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
-
-    <div id="top-sentinel" class="absolute top-0 h-[1px] w-[1px]" aria-hidden="true"></div>
+    <header>
+        <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+        <div id="top-sentinel" class="absolute top-0 h-[1px] w-[1px]" aria-hidden="true"></div>
+    </header>
 
     <main id="main-content" class="flex items-center justify-center bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2">
         <div class="grid min-h-[50px] gap-2 gap-y-3 rounded-xl px-[20px] pt-2 sm:grid-cols-5 text-white">
