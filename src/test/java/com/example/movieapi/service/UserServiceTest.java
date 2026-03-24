@@ -107,11 +107,7 @@ class UserServiceTest {
         String email = "user@example.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        // when
-        AppUser returnedUser = userService.loadUserByEmail(email);
-
-        // then
-        assertThat(returnedUser).isNull();
+        // when & then
         assertThatThrownBy(() -> userService.loadUserByEmail(email))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessage("Unregistered email");
@@ -124,6 +120,7 @@ class UserServiceTest {
         String rawPassword = "test1234";
         String encodedPassword = "test1234";
         AppUser appUser = new AppUser();
+        appUser.setPassword(encodedPassword);
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
 
         // when
