@@ -70,7 +70,7 @@ public class AdminController {
         return ResponseEntity.ok("Updated YouTube trailers");
     }
 
-    @PostMapping("/details/{movie_id}")
+    @GetMapping("/details/{movie_id}")
     public ResponseEntity<TmdbMovieDetailsResponse> getMovieDetails(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(movieSyncService.getMovieDetails(movieId));
     }
