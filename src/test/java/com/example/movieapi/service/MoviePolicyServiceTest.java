@@ -9,7 +9,7 @@ class MoviePolicyServiceTest {
 
     @Test
     void isMovieSubscribable_returnsTrueWhenGivenDateIsValid() {
-        String formattedReleaseDate = "Dec 12, 2025";
+        String formattedReleaseDate = "Jan 12, 2026";
         String streamingDate = "Unknown";
         boolean result = MoviePolicyService.isMovieSubscribable(formattedReleaseDate, streamingDate);
         assertThat(result).isTrue();
@@ -17,8 +17,8 @@ class MoviePolicyServiceTest {
 
     @Test
     void isMovieSubscribable_returnsFalseWhenGivenDateIsInvalid() {
-        String formattedReleaseDate = "Dec 12, 2025";
-        String streamingDate = "Dec 20, 2025";
+        String formattedReleaseDate = "Jan 12, 2026";
+        String streamingDate = "Jan 20, 2026";
         boolean result = MoviePolicyService.isMovieSubscribable(formattedReleaseDate, streamingDate);
         assertThat(result).isFalse();
     }
