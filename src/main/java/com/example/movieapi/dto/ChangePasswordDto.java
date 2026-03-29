@@ -1,6 +1,7 @@
 package com.example.movieapi.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +14,17 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ChangePasswordDto {
 
-    @NotEmpty(message = "Current password is required")
+    @NotBlank(message = "Current password is required")
     private String currentPassword;
 
-    @NotEmpty(message = "New password is required")
-    @Size(min = 4, message = "Password must be at least 4 characters")
+    @NotBlank(message = "New password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).*$",
+            message = "Password must contain at least one digit, one uppercase, one lowercase, one special character (@#$%^&+=!), and no spaces"
+    )
     private String newPassword;
 
-    @NotEmpty(message = "Confirm password is required")
+    @NotBlank(message = "Confirm password is required")
     private String confirmNewPassword;
 }
