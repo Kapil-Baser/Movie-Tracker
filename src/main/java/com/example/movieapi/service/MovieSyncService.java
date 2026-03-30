@@ -240,10 +240,18 @@ public class MovieSyncService {
 
         Executor executor = getMovieExecutor(Math.min(pendingMovies.size(), 30));
 
-        CompletableFuture<List<Movie>> allMoviesFuture = fetchAllMoviesAsync(pendingMovies, executor)
-                .thenCompose(movies -> saveMoviesAsync(movies, executor));
+        // Calling the .join() here to block the main thread until All background fetches are done.
+        List<Movie> moviesToSave = fetchAllMoviesAsync(pendingMovies, executor).join();
 
-        allMoviesFuture.join(); // wait for everything to finish before exiting since this method is transactional
+        if (!moviesToSave.isEmpty()) {
+            movieService.saveAll(moviesToSave);
+            log.info("Saved {} movies with digital release dates", moviesToSave.size());
+        }
+
+//        CompletableFuture<List<Movie>> allMoviesFuture = fetchAllMoviesAsync(pendingMovies, executor)
+//                .thenCompose(movies -> saveMoviesAsync(movies, executor));
+//
+//        allMoviesFuture.join(); // wait for everything to finish before exiting since this method is transactional
     }
 
     private CompletableFuture<List<Movie>> fetchAllMoviesAsync(List<Movie> movies, Executor executor) {
@@ -401,7 +409,7 @@ public class MovieSyncService {
         return movieMapper.toMovieDto(trendingMovies);
     }
 
-    public void syncYouTubeTrailers() {
+    /*public void syncYouTubeTrailers() {
         List<Movie> moviesWithoutTrailers = movieService.moviesWithNoTrailers();
         if (moviesWithoutTrailers.isEmpty()) {
             log.info("All Movies have trailers");
@@ -428,6 +436,49 @@ public class MovieSyncService {
                 log.error("Failed to sync trailer for movie ID {}: {}", movie.getTraktId(), e.getMessage());
             }
         });
+
+        if (!moviesToUpdate.isEmpty()) {
+            movieService.saveAll(moviesToUpdate);
+            log.info("Successfully updated trailers for {} movies", moviesToUpdate.size());
+        }
+    }*/
+
+    public void syncYouTubeTrailers() {
+        List<Movie> moviesWithoutTrailers = movieService.moviesWithNoTrailers();
+        if (moviesWithoutTrailers.isEmpty()) {
+            log.info("All Movies have trailers");
+            return;
+        }
+
+        Executor executor = getMovieExecutor(Math.min(moviesWithoutTrailers.size(), 20));
+
+        List<CompletableFuture<Movie>> futures = moviesWithoutTrailers.stream()
+                .map(movie -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        List<TraktAllVideosResponse> allVideos =  traktService.getAllVideos(movie.getTraktId());
+
+                        return allVideos.stream()
+                                .filter(v -> v != null && "Official Trailer".equals(v.getTitle()))
+                                .findFirst()
+                                .map(trailer -> {
+                                    movie.setTrailer(trailer.getUrl());
+                                    return movie;
+                                })
+                                .orElse(null);
+
+                    } catch (Exception e) {
+                        log.error("Error while trying to sync movies with trailers", e);
+                        return null;
+                    }
+                }, executor))
+                .toList();
+
+        List<Movie> moviesToUpdate = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(_ -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .filter(Objects::nonNull)
+                        .toList())
+                .join();
 
         if (!moviesToUpdate.isEmpty()) {
             movieService.saveAll(moviesToUpdate);
