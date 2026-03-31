@@ -25,9 +25,13 @@ public class AdminController {
         return "token";
     }
 
-    @PostMapping("/upcoming")
-    public ResponseEntity<List<MovieDto>> upcomingMovies(@RequestParam("page") int page) {
-        return ResponseEntity.ok(movieSyncService.syncUpcomingMovies(page));
+    @PostMapping("/upcoming/{page_no}")
+    public ResponseEntity<List<MovieDto>> syncUpcomingMoviesFromTmdb(@PathVariable(name = "page_no") int page) {
+        List<MovieDto> dto = movieSyncService.syncUpcomingMovies(page);
+        if (dto.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @PostMapping("/sync-release-dates")
@@ -36,10 +40,10 @@ public class AdminController {
         return ResponseEntity.ok("Synced release dates");
     }
 
-    @PostMapping("/now-playing")
+    /*@PostMapping("/now-playing")
     public ResponseEntity<List<MovieDto>> syncNowPlaying() {
         return ResponseEntity.ok(movieSyncService.syncNowPlayingMovies());
-    }
+    }*/
 
     @GetMapping("/anticipated")
     public ResponseEntity<List<MovieDto>> syncMostAnticipated() {
@@ -47,7 +51,7 @@ public class AdminController {
     }
 
     @PostMapping("/now-playing/{page_no}")
-    public ResponseEntity<@NonNull List<@NonNull MovieDto>> syncNowPlayingFromTmdb(@PathVariable(name = "page_no") int page) {
+    public ResponseEntity<List<MovieDto>> syncNowPlayingFromTmdb(@PathVariable(name = "page_no") int page) {
         List<MovieDto> dto = movieSyncService.syncNowPlayingMoviesFromTmdb(page);
         if (dto.isEmpty()) {
             return ResponseEntity.noContent().build();
