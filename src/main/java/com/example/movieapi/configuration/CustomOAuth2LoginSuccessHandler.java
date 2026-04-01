@@ -47,7 +47,7 @@ public class CustomOAuth2LoginSuccessHandler extends AbstractAuthenticationTarge
         }
 
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-        successHandler.setDefaultTargetUrl("/movies");
+//        successHandler.setDefaultTargetUrl("/movies");
         successHandler.onAuthenticationSuccess(request, response, authentication);
 
         /*new SavedRequestAwareAuthenticationSuccessHandler().onAuthenticationSuccess(
