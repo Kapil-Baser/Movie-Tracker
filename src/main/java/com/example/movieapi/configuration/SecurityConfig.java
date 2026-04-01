@@ -54,7 +54,6 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/movies")
                         .failureHandler(authenticationFailureHandler())
                         .permitAll()
                 )
@@ -69,7 +68,7 @@ public class SecurityConfig {
                 )
 
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/movies")
+                        .logoutSuccessUrl("/")
                         .permitAll()
                 )
 
@@ -79,7 +78,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/webjars/**",
-                                "/movies/**",
+                                "/",
+                                "/nowPlaying/**",
+                                "/trending/**",
+                                "/upcoming/**",
                                 "/register/**",
                                 "/error",
                                 "/favicon.ico",
