@@ -1,6 +1,8 @@
 package com.example.movieapi.controller;
 
+import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.model.PagedResults;
+import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbDiscoverResponse;
 import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -44,5 +47,10 @@ public class ApiController {
     @GetMapping("/movies/videos/{movie_id}")
     public ResponseEntity<List<TraktAllVideosResponse>> getVidoes(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(traktService.getAllVideos(movieId));
+    }
+
+    @GetMapping("/movies/discover")
+    public ResponseEntity<List<MovieResultResponse>> discoverMovie() {
+        return ResponseEntity.ok(tmdbService.discoverMovies(2026, LocalDate.now().withDayOfMonth(1),4));
     }
 }
