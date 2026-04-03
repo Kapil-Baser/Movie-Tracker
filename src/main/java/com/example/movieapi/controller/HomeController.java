@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @Controller
-@RequestMapping("/movies")
+//@RequestMapping("/movies")
 public class HomeController {
 
     private final MovieCollectionService collectionService;
