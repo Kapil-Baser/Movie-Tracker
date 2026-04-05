@@ -114,7 +114,7 @@ public class MovieCollectionService {
         return collectionRepository.save(collection);
     }
 
-    public MovieCollection addMovieToUserCollection(Long movieId, Long collectionId) {
+    public void addMovieToUserCollection(Long movieId, Long collectionId) {
         Movie movie = movieService.getMovieById(movieId);
         MovieCollection collection = collectionRepository.getReferenceById(collectionId);
 
@@ -122,7 +122,7 @@ public class MovieCollectionService {
             throw new IllegalArgumentException("Movie already in collection");
         }
         collection.addMovie(movie);
-        return collectionRepository.save(collection);
+        collectionRepository.save(collection);
     }
 
     private AppUser getCurrentUser(Authentication auth) {
