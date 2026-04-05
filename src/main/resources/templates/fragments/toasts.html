@@ -8,5 +8,12 @@
   <p th:text="${message}"></p>
 </div>
 
+<div th:fragment="hx-success" hx-swap-oob="beforeend:#toast-container">
+    <div class="bg-emerald-700 text-white p-4 rounded-lg shadow-lg"
+         _="on load wait 3s then transition opacity to 0 then remove me">
+      <p th:text="${message}"></p>
+    </div>
+</div>
+
 </body>
 </html>
