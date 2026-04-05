@@ -5,11 +5,13 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.WatchedMovieService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.FragmentsRendering;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,7 +36,7 @@ public class WatchedHistoryController {
         return "watched-history";
     }
 
-    @PostMapping("/toggle")
+    /*@PostMapping("/toggle")
     public String toggleWatched(@RequestParam Long movieId,
                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                 Model model) {
@@ -44,6 +46,23 @@ public class WatchedHistoryController {
         model.addAttribute("movieId", movieId);
 
         return "fragments/buttons :: mark-as-watched-unwatched-button";
+    }*/
+
+    @HxRequest
+    @PostMapping("/toggle")
+    public FragmentsRendering toggleWatched(@RequestParam Long movieId,
+                                            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                            Model model) {
+        boolean isWatched = watchedMovieService.toggleWatched(authenticatedUser, movieId);
+
+        model.addAttribute("isWatched", isWatched);
+        model.addAttribute("movieId", movieId);
+        model.addAttribute("message", "Movie successfully marked as watched");
+
+        return FragmentsRendering
+                .fragment("fragments/buttons :: mark-as-watched-unwatched-button")
+                .fragment("fragments/toasts :: hx-success")
+                .build();
     }
 
     @DeleteMapping("/unwatched")
