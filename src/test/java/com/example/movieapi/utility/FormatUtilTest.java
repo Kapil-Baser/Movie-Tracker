@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -48,6 +49,33 @@ class FormatUtilTest {
     @Test
     void formatReleaseDate_shouldReturnUnknownWhenDateIsNull() {
         String result = FormatUtil.formatReleaseDate(null);
+        assertThat(result).isEqualTo("Unknown");
+    }
+
+    @Test
+    void formatUserRegisterDate_shouldFormatUserRegisterDateCorrectly() {
+        LocalDateTime registerDate = LocalDateTime.of(2025, 12, 30, 23, 59, 59);
+
+        String result = FormatUtil.formatUserRegisterDate(registerDate);
+
+        assertThat(result).isEqualTo("Dec 2025");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2026-01-07T16:55:20, 'Jan 2026'",
+            "2025-02-10T10:05:20, 'Feb 2025'",
+            "2024-12-02T12:51:20, 'Dec 2024'"
+    })
+    void formatUserRegisterDate_shouldHandleVariousInputs(LocalDateTime registerDate, String expected) {
+        String result = FormatUtil.formatUserRegisterDate(registerDate);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void formatUserRegisterDate_shouldReturnUnknownWhenUserRegisterDateIsNull() {
+        String result = FormatUtil.formatUserRegisterDate(null);
         assertThat(result).isEqualTo("Unknown");
     }
 }
