@@ -2,10 +2,12 @@ package com.example.movieapi.utility;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class FormatUtil {
+    private static final String UNKNOWN = "Unknown";
 
     private FormatUtil() {}
 
@@ -18,13 +20,20 @@ public class FormatUtil {
         if (releaseDate != null) {
             return releaseDate.format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH));
         }
-        return "Unknown";
+        return UNKNOWN;
     }
 
     public static LocalDate parseReleaseDate(String formattedDate) {
-        if (formattedDate != null && !formattedDate.equals("Unknown")) {
+        if (formattedDate != null && !formattedDate.equals(UNKNOWN)) {
             return LocalDate.parse(formattedDate, DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH));
         }
         return null;
+    }
+
+    public static String formatUserRegisterDate(LocalDateTime userRegisterDate) {
+        if (userRegisterDate != null) {
+            return userRegisterDate.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale.ENGLISH));
+        }
+        return UNKNOWN;
     }
 }
