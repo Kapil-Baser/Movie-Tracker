@@ -3,7 +3,9 @@
 <head th:insert="~{fragments/head :: head (pageTitle='Account Settings')}">
 </head>
 <body>
-    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    <header>
+        <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    </header>
 
     <div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 pt-2 min-h-screen">
         <div class="flex items-start justify-center px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40">
@@ -20,26 +22,6 @@
                             </div>
 
                             <nav class="flex flex-col gap-1 p-2 font-sans text-base font-normal flex-grow">
-                                <!-- Inbox Button -->
-                                <div role="button" hx-get="/account/inbox" hx-target="#main-content" hx-swap="innerHTML"
-                                     class="flex items-center w-full p-3 leading-tight transition-all rounded-lg outline-none text-start text-white hover:bg-emerald-800 hover:bg-opacity-80 focus:bg-opacity-80 active:bg-opacity-80 cursor-pointer">
-                                    <div class="grid mr-4 place-items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
-                                             class="w-5 h-5">
-                                            <path fill-rule="evenodd"
-                                                  d="M6.912 3a3 3 0 00-2.868 2.118l-2.411 7.838a3 3 0 00-.133.882V18a3 3 0 003 3h15a3 3 0 003-3v-4.162c0-.299-.045-.596-.133-.882l-2.412-7.838A3 3 0 0017.088 3H6.912zm13.823 9.75l-2.213-7.191A1.5 1.5 0 0017.088 4.5H6.912a1.5 1.5 0 00-1.434 1.059L3.265 12.75H6.11a3 3 0 012.684 1.658l.256.513a1.5 1.5 0 001.342.829h3.218a1.5 1.5 0 001.342-.83l.256-.512a3 3 0 012.684-1.658h2.844z"
-                                                  clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="flex-grow">Inbox</span>
-                                    <div class="grid place-items-center">
-                                        <div
-                                                class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-full select-none whitespace-nowrap">
-                                            <span class="">14</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Profile Button (Active by default) -->
                                 <div role="button" hx-get="/user/dashboard" hx-target="#main-content" hx-swap="innerHTML"
                                      id="profile-button"
@@ -70,18 +52,15 @@
                                 </div>
 
                                 <!-- Log Out Button -->
-                                <form th:action="@{/logout}" method="POST"
-                                      role="button"
-                                      class="flex items-center mt-auto">
-                                    <button class="flex text-start p-3 w-full leading-tight transition-all outline-none rounded-lg cursor-pointer hover:bg-gradient-to-br hover:from-red-900 hover:via-red-950 hover:to-red-900 hover:bg-opacity-80">
-                                        <div class="grid mr-4 place-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-5 h-5">
-                                                <path fill-rule="evenodd"
-                                                      d="M12 2.25a.75.75 0 01.75.75v9a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM6.166 5.106a.75.75 0 010 1.06 8.25 8.25 0 1011.668 0 .75.75 0 111.06-1.06c3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788a.75.75 0 011.06 0z"
-                                                      clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="flex-grow">Log Out</span>
+                                <form th:action="@{/logout}" method="POST" class="flex items-center mt-auto group">
+                                    <button class="flex text-start p-3 w-full leading-tight transition-all ease-out duration-500 outline-none rounded-lg
+                                                   cursor-pointer group-hover:bg-red-800">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="w-5 h-5">
+                                            <path fill-rule="evenodd"
+                                                  d="M12 2.25a.75.75 0 01.75.75v9a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM6.166 5.106a.75.75 0 010 1.06 8.25 8.25 0 1011.668 0 .75.75 0 111.06-1.06c3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788a.75.75 0 011.06 0z"
+                                                  clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="flex-grow ml-4">Log Out</span>
                                     </button>
                                 </form>
                             </nav>
