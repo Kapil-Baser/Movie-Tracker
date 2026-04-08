@@ -1,8 +1,20 @@
 <nav th:fragment="navbar" class="w-full flex justify-between bg-emerald-900 p-1.5 font-medium text-white">
     <div class="flex items-center mx-3 space-x-8">
-        <a th:href="@{/}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Home</a>
-        <a th:href="@{/upcoming}" class="hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Upcoming</a>
-        <a th:href="@{/trending}" class="hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Trending</a>
+        <a th:href="@{/}" class="relative ml-3 group
+          after:absolute after:bottom-0 after:left-0
+          after:h-[2px] after:w-0 after:bg-emerald-500
+          after:transition-all after:duration-300
+          hover:after:w-full">Home</a>
+        <a th:href="@{/upcoming}" class="relative group
+          after:absolute after:bottom-0 after:left-0
+          after:h-[2px] after:w-0 after:bg-emerald-500
+          after:transition-all after:duration-300
+          hover:after:w-full">Upcoming</a>
+        <a th:href="@{/trending}" class="relative group
+          after:absolute after:bottom-0 after:left-0
+          after:h-[2px] after:w-0 after:bg-emerald-500
+          after:transition-all after:duration-300
+          hover:after:w-full">Trending</a>
     </div>
 
     <form action="#" th:action="@{/movies/search}" method="GET">
@@ -30,7 +42,11 @@
     <!-- Show only when logged in -->
     <div sec:authorize="isAuthenticated()" class="flex items-center mx-3 space-x-8">
         <div>
-            <a th:href="@{/user/movies/history}" class="ml-3 hover:underline decoration-emerald-500 decoration-solid decoration-4 underline-offset-5">Watched History</a>
+            <a th:href="@{/user/movies/history}" class="relative ml-3 group
+          after:absolute after:bottom-0 after:left-0
+          after:h-[2px] after:w-0 after:bg-emerald-500
+          after:transition-all after:duration-300
+          hover:after:w-full">Watched History</a>
         </div>
         <div class="relative inline-flex mr-4" _="on click elsewhere add .hidden to #dropdown-menu">
             <button _="on click toggle .hidden on #dropdown-menu"
