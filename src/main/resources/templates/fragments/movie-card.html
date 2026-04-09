@@ -6,28 +6,30 @@
     <div sec:authorize="isAuthenticated()" class="absolute inset-0 bg-black/50 opacity-0
                     group-hover:opacity-100 transition-opacity duration-300">
     </div>
+
+    <!-- YouTube Trailer button -->
     <th:block th:replace="~{fragments/buttons:: youtube-button(trailerUrl = ${movie.movieDto.trailer})}">
     </th:block>
-    <div class="absolute top-2 right-2 flex flex-col gap-1 group-hover:opacity-100
+    <div sec:authorize="isAuthenticated()" class="absolute top-2 right-2 flex flex-col gap-1 group-hover:opacity-100
 					pointer-events-none group-hover:pointer-events-auto
 					transition-opacity duration-200">
 
       <!--Include favorite button fragment-->
-      <th:block sec:authorize="isAuthenticated()"
-                th:replace="~{fragments/buttons :: fav-button(
+      <th:block th:replace="~{fragments/buttons :: fav-button(
                                 movieId=${movie.movieDto.id},
                                 isFavorited=${movie.isFavorited})}">
       </th:block>
-      <!--Include watched button fragment-->
-      <th:block sec:authorize="isAuthenticated()"
-                th:replace="~{fragments/buttons :: watch-list-button(movieId = ${movie.movieDto.id}, isWatchListed = ${movie.isInWatchList})}">
 
+      <!--Include watched button fragment-->
+      <th:block th:replace="~{fragments/buttons :: watch-list-button(movieId = ${movie.movieDto.id}, isWatchListed = ${movie.isInWatchList})}">
       </th:block>
+
       <!--Subscribe (Only render if movie is subscribable)-->
-      <th:block th:if="${movie.isSubscribable}" sec:authorize="isAuthenticated()">
+      <th:block th:if="${movie.isSubscribable}">
         <th:block th:replace="~{fragments/buttons :: subscribe-to-movie (movieId = ${movie.movieDto.id}, isSubscribed = ${movie.isSubscribed})}">
         </th:block>
       </th:block>
+
       <!--Movie options-->
       <th:block th:replace="~{fragments/buttons :: movie-options(movieId = ${movie.movieDto.id}, movieTitle = ${movie.movieDto.title}, isWatched = ${movie.isWatched})}">
       </th:block>
