@@ -8,6 +8,7 @@ import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.validator.ChangePasswordValidator;
 import com.example.movieapi.service.MovieCollectionService;
 import com.example.movieapi.service.UserService;
+import com.example.movieapi.utility.FormatUtil;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,10 +39,12 @@ public class UserProfileController {
     }
 
     @ModelAttribute
-    public void addCollectionSize(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
+    public void addUserData(@AuthenticationPrincipal AuthenticatedUser authenticatedUser, Model model) {
         if (authenticatedUser != null) {
             int collectionCount = collectionService.getCollectionCount(authenticatedUser);
+            String memberSince = FormatUtil.formatUserRegisterDate(authenticatedUser.getUser().getCreatedAt());
             model.addAttribute("collectionCount", collectionCount);
+            model.addAttribute("memberSince", memberSince);
         }
     }
 
