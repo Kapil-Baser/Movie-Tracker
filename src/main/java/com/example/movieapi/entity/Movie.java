@@ -77,13 +77,13 @@ public class Movie {
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    /*@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genres",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private Set<Genre> genres = new HashSet<>();
+    private Set<Genre> genres = new HashSet<>();*/
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "tmdb_genres", columnDefinition = "json")
