@@ -1,16 +1,13 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.dto.MovieDto;
-import com.example.movieapi.entity.Genre;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.*;
-import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.tmdb.model.TmdbCountryRelease;
 import com.example.movieapi.model.tmdb.model.TmdbReleaseDate;
 import com.example.movieapi.model.trakt.model.TraktMovie;
-import com.example.movieapi.repository.GenresRepository;
 import com.example.movieapi.repository.MoviesRepository;
 import com.example.movieapi.utility.ReleaseTypeUtil;
 import jakarta.transaction.Transactional;
@@ -28,13 +25,11 @@ import java.util.stream.Collectors;
 public class MovieService {
 
     private final MovieMapper movieMapper;
-    private final GenresRepository genresRepository;
     private final MoviesRepository moviesRepository;
 
     @Autowired
-    public MovieService(MovieMapper movieMapper, GenresRepository genresRepository, MoviesRepository moviesRepository) {
+    public MovieService(MovieMapper movieMapper, MoviesRepository moviesRepository) {
         this.movieMapper = movieMapper;
-        this.genresRepository = genresRepository;
         this.moviesRepository = moviesRepository;
     }
 
@@ -189,7 +184,7 @@ public class MovieService {
         return moviesToBeUpdated;
     }
 
-    @Transactional
+    /*@Transactional
     public List<Movie> saveMovies(List<MovieResultResponse> movieResults) {
 
         if (movieResults == null || movieResults.isEmpty()) {
@@ -259,9 +254,9 @@ public class MovieService {
         // and not the new movies I could save in the database
         // TODO: make less calls to the database
         return moviesRepository.findAllById(movieIds);
-    }
+    }*/
 
-    @Transactional
+    /*@Transactional
     public Movie saveMovie(MovieResultResponse movieResult) {
 
         return moviesRepository.findById(movieResult.getId())
@@ -271,7 +266,7 @@ public class MovieService {
                     movie.setGenres(genre);
                     return moviesRepository.save(movie);
                 });
-    }
+    }*/
 
     public Movie saveMovie(TraktMovie traktMovie) {
         Movie movie = movieMapper.toEntity(traktMovie);
