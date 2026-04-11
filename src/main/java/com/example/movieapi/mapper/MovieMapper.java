@@ -79,7 +79,7 @@ public class MovieMapper {
                         .posterPath(movie.getPosterPath())
                         .usDigitalReleaseDate(FormatUtil.formatReleaseDate(movie.getUsDigitalDate()))
                         .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
-                        .genres(movie.getTmdbGenres())
+                        //.genres(movie.getTmdbGenres())
                         .build()
                 ).toList();
     }
@@ -96,7 +96,7 @@ public class MovieMapper {
                 .runtime(FormatUtil.formatRuntime(movie.getRuntime()))
                 .usDigitalReleaseDate(FormatUtil.formatReleaseDate(movie.getUsDigitalDate()))
                 .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
-                .genres(movie.getTmdbGenres())
+                //.genres(movie.getTmdbGenres())
                 .build();
     }
 }
