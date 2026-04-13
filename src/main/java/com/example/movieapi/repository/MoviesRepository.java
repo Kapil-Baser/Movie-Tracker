@@ -36,4 +36,7 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     List<Movie> findAllByTmdbIdIn(List<Long> tmdbIds);
 
     List<Movie> findAllByTraktIdIn(List<Long> traktIds);
+
+    @Query("SELECT m.title FROM Movie m WHERE m.id = :movieId")
+    String findTitleByMovieId(Long movieId);
 }
