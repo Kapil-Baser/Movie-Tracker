@@ -95,41 +95,4 @@ public class SecurityConfig {
                 .build();
 
     }
-
-    /*@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2AuthorizationRequestResolver resolver, CustomOAuth2LoginSuccessHandler successHandler) throws Exception {
-        return http
-                .httpBasic(Customizer.withDefaults())
-                .addFilterAfter(new CsrfLoggingFilter(), CsrfFilter.class)
-                .formLogin(httpForm -> httpForm
-                        .loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/movies")
-                        .failureHandler(authenticationFailureHandler())
-                        .permitAll())
-                .oauth2Login(oauth -> oauth.authorizationEndpoint(auth -> auth.authorizationRequestResolver(resolver))
-                    .failureHandler(authenticationFailureHandler())
-                    .defaultSuccessUrl("/movies")
-                        .successHandler(successHandler)
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/movies")
-                        .permitAll())
-                .authorizeHttpRequests(authorize -> {
-                    authorize
-                            .requestMatchers("/api/v1/admin/**")
-                            .hasRole("ADMIN")
-                            .requestMatchers("/user/**")
-                            .hasRole("USER")
-                            .requestMatchers("/auth/**")
-                            .permitAll()
-                            .requestMatchers("/webjars/**","/movies/**", "/register/**", "/error")
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated();
-                })
-                .build();
-    }*/
-
-
 }
