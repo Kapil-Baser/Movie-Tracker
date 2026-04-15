@@ -19,7 +19,7 @@ public class TraktMovie {
     @JsonProperty("tagline")
     private String tagLine;
     private String overview;
-    private int runtime;
+    private Integer runtime;
     private String country;
     private String trailer;
     @JsonProperty("homepage")
