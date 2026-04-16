@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class QuartzConfig {
 
     @Bean
-    public JobDetail jobDetail() {
+    public JobDetail fetchMovieDigitalReleaseDatesJob() {
          return JobBuilder
                 .newJob(UpdateMovieStreamingDatesJob.class)
                 .storeDurably()
@@ -20,11 +20,11 @@ public class QuartzConfig {
     }
 
     @Bean
-    public Trigger trigger() {
+    public Trigger fetchMovieDigitalReleaseDatesTrigger() {
         return TriggerBuilder.newTrigger()
-                .forJob(jobDetail())
+                .forJob(fetchMovieDigitalReleaseDatesJob())
                 .withIdentity("Fetch_Movie_Release_Dates_Trigger")
-                .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(25))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 3 * * ?"))
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(movieOutForSteamingToday())
                 .withIdentity("Publish_Movies_Streaming_Today_Trigger")
-                .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(10))
+                .withSchedule(SimpleScheduleBuilder.repeatHourlyForever(12))
                 .build();
     }
 }
