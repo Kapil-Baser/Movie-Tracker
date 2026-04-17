@@ -14,14 +14,13 @@ import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
-import com.example.movieapi.utility.ReleaseTypeUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -38,15 +37,23 @@ public class MovieSyncService {
     private final MovieMapper movieMapper;
     private final MovieCollectionService movieCollectionService;
     private final ApplicationEventPublisher movieEnrichmentEventPublisher;
+    private final Executor asyncExecutor;
 
     @Autowired
-    public MovieSyncService(TmdbService tmdbService, TraktService traktService, MovieService movieService, MovieMapper movieMapper, MovieCollectionService movieCollectionService, ApplicationEventPublisher movieEnrichmentEventPublisher) {
+    public MovieSyncService(TmdbService tmdbService,
+                            TraktService traktService,
+                            MovieService movieService,
+                            MovieMapper movieMapper,
+                            MovieCollectionService movieCollectionService,
+                            ApplicationEventPublisher movieEnrichmentEventPublisher,
+                            @Qualifier("customExecutor") Executor asyncExecutor) {
         this.tmdbService = tmdbService;
         this.traktService = traktService;
         this.movieService = movieService;
         this.movieMapper = movieMapper;
         this.movieCollectionService = movieCollectionService;
         this.movieEnrichmentEventPublisher = movieEnrichmentEventPublisher;
+        this.asyncExecutor = asyncExecutor;
     }
 
     private Executor getMovieExecutor(int threads) {
@@ -78,10 +85,6 @@ public class MovieSyncService {
         log.info("Requesting more details for {} new upcoming movies", newMoviesIds.size());
 
         // Now calling the TMDB API again to fetch details about the not saved movies
-        /*List<TmdbMovieDetailsResponse> newMovies = newMoviesIds.parallelStream()
-                .map(this::safeFetchMovieDetails)
-                .filter(Objects::nonNull)
-                .toList();*/
         List<TmdbMovieDetailsResponse> newMovies = getMovieDetailsFromTmdbAsync(newMoviesIds);
         log.info("Fetched {} new upcoming movies with TMDB IDs: {}", newMovies.size(), newMoviesIds);
 
@@ -99,22 +102,6 @@ public class MovieSyncService {
         movieCollectionService.addToCollection("Upcoming", upcomingMovies);
 
         return movieMapper.toMovieDto(upcomingMovies);
-    }
-
-    @Transactional
-    public List<MovieDto> syncNowPlayingMovies() {
-
-        LocalDate currentDate = LocalDate.now();
-
-        List<MovieResultResponse> movieResults = tmdbService.discoverMovies(currentDate.getYear(), currentDate.minusMonths(2), ReleaseTypeUtil.THEATRICAL);
-
-        // Saving the movies which are new and does not yet exist in the database
-        List<Movie> nowPlayingMovies = movieService.saveMovies(movieResults);
-
-        // Making a new now playing collection
-        movieCollectionService.addMoviesToCollection("Now Playing", nowPlayingMovies);
-
-        return movieMapper.toMovieDto(nowPlayingMovies);
     }
 
     public List<MovieDto> syncNowPlayingMovies(int page) {
@@ -198,10 +185,10 @@ public class MovieSyncService {
     }
 
     private List<TmdbMovieDetailsResponse> getMovieDetailsFromTmdbAsync(List<Long> tmdbIds) {
-        Executor movieExecutor = getMovieExecutor(Math.min(tmdbIds.size(), 30));
+        //Executor movieExecutor = getMovieExecutor(Math.min(tmdbIds.size(), 30));
 
         List<CompletableFuture<TmdbMovieDetailsResponse>> futures = tmdbIds.stream()
-                .map(id -> CompletableFuture.supplyAsync(() -> tmdbService.getMovieDetails(id), movieExecutor)
+                .map(id -> CompletableFuture.supplyAsync(() -> tmdbService.getMovieDetails(id), asyncExecutor)
                         .exceptionally(ex -> {
                             log.info("Failed to fetch movie with TMDB ID: {}, Exception: {}", id, ex.getMessage());
                             return null;
@@ -238,10 +225,8 @@ public class MovieSyncService {
         }
         log.info("There are {} movies with no Digital release date", pendingMovies.size());
 
-        Executor executor = getMovieExecutor(Math.min(pendingMovies.size(), 30));
-
         // Calling the .join() here to block the main thread until All background fetches are done.
-        List<Movie> moviesToSave = fetchAllMoviesAsync(pendingMovies, executor).join();
+        List<Movie> moviesToSave = fetchAllMoviesAsync(pendingMovies, asyncExecutor).join();
 
         if (!moviesToSave.isEmpty()) {
             movieService.saveAll(moviesToSave);
@@ -266,7 +251,7 @@ public class MovieSyncService {
 
         return CompletableFuture
                 .allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(v -> futures.stream()
+                .thenApply(_ -> futures.stream()
                         .map(CompletableFuture::join)
                         .filter(Objects::nonNull)
                         .toList()
@@ -282,18 +267,6 @@ public class MovieSyncService {
                     }
                     return movieService.setUsDigitalReleaseDate(movie, response.getResults());
                 });
-    }
-
-    private CompletableFuture<List<Movie>> saveMoviesAsync(List<Movie> movies, Executor executor) {
-        if (movies == null || movies.isEmpty()) {
-            log.info("No digital release date found for movies");
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return CompletableFuture.supplyAsync(() -> {
-            List<Movie> saved = movieService.saveAll(movies);
-            log.info("Saved {} movies with digital release dates", saved.size());
-            return saved;
-        }, executor);
     }
 
     @Transactional
@@ -450,8 +423,6 @@ public class MovieSyncService {
             return;
         }
 
-        Executor executor = getMovieExecutor(Math.min(moviesWithoutTrailers.size(), 20));
-
         List<CompletableFuture<Movie>> futures = moviesWithoutTrailers.stream()
                 .map(movie -> CompletableFuture.supplyAsync(() -> {
                     try {
@@ -470,7 +441,7 @@ public class MovieSyncService {
                         log.error("Error while trying to sync movies with trailers", e);
                         return null;
                     }
-                }, executor))
+                }, asyncExecutor))
                 .toList();
 
         List<Movie> moviesToUpdate = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
