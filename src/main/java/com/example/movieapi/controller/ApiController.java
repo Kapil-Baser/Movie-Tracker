@@ -1,10 +1,11 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.model.PagedResults;
 import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbDiscoverResponse;
+import com.example.movieapi.model.response.TmdbTrendingMoviesResponse;
+import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.service.TmdbService;
 import com.example.movieapi.service.TraktService;
@@ -29,28 +30,38 @@ public class ApiController {
         this.traktService = traktService;
     }
 
-    @GetMapping("/trending/{time_window}")
+    @GetMapping("/tmdb/trending/{time_window}")
     public ResponseEntity<PagedResults> trendingMovies(@PathVariable("time_window") String timeWindow) {
         return ResponseEntity.ok(tmdbService.getTrendingMoviesByDayOrWeek(timeWindow));
     }
 
-    @GetMapping("/movie/release-dates/{movie_id}")
+    @GetMapping("/tmdb/release-dates/{movie_id}")
     public ResponseEntity<TmdbReleaseDatesResponse> getReleaseDates(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(tmdbService.getReleaseDatesByMovieId(movieId));
     }
 
-    @GetMapping("/movie/trending/horror")
+    @GetMapping("/tmdb/trending/horror")
     public ResponseEntity<TmdbDiscoverResponse> trendingHorrorMovies() {
         return ResponseEntity.ok(tmdbService.getTrendingHorrorMovies());
     }
 
-    @GetMapping("/movies/videos/{movie_id}")
+    @GetMapping("/trakt/videos/{movie_id}")
     public ResponseEntity<List<TraktAllVideosResponse>> getVidoes(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(traktService.getAllVideos(movieId));
     }
 
-    @GetMapping("/movies/discover")
+    @GetMapping("/tmdb/discover")
     public ResponseEntity<List<MovieResultResponse>> discoverMovie() {
         return ResponseEntity.ok(tmdbService.discoverMovies(2026, LocalDate.now().withDayOfMonth(1),4));
+    }
+
+    @GetMapping("/tmdb/now_playing/{page_no}")
+    public ResponseEntity<TmdbTrendingMoviesResponse> trendingMoviesTmdb(@PathVariable(name = "page_no") Integer page) {
+        return ResponseEntity.ok(tmdbService.getTrendingMovies(page));
+    }
+
+    @GetMapping("/trakt/summary/{tmdb_id}")
+    public ResponseEntity<TraktMovie> getMovieSummary(@PathVariable("tmdb_id") String tmdbId) {
+        return ResponseEntity.ok(traktService.getExtendedMovieDetails(tmdbId));
     }
 }
