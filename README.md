@@ -15,7 +15,8 @@ A Spring Boot application to track movies, keep a watch history, make a movie co
 - Spring Security (OAuth2, Form Login)
 - Spring Data JPA / Hibernate
 - Thymeleaf + HTMX + Tailwindcss
-- Database: MySQL
+- Database: PostgreSQL
+- Flyway to handle versioned SQL migrations
 - Maven
 - Docker
   
