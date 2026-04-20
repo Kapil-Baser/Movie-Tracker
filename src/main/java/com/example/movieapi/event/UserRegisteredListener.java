@@ -30,7 +30,7 @@ public class UserRegisteredListener {
 
         String to = event.user().getEmail();
         String name = event.user().getUsername();
-        String link = "http://localhost:8080/auth/confirm?token=" + token;
+        String link = "http://192.210.217.141/auth/confirm?token=" + token;
 
         try {
             mailService.sendRegistrationEmail(to, name, link);
