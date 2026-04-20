@@ -51,7 +51,7 @@ public class MailService {
         context.setVariable("verificationUrl", link);
 
         // Process HTML Template
-        String htmlBody = templateEngine.process("/mail/registration-mail", context);
+        String htmlBody = templateEngine.process("mail/registration-mail", context);
 
         // Create and send Mime Message
         MimeMessage message = mailSender.createMimeMessage();
@@ -68,7 +68,7 @@ public class MailService {
         Context context = new Context();
         context.setVariable("resetUrl", link);
 
-        String htmlBody = templateEngine.process("/mail/reset-password", context);
+        String htmlBody = templateEngine.process("mail/reset-password", context);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -84,7 +84,7 @@ public class MailService {
         Context context = new Context();
         context.setVariable("movie", movie);
 
-        String htmlBody = templateEngine.process("/mail/out-for-streaming", context);
+        String htmlBody = templateEngine.process("mail/out-for-streaming", context);
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
