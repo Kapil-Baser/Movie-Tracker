@@ -2,7 +2,7 @@ package com.example.movieapi.mapper;
 
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.Movie;
-import com.example.movieapi.model.TmdbGenre;
+import com.example.movieapi.model.tmdb.model.TmdbGenre;
 import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
