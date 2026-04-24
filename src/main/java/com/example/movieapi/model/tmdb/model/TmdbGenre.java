@@ -1,4 +1,4 @@
-package com.example.movieapi.model;
+package com.example.movieapi.model.tmdb.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
