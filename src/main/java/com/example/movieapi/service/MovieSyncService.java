@@ -56,14 +56,6 @@ public class MovieSyncService {
         this.asyncExecutor = asyncExecutor;
     }
 
-    private Executor getMovieExecutor(int threads) {
-        return Executors.newFixedThreadPool(threads, r -> {
-            Thread t = new Thread(r);
-            t.setDaemon(true);
-            return t;
-        });
-    }
-
     public List<MovieDto> syncUpcomingMovies(int page) {
         // Fetching the base list from TMDB
         List<MovieResultResponse> movieResults = tmdbService.getUpcomingMovies(page);
@@ -185,7 +177,6 @@ public class MovieSyncService {
     }
 
     private List<TmdbMovieDetailsResponse> getMovieDetailsFromTmdbAsync(List<Long> tmdbIds) {
-        //Executor movieExecutor = getMovieExecutor(Math.min(tmdbIds.size(), 30));
 
         List<CompletableFuture<TmdbMovieDetailsResponse>> futures = tmdbIds.stream()
                 .map(id -> CompletableFuture.supplyAsync(() -> tmdbService.getMovieDetails(id), asyncExecutor)
@@ -286,15 +277,6 @@ public class MovieSyncService {
         return tmdbService.getMovieDetails(movieId);
     }
 
-    private TmdbMovieDetailsResponse safeFetchMovieDetails(Long id) {
-        try {
-            return tmdbService.getMovieDetails(id);
-        } catch (Exception e) {
-            log.warn("Failed to fetch details for TMDB ID {}: {}", id, e.getMessage());
-            return null;
-        }
-    }
-
     private TmdbReleaseDatesResponse safeFetchMovieReleaseDates(Long id) {
         try {
             return tmdbService.getReleaseDatesByMovieId(id);
@@ -381,40 +363,6 @@ public class MovieSyncService {
 
         return movieMapper.toMovieDto(trendingMovies);
     }
-
-    /*public void syncYouTubeTrailers() {
-        List<Movie> moviesWithoutTrailers = movieService.moviesWithNoTrailers();
-        if (moviesWithoutTrailers.isEmpty()) {
-            log.info("All Movies have trailers");
-            return;
-        }
-
-        List<Movie> moviesToUpdate = new ArrayList<>(moviesWithoutTrailers.size());
-
-        moviesWithoutTrailers.parallelStream().forEach(movie -> {
-            try {
-                Long traktId = movie.getTraktId();
-                List<TraktAllVideosResponse> allVideos = traktService.getAllVideos(traktId);
-
-                Optional<TraktAllVideosResponse> trailerResponse = allVideos.stream()
-                        .filter(Objects::nonNull)
-                        .filter(video -> "Official Trailer".equals(video.getTitle()))
-                        .findFirst();
-
-                trailerResponse.ifPresent(trailer -> {
-                    movie.setTrailer(trailer.getUrl());
-                    moviesToUpdate.add(movie);
-                });
-            } catch (Exception e) {
-                log.error("Failed to sync trailer for movie ID {}: {}", movie.getTraktId(), e.getMessage());
-            }
-        });
-
-        if (!moviesToUpdate.isEmpty()) {
-            movieService.saveAll(moviesToUpdate);
-            log.info("Successfully updated trailers for {} movies", moviesToUpdate.size());
-        }
-    }*/
 
     public void syncYouTubeTrailers() {
         List<Movie> moviesWithoutTrailers = movieService.moviesWithNoTrailers();
