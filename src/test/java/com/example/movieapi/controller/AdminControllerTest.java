@@ -3,7 +3,6 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.service.MovieSyncService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -11,7 +10,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 import java.util.Set;
@@ -91,6 +89,46 @@ class AdminControllerTest {
                 .andExpect(status().isOk());
 
         verify(movieSyncService, times(1)).syncMostAnticipated();
+    }
+
+    @Test
+    void syncNowPlayingFromTmdb_returnsNoContentWhenSyncingIsNotPossible() throws Exception {
+        when(movieSyncService.syncNowPlayingMoviesFromTmdb(1)).thenReturn(List.of());
+
+        mockMvc.perform(post("/api/v1/admin/movie/now-playing/{page_no}", 1).with(csrf())
+                .with(user("admin")
+                        .roles("ADMIN")))
+                .andExpect(status().isNoContent());
+
+        verify(movieSyncService, times(1)).syncNowPlayingMoviesFromTmdb(1);
+    }
+
+    @Test
+    void syncNowPlayingFromTmdb_returnsCreatedWhenSyncingIsPossible() throws Exception {
+        MovieDto projectHailMaryDto = new MovieDto(1L,
+                "Project Hail Mary",
+                "Project Hail Mary overview", Set.of("Adventure", "Science-Fiction"),
+                "/8Tfys3mDZVp4tNoH2ktm06a0Tau.jpg", "/yihdXomYb5kTeSivtFndMy5iDmf.jpg",
+                null, "2026-03-15", "157", "Project Hail Mary tagline",
+                "tt12042730", null);
+
+        MovieDto Scream7Dto = new MovieDto(2L,
+                "Scream 7",
+                "Scream 7 overview", Set.of("Horror", "Crime"),
+                "/hz7TdCrpLLt2Dz7S3PS2HG9rpAO.jpg", "/jjyuk0edLiW8vOSnlfwWCCLpbh5.jpg",
+                "2026-03-31", "2026-02-25", "114", "Scream 7 tagline",
+                "tt27047903", null);
+
+        List<MovieDto> movieDtoList = List.of(projectHailMaryDto, Scream7Dto);
+
+        when(movieSyncService.syncNowPlayingMoviesFromTmdb(1)).thenReturn(movieDtoList);
+
+        mockMvc.perform(post("/api/v1/admin/movie/now-playing/{page_no}", 1)
+                .with(csrf())
+                .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isCreated());
+
+        verify(movieSyncService, times(1)).syncNowPlayingMoviesFromTmdb(1);
     }
 
 }
