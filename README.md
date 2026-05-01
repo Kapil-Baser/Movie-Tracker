@@ -2,9 +2,9 @@
 A Spring Boot application to track movies, keep a watch history, make a movie collection and subscribe to a movie to be notified when it will be out for streaming.
 
 ## Features
-- User authentication (OAuth2)
-- Browser trending, upcoming and now playing movies
-- Make your own collection of movies
+- User authentication with Spring Security and Google OAuth2
+- Browse trending, upcoming and now playing movies
+- Organize movies into custom collections
 - Mark movies as watched
 - Track watch history with timestamps
 - Subscribe to a movie and get notified via email or Google Calander
@@ -12,6 +12,7 @@ A Spring Boot application to track movies, keep a watch history, make a movie co
 ## Tech Stack
 - Java 25+
 - Spring Boot
+- Spring MVC
 - Spring Security (OAuth2, Form Login)
 - Spring Data JPA / Hibernate
 - Thymeleaf + HTMX + Tailwindcss
