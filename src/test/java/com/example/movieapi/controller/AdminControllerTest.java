@@ -126,9 +126,59 @@ class AdminControllerTest {
         mockMvc.perform(post("/api/v1/admin/movie/now-playing/{page_no}", 1)
                 .with(csrf())
                 .with(user("admin").roles("ADMIN")))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].title").value("Project Hail Mary"))
+                .andExpect(jsonPath("$[1].id").isNumber())
+                .andExpect(jsonPath("$[1].title").value("Scream 7"))
                 .andExpect(status().isCreated());
 
         verify(movieSyncService, times(1)).syncNowPlayingMoviesFromTmdb(1);
+    }
+
+    @Test
+    void trendingMoviesFromTrakt_returnsNoContentWhenAlreadySynced() throws Exception {
+        when(movieSyncService.syncTrendingMoviesFromTrakt()).thenReturn(List.of());
+
+        mockMvc.perform(post("/api/v1/admin/movie/trending")
+                        .with(csrf())
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isNoContent());
+
+        verify(movieSyncService, times(1)).syncTrendingMoviesFromTrakt();
+    }
+
+    @Test
+    void trendingMoviesFromTrakt_returnsCreatedWhenPossible() throws Exception {
+        MovieDto projectHailMaryDto = new MovieDto(1L,
+                "Project Hail Mary",
+                "Project Hail Mary overview", Set.of("Adventure", "Science-Fiction"),
+                "/8Tfys3mDZVp4tNoH2ktm06a0Tau.jpg", "/yihdXomYb5kTeSivtFndMy5iDmf.jpg",
+                null, "2026-03-15", "157", "Project Hail Mary tagline",
+                "tt12042730", null);
+
+        MovieDto Scream7Dto = new MovieDto(2L,
+                "Scream 7",
+                "Scream 7 overview", Set.of("Horror", "Crime"),
+                "/hz7TdCrpLLt2Dz7S3PS2HG9rpAO.jpg", "/jjyuk0edLiW8vOSnlfwWCCLpbh5.jpg",
+                "2026-03-31", "2026-02-25", "114", "Scream 7 tagline",
+                "tt27047903", null);
+
+        List<MovieDto> movieDtoList = List.of(projectHailMaryDto, Scream7Dto);
+
+        when(movieSyncService.syncTrendingMoviesFromTrakt()).thenReturn(movieDtoList);
+
+        mockMvc.perform(post("/api/v1/admin/movie/trending")
+                .with(csrf())
+                .with(user("admin").roles("ADMIN")))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").isNumber())
+                .andExpect(jsonPath("$[0].title").value("Project Hail Mary"))
+                .andExpect(jsonPath("$[1].id").isNumber())
+                .andExpect(jsonPath("$[1].title").value("Scream 7"))
+                .andExpect(status().isCreated());
+
+        verify(movieSyncService, times(1)).syncTrendingMoviesFromTrakt();
     }
 
 }
