@@ -19,6 +19,9 @@ public interface CollectionRepository extends JpaRepository<MovieCollection, Lon
 
     Optional<MovieCollection> findByName(String name);
 
+    @Query("SELECT mc.name FROM MovieCollection AS mc WHERE mc.id = :collectionId")
+    String findNameById(Long collectionId);
+
     Optional<MovieCollection> findByIdAndOwner(Long id, AppUser owner);
 
     boolean existsByName(String name);
