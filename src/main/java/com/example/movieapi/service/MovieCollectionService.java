@@ -125,6 +125,10 @@ public class MovieCollectionService {
         collectionRepository.save(collection);
     }
 
+    public String getCollectionName(Long collectionId) {
+         return collectionRepository.findNameById(collectionId);
+    }
+
     private AppUser getCurrentUser(Authentication auth) {
         String username = auth.getName();
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
