@@ -56,12 +56,14 @@ public class MovieCollectionController {
 
         int page = Math.max(0, pageRequest - 1);
         Page<MovieDto> pageOfMovies = collectionService.getMoviesFromCollectionPaged(collectionId, page, size);
+        String collectionName = collectionService.getCollectionName(collectionId);
 
         model.addAttribute("moviesPage", pageOfMovies);
         model.addAttribute("currentPage", pageRequest);
         model.addAttribute("pageSize", size);
         model.addAttribute("totalPages", pageOfMovies.getTotalPages());
         model.addAttribute("collectionId", collectionId);
+        model.addAttribute("collectionName", collectionName);
 
         return "collection-page";
     }
