@@ -65,8 +65,9 @@ public class UserCollectionsController {
         String title = dto.getSelectedMovieTitle();
 
         movieCollectionService.addMovieToUserCollection(movieId, collectionId);
+        String collectionName = movieCollectionService.getCollectionName(collectionId);
 
-        model.addAttribute("message",  title + " added successfully to Collection");
+        model.addAttribute("message",  title + " added successfully to " + collectionName);
         return "fragments/toasts :: success";
     }
 
