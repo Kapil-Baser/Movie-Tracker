@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 @Slf4j
@@ -65,12 +67,18 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
-        var user = repository.findByUsername(username)
+    public UserDetails loadUserByUsername(@NonNull String login) throws UsernameNotFoundException {
+        Optional<AppUser> optAppUser = repository.findByUsernameOrEmail(login, login);
+
+        return optAppUser
+                .map(AuthenticatedUser::new)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        /*var user = repository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(("User not found")));
         var authenticatedUser = new AuthenticatedUser(user);
         log.info("Username {} authorities {}", authenticatedUser.getUser(), authenticatedUser.getAuthorities());
-        return authenticatedUser;
+        return authenticatedUser;*/
     }
 
     public void changePassword(AuthenticatedUser authenticatedUser, String newPassword) {
