@@ -24,7 +24,7 @@
                         </a>
                         <span th:text="${collectionName}" class="text-white text-center text-4xl leading-none py-2 whitespace-nowrap">Favorite Movies</span>
                     </div>
-                    <div th:each="movie : ${moviesPage.content}" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl">
+                    <div th:each="movie : ${moviesPage.content}" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl movie-item">
                         <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w154' + ${movie.posterPath}" src="http://image.tmdb.org/t/p/w154/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg" alt=""/>
                         <div class="space-y-2 px-4 flex-1 min-w-0">
                             <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
@@ -34,6 +34,21 @@
                             <div class="space-x-4">
                                 <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
                                 <span th:text="${movie.runtime}" class="text-sm font-semibold text-white">2h 24min</span>
+                                <button hx-delete="/user/movies/watchlist/watched"
+                                        hx-vals="{ {_csrf.parameterName : _csrf.token} }"
+                                        hx-swap="outerHTML"
+                                        hx-target="closest .movie-item"
+                                        class="flex items-center bg-transparent inset-0 ring-1 ring-emerald-500 rounded-lg px-1.5 py-1 shadow-lg hover:bg-emerald-500/20 group transition-all hover:cursor-pointer"
+                                        type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                         class="size-4 mr-1 group-hover:fill-emerald-300">
+                                        <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                                        <path fill-rule="evenodd"
+                                              d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+                                              clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Mark as unwatched</span>
+                                </button>
                             </div>
                             <div class="rounded-lg bg-emerald-950/50 p-2">
                                 <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
@@ -57,14 +72,12 @@
                         </a>
 
                         <span th:each="i : ${#numbers.sequence(1, totalPages)}">
-                        <a th:class="${i == currentPage} ?
-                                    'rounded-md rounded-r-none rounded-l-none border border-r-0
-                                    py-2 px-3 text-center text-sm transition-all shadow-sm bg-emerald-950
-                                    border-emerald-900 text-white pointer-events-none inline-block' :
-                                    'rounded-md rounded-r-none rounded-l-none border border-r-0 border-emerald-700
-                                    py-2 px-3 text-center text-sm transition-all hover:shadow-lg text-emerald-500
-                                    hover:text-white hover:bg-emerald-700 hover:border-emerald-400 inline-block hover:cursor-pointer'"
-                           class=""
+                        <a th:classappend="${i == currentPage} ?
+                                    'shadow-sm bg-emerald-950 border-emerald-900 text-white pointer-events-none' :
+                                    'border-emerald-700 hover:shadow-lg text-emerald-500 hover:text-white
+                                     hover:bg-emerald-700 hover:border-emerald-400 hover:cursor-pointer'"
+                           class="rounded-md rounded-r-none rounded-l-none border border-r-0 inline-block py-2 px-3 text-center text-sm transition-all"
+                           th:href="@{/collections/{collectionId}(collectionId=${collectionId}, page=${i}, size=${pageSize})}"
                            th:text="${i}">1
                         </a>
                     </span>
