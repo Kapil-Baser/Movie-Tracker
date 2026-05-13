@@ -1,6 +1,6 @@
 package com.example.movieapi.model.response;
 
-import com.example.movieapi.model.TmdbGenre;
+import com.example.movieapi.model.tmdb.model.TmdbGenre;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
