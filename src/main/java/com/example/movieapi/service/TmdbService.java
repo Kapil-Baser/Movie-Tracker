@@ -1,6 +1,5 @@
 package com.example.movieapi.service;
 
-import com.example.movieapi.model.PagedResults;
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +23,12 @@ public class TmdbService {
         this.restClient = restClient;
     }
 
-    public PagedResults getTrendingMoviesByDayOrWeek(String timeWindow) {
-        PagedResults pagedResults = restClient.get()
+    public TmdbTrendingMoviesResponse getTrendingMoviesByDayOrWeek(String timeWindow) {
+        TmdbTrendingMoviesResponse pagedResults = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/trending/movie/" + timeWindow)
                         .build())
                 .retrieve()
-                .body(PagedResults.class);
+                .body(TmdbTrendingMoviesResponse.class);
 
         return Objects.requireNonNull(pagedResults);
     }
@@ -98,7 +97,7 @@ public class TmdbService {
                         .queryParam("with_original_language", "en")
                         .queryParam("primary_release_year", LocalDate.now().getYear())
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
-                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(8))
+                        .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(12))
                         .build())
                 .retrieve()
                 .body(TmdbDiscoverResponse.class);
@@ -109,11 +108,12 @@ public class TmdbService {
     public List<MovieResultResponse> discoverMovies(int releaseYear, LocalDate minReleaseDate, int releaseType) {
         TmdbDiscoverResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                        .queryParam("page", 1)
                         .queryParam("with_original_language", "en")
-                        .queryParam("primary_release_year", releaseYear)
-                        .queryParam("release_date.gte", minReleaseDate)
-                        .queryParam("release_date.lte", LocalDate.now())
-                        .queryParam("with_release_type", releaseType)
+                        //.queryParam("primary_release_year", releaseYear)
+                        //.queryParam("primary_release_date.gte", minReleaseDate)
+                        //.queryParam("primary_release_date.lte", LocalDate.now().plusMonths(3))
+                        .queryParam("with_release_type", "4")
                         .build())
                 .retrieve()
                 .body(TmdbDiscoverResponse.class);
