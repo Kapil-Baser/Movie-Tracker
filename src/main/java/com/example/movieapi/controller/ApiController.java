@@ -1,6 +1,5 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.model.PagedResults;
 import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbDiscoverResponse;
@@ -31,7 +30,7 @@ public class ApiController {
     }
 
     @GetMapping("/tmdb/trending/{time_window}")
-    public ResponseEntity<PagedResults> trendingMovies(@PathVariable("time_window") String timeWindow) {
+    public ResponseEntity<TmdbTrendingMoviesResponse> trendingMovies(@PathVariable("time_window") String timeWindow) {
         return ResponseEntity.ok(tmdbService.getTrendingMoviesByDayOrWeek(timeWindow));
     }
 
