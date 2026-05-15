@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -157,6 +158,17 @@ class AdminControllerTest {
                 .andExpect(status().isCreated());
 
         verify(movieSyncService, times(1)).syncTrendingMoviesFromTrakt();
+    }
+
+    @Test
+    void updateMoviesWithTrailers_updatesMoviesWithTrailers()  throws Exception {
+        mockMvc.perform(post("/api/v1/admin/movie/update-youtube-trailers")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Updated YouTube trailers"));
+
+        verify(movieSyncService, times(1)).syncYouTubeTrailers();
     }
 
 }
