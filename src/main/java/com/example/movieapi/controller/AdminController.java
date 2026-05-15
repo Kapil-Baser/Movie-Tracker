@@ -3,7 +3,6 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.service.MovieSyncService;
-import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,12 +59,12 @@ public class AdminController {
     }
 
     @PostMapping("/trending")
-    public ResponseEntity< @NonNull List<MovieDto>> trendingMoviesFromTrakt() {
+    public ResponseEntity<List<MovieDto>> trendingMoviesFromTrakt() {
         List<MovieDto> dto = movieSyncService.syncTrendingMoviesFromTrakt();
         if (dto.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(dto);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @PostMapping("/update-youtube-trailers")
