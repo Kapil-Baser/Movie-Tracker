@@ -116,7 +116,7 @@ public class HomeController {
     private PagedMovieView preparePagedMovieView(AuthenticatedUser authenticatedUser,
                                                  String collectionName,
                                                  int pageNumber) {
-        Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 15);
+        Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 18);
         List<MovieViewDto> movieViewDtos = viewAssemblerService.buildMovieView(authenticatedUser, pagedMovies.getContent());
         return new PagedMovieView(movieViewDtos, pagedMovies.hasNext(), pagedMovies.getNumber() + 1);
     }
