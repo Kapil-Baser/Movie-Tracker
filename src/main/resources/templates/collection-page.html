@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:hx="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/head :: head (pageTitle='Collections')}">
 </head>
 <body>
@@ -34,8 +35,8 @@
                             <div class="space-x-4">
                                 <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
                                 <span th:text="${movie.runtime}" class="text-sm font-semibold text-white">2h 24min</span>
-                                <button hx-delete="/user/movies/watchlist/watched"
-                                        hx-vals="{ {_csrf.parameterName : _csrf.token} }"
+                                <button hx-post="/user/movies/watchlist/watched"
+                                        hx:vals="${ {_csrf.parameterName : _csrf.token, movieId : movie.id} }"
                                         hx-swap="outerHTML"
                                         hx-target="closest .movie-item"
                                         class="flex items-center bg-transparent inset-0 ring-1 ring-emerald-500 rounded-lg px-1.5 py-1 shadow-lg hover:bg-emerald-500/20 group transition-all hover:cursor-pointer"
