@@ -9,7 +9,7 @@
 
 <div th:fragment="upcoming-movieCard-container(movie, isLast, nextPage)"
      class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800 flex flex-col justify-start"
-     th:attr="hx-get=${isLast} ? @{/nowPlaying/paged(page=${nextPage})} : null,
+     th:attr="hx-get=${isLast} ? @{/upcoming/paged(page=${nextPage})} : null,
                   hx-trigger=${isLast} ? 'revealed' : null,
                   hx-swap=${isLast} ? 'afterend' : null">
 
