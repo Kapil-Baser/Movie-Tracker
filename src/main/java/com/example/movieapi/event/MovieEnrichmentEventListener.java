@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Component
 @Slf4j
@@ -21,12 +23,14 @@ public class MovieEnrichmentEventListener {
     private final TraktService traktService;
     private final TmdbService tmdbService;
     private final MovieService movieService;
+    private final Executor asyncExecutor;
 
     @Autowired
-    public MovieEnrichmentEventListener(TraktService traktService, TmdbService tmdbService, MovieService movieService) {
+    public MovieEnrichmentEventListener(TraktService traktService, TmdbService tmdbService, MovieService movieService, Executor asyncExecutor) {
         this.traktService = traktService;
         this.tmdbService = tmdbService;
         this.movieService = movieService;
+        this.asyncExecutor = asyncExecutor;
     }
 
 
@@ -36,17 +40,22 @@ public class MovieEnrichmentEventListener {
         List<Movie> moviesToEnrich = event.moviesToEnrich();
 
         // Get the imdbIds for further calls
-        List<String> imdbIds = moviesToEnrich.parallelStream()
+        List<String> imdbIds = moviesToEnrich.stream()
                 .map(Movie::getImdbId)
                 .filter(Objects::nonNull)
                 .toList();
         log.info("Requesting details about {} new movies from Trakt API with IMDB IDs: {}", imdbIds.size(), imdbIds);
 
         // Fetching the movie details
-        List<TraktMovie> traktMovies = imdbIds.stream()
-                .map(traktService::safeFetchMovieDetails)
+        List<CompletableFuture<TraktMovie>> futures = imdbIds.stream()
+                .map(id -> CompletableFuture.supplyAsync(() -> traktService.safeFetchMovieDetails(id), asyncExecutor))
+                .toList();
+
+        List<TraktMovie> traktMovies = futures.stream()
+                .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
                 .toList();
+
         log.info("Fetched {} out of {} movies from Trakt API", traktMovies.size(), imdbIds.size());
 
         List<Movie> enrichedMovies = movieService.updateTraktMovies(traktMovies, moviesToEnrich);
