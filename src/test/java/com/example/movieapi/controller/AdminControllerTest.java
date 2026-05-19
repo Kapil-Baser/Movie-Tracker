@@ -1,12 +1,12 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.service.MovieSyncService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -162,11 +162,24 @@ class AdminControllerTest {
 
     @Test
     void updateMoviesWithTrailers_updatesMoviesWithTrailers()  throws Exception {
+        YouTubeSyncSummary youTubeSyncSummary = YouTubeSyncSummary.builder()
+                .moviesScanned(10)
+                .trailersUpdated(6)
+                .trailersNotFound(4)
+                .failures(0)
+                .build();
+
+        when(movieSyncService.syncYouTubeTrailers()).thenReturn(youTubeSyncSummary);
+
+
         mockMvc.perform(post("/api/v1/admin/movie/update-youtube-trailers")
                 .with(user("admin").roles("ADMIN"))
                 .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Updated YouTube trailers"));
+                .andExpect(jsonPath("$.moviesScanned").value(10))
+                .andExpect(jsonPath("$.trailersUpdated").value(6))
+                .andExpect(jsonPath("$.trailersNotFound").value(4))
+                .andExpect(jsonPath("$.failures").value(0));
 
         verify(movieSyncService, times(1)).syncYouTubeTrailers();
     }
