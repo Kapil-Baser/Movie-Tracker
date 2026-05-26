@@ -39,4 +39,11 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     @Query("SELECT m.title FROM Movie m WHERE m.id = :movieId")
     String findTitleByMovieId(Long movieId);
+
+    @Query(value = """
+            SELECT * FROM movies
+            WHERE title % :keyword
+            ORDER BY similarity(title, :keyword) DESC
+            """, nativeQuery = true)
+    Page<Movie> fuzzySearch(@Param("keyword") String keyword, Pageable pageable);
 }
