@@ -13,6 +13,9 @@ import com.example.movieapi.utility.ReleaseTypeUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -378,10 +381,29 @@ public class MovieService {
         return moviesRepository.findByUsDigitalDateIsNull();
     }
 
-    public List<MovieDto> getMoviesByKeyword(String keyword) {
-        List<Movie> movieList = moviesRepository.findByTitleContainingIgnoreCase(keyword);
+    public Page<MovieDto> getMoviesByKeyword(String keyword, int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, 3);
+        Page<Movie> moviePage = moviesRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
-        return movieMapper.toMovieDto(movieList);
+        return moviePage.map(movieMapper::toMovieDto);
+    }
+
+    public Page<MovieDto> searchMovies(String keyword, int pageNumber) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Page.empty();
+        }
+        Pageable pageable = PageRequest.of(pageNumber, 4);
+
+        Page<Movie> moviePage = moviesRepository.fuzzySearch(keyword.trim(), pageable);
+
+        return moviePage.map(movieMapper::toMovieDto);
+    }
+
+    public List<String> searchSuggestions(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+        return moviesRepository.activeSearch(keyword.trim());
     }
 
     public boolean existsByTmdbId(Long tmdbId) {
