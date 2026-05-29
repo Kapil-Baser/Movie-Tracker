@@ -42,14 +42,15 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     @Query(value = """
             SELECT * FROM movies
-            WHERE title % :keyword
+            WHERE :keyword <% title
             ORDER BY similarity(title, :keyword) DESC
             """, nativeQuery = true)
     Page<Movie> fuzzySearch(@Param("keyword") String keyword, Pageable pageable);
 
     @Query(value = """
         SELECT title FROM Movies
-        WHERE title % :keyword
+        WHERE :keyword <% title
+        ORDER BY title <-> :keyword ASC
         LIMIT 5
     """, nativeQuery = true)
     List<String> activeSearch(@Param("keyword") String keyword);
