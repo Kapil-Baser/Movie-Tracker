@@ -1,20 +1,24 @@
 <!-- Movie card fragment to show the searched movies -->
 <th:block th:fragment="search-results-card (searchResults)" xmlns:hx="http://www.w3.org/1999/xhtml">
-  <div th:each="movie : ${searchResults.movies}" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl">
-    <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w154' + ${movie.posterPath}" src="http://image.tmdb.org/t/p/w154/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg" alt=""/>
-    <div class="space-y-2 px-4 flex-1 min-w-0">
-      <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
-      <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
-        <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
+  <div th:each="movieCard : ${searchResults.movieCards}" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl">
+
+    <th:block th:replace="~{fragments/movie-card :: movie-card-overlay (movieCard = ${movieCard})}"></th:block>
+
+    <th:block th:with="movie = ${movieCard.movieDto}">
+      <div class="space-y-2 px-4 flex-1 min-w-0">
+        <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
+        <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
+          <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
+        </div>
+        <div class="space-x-4">
+          <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
+          <span class="text-sm font-semibold text-white">2h 24min</span>
+        </div>
+        <div class="rounded-lg bg-emerald-950/50 p-2">
+          <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
+        </div>
       </div>
-      <div class="space-x-4">
-        <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
-        <span class="text-sm font-semibold text-white">2h 24min</span>
-      </div>
-      <div class="rounded-lg bg-emerald-950/50 p-2">
-        <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
-      </div>
-    </div>
+    </th:block>
   </div>
 
   <div th:if="${searchResults.hasNext}" id="replace-me" class="flex items-center justify-center">
