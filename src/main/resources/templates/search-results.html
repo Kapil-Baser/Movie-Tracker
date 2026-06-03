@@ -13,7 +13,7 @@
                 <div class="w-full max-w-2xl lg:max-w-4xl space-y-2">
                     <th:block th:replace="~{fragments/search-results :: search-results-card (searchResults=${searchResults})}"></th:block>
                     <!-- Empty/Paging State -->
-                    <div th:if="${#lists.isEmpty(searchResults.movies)}" class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
+                    <div th:if="${#lists.isEmpty(searchResults.movieCards)}" class="flex-1 flex flex-col items-center justify-center text-center text-white text-xl py-12">
                         <p>No movies found 😔</p>
                         <p class="text-sm mt-2 text-gray-400">There are no movies that matched your query.</p>
                     </div>
