@@ -1,6 +1,9 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.TrailerFetchResult;
+import com.example.movieapi.dto.TrailerFetchStatus;
+import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.event.MovieEnrichmentEvent;
 import com.example.movieapi.mapper.MovieMapper;
@@ -364,44 +367,65 @@ public class MovieSyncService {
         return movieMapper.toMovieDto(trendingMovies);
     }
 
-    public void syncYouTubeTrailers() {
-        List<Movie> moviesWithoutTrailers = movieService.moviesWithNoTrailers();
-        if (moviesWithoutTrailers.isEmpty()) {
-            log.info("All Movies have trailers");
-            return;
+    public YouTubeSyncSummary syncYouTubeTrailers() {
+        List<Movie> moviesMissingTrailer = movieService.moviesWithNoTrailers();
+        if (moviesMissingTrailer.isEmpty()) {
+            log.info("All Movies already have trailers");
         }
 
-        List<CompletableFuture<Movie>> futures = moviesWithoutTrailers.stream()
+        List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
                 .map(movie -> CompletableFuture.supplyAsync(() -> {
+
                     try {
                         List<TraktAllVideosResponse> allVideos =  traktService.getAllVideos(movie.getTraktId());
 
-                        return allVideos.stream()
+                        Optional<TraktAllVideosResponse> trailerOpt = allVideos.stream()
                                 .filter(v -> v != null && "Official Trailer".equals(v.getTitle()))
-                                .findFirst()
-                                .map(trailer -> {
-                                    movie.setTrailer(trailer.getUrl());
-                                    return movie;
-                                })
-                                .orElse(null);
+                                .findFirst();
+
+                        if (trailerOpt.isPresent()) {
+                            movie.setTrailer(trailerOpt.get().getUrl());
+                            return new TrailerFetchResult(movie, TrailerFetchStatus.UPDATED);
+                        }
+                        return new TrailerFetchResult(movie, TrailerFetchStatus.NOT_FOUND);
 
                     } catch (Exception e) {
                         log.error("Error while trying to sync movies with trailers", e);
-                        return null;
+                        return new TrailerFetchResult(movie, TrailerFetchStatus.FAILED);
                     }
+
                 }, asyncExecutor))
                 .toList();
 
-        List<Movie> moviesToUpdate = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        List<TrailerFetchResult> trailerFetchResults = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenApply(_ -> futures.stream()
                         .map(CompletableFuture::join)
-                        .filter(Objects::nonNull)
                         .toList())
                 .join();
+
+        List<Movie> moviesToUpdate = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.UPDATED))
+                .map(TrailerFetchResult::movie)
+                .toList();
 
         if (!moviesToUpdate.isEmpty()) {
             movieService.saveAll(moviesToUpdate);
             log.info("Successfully updated trailers for {} movies", moviesToUpdate.size());
         }
+
+        long trailersNotFound = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.NOT_FOUND))
+                .count();
+
+        long failures = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.FAILED))
+                .count();
+
+        return YouTubeSyncSummary.builder()
+                .moviesScanned(moviesMissingTrailer.size())
+                .trailersUpdated(moviesToUpdate.size())
+                .trailersNotFound(trailersNotFound)
+                .failures(failures)
+                .build();
     }
 }
