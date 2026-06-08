@@ -187,90 +187,6 @@ public class MovieService {
         return moviesToBeUpdated;
     }
 
-    /*@Transactional
-    public List<Movie> saveMovies(List<MovieResultResponse> movieResults) {
-
-        if (movieResults == null || movieResults.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        // Extracting all movies ids from API response
-        List<Long> movieIds = movieResults.stream()
-                .map(MovieResultResponse::getId)
-                .toList();
-
-        // Checking which movies already exists in the database
-        Set<Long> existingIds = moviesRepository.findAllById(movieIds).stream()
-                .map(Movie::getId)
-                .collect(Collectors.toSet());
-
-        log.info("Found {} existing movies out of {}", existingIds.size(), movieIds.size());
-
-        // Filtering out existing movies
-        List<MovieResultResponse> newMovies = movieResults.stream()
-                .filter(movie -> !existingIds.contains(movie.getId()))
-                .toList();
-
-        if (newMovies.isEmpty()) {
-            log.info("No new movies to save");
-            return moviesRepository.findAllById(movieIds);
-        }
-
-        // Fetching all required genres IDs
-        Set<Integer> genresIds = newMovies.stream()
-                .flatMap(movie -> movie.getGenreIds().stream())
-                .collect(Collectors.toSet());
-
-        log.info("Fetching genres with IDs: {}", genresIds);
-
-        // Fetching genres from database
-        Set<Genre> allGenres = genresRepository.findByIdIn(genresIds);
-
-        log.info("Found {} genres in the database", allGenres.size());
-
-        // Map for quick genre lookup
-        Map<Integer, Genre> genreMap = allGenres.stream()
-                .collect(Collectors.toMap(Genre::getId, genre -> genre));
-
-
-        // Map and save all new movies
-        List<Movie> moviesToSave = newMovies.stream()
-                .map(movieResultResponse -> {
-                    Movie movie = movieMapper.toEntity(movieResultResponse);
-
-                    Set<Genre> genresToSave = movieResultResponse.getGenreIds().stream()
-                            .map(genreMap::get)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toSet());
-
-                    movie.setGenres(genresToSave);
-                    return movie;
-                })
-                .toList();
-
-        // Saving all movies
-        List<Movie> savedMovies = moviesRepository.saveAll(moviesToSave);
-
-        log.info("Successfully saved {} movies", savedMovies.size());
-
-        // I am here requesting all the movies returned by the API
-        // and not the new movies I could save in the database
-        // TODO: make less calls to the database
-        return moviesRepository.findAllById(movieIds);
-    }*/
-
-    /*@Transactional
-    public Movie saveMovie(MovieResultResponse movieResult) {
-
-        return moviesRepository.findById(movieResult.getId())
-                .orElseGet( () -> {
-                    Movie movie = movieMapper.toEntity(movieResult);
-                    Set<Genre> genre = genresRepository.findByIdIn(movieResult.getGenreIds());
-                    movie.setGenres(genre);
-                    return moviesRepository.save(movie);
-                });
-    }*/
-
     public Movie saveMovie(TraktMovie traktMovie) {
         Movie movie = movieMapper.toEntity(traktMovie);
         return moviesRepository.save(movie);
@@ -287,14 +203,6 @@ public class MovieService {
                 .filter(cr -> "US".equals(cr.getCountryCode()))
                 .map(TmdbCountryRelease::getReleaseDates)
                 .flatMap(Collection::stream)
-                .toList();
-    }
-
-    private List<TmdbReleaseDate> getUsDigitalReleaseDates(List<TmdbCountryRelease> allReleases) {
-        return allReleases.stream()
-                .filter(cr -> "US".equals(cr.getCountryCode()))
-                .flatMap(r -> r.getReleaseDates().stream())
-                .filter(d -> d.getType() == ReleaseTypeUtil.DIGITAL)
                 .toList();
     }
 
