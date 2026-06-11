@@ -14,6 +14,7 @@ public class QuartzConfig {
          return JobBuilder
                 .newJob(UpdateMovieStreamingDatesJob.class)
                 .storeDurably()
+                 .requestRecovery()
                 .withIdentity("Fetch_Movie_Digital_Release_Dates")
                 .withDescription("Fetch digital release dates of movies")
                 .build();
@@ -24,7 +25,8 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(fetchMovieDigitalReleaseDatesJob())
                 .withIdentity("Fetch_Movie_Release_Dates_Trigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 3 * * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 3 * * ?")
+                        .withMisfireHandlingInstructionFireAndProceed())
                 .build();
     }
 
