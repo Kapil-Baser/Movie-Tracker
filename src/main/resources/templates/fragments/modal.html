@@ -58,28 +58,13 @@
 
 <!--Modal HTML Fragment with hyperscript and htmx-->
 <div th:fragment="movie-collection-form" id="modal"
-     class="fixed inset-0 z-50 flex items-start justify-center bg-black/50"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
      _="on closeModal remove me">
     <!-- Overlay / click outside -->
     <div class="absolute inset-0" _="on click trigger closeModal"></div>
 
     <!-- Modal content -->
-    <div class="relative mt-[10vh] w-full max-w-md rounded-lg bg-emerald-800 p-4 text-white shadow-xl">
-
-        <button class="absolute right-3 top-3 cursor-pointer p-1 text-red-500"
-                _="on click trigger closeModal"
-                aria-label="Close modal"
-                type="button">
-
-        <svg xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 24 24"
-             fill="currentColor"
-             class="h-6 w-6">
-            <path fill-rule="evenodd"
-                  d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
-                  clip-rule="evenodd" />
-        </svg>
-        </button>
+    <div class="relative w-full max-w-md rounded-lg bg-emerald-800 p-4 text-white shadow-xl">
 
         <!-- Movie collection form -->
         <form hx:post="@{/user/collections/add-movie}"
@@ -88,25 +73,54 @@
               hx:vals="${ {_csrf.parameterName : _csrf.token} }"
               _="on htmx:afterRequest(detail) if detail.successful remove #modal"
               th:object="${selectedCollection}">
-            <span class="mb-4 text-lg font-semibold" th:text="|Add '*{selectedMovieTitle}' to collection|">Add movie to collection</span>
+
+            <div class="flex items-start justify-between gap-2">
+                <span class="block break-words leading-snug  text-lg font-semibold" th:text="|Add '*{selectedMovieTitle}' to collection|">Add movie to collection</span>
+
+                <button class="cursor-pointer p-1 rounded-sm hover:bg-black/10 text-red-500"
+                        _="on click trigger closeModal"
+                        aria-label="Close modal"
+                        type="button">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         fill="currentColor"
+                         class="h-6 w-6">
+                        <path fill-rule="evenodd"
+                              d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                              clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
             <!-- Hidden field to carry the movieId -->
             <input type="hidden" th:field="*{selectedMovieId}" />
             <input type="hidden" th:field="*{selectedMovieTitle}" />
 
             <label for="collectionSelect" class="sr-only">Underline select</label>
-            <select _="on change or load if my.value is not '' remove [@disabled] from #addBtn else add [@disabled] to #addBtn"
-                    id="collectionSelect" th:field="*{selectedCollectionId}" class="lock w-full appearance-none
-                     border-0 border-b-2 border-emerald-400
-                     py-2 text-sm bg-emerald-800
-                     focus:border-emerald-500 focus:outline-none focus:ring-0">
-                <option value="">Choose a collection</option>
-                <!-- Iterate over the list sent from the controller -->
-                <option th:each="col : ${userCollections}" th:value="${col.id}"
-                        th:text="${col.name}"
-                        th:disabled="${col.alreadyContainsMovie}" th:classappend="${col.alreadyContainsMovie} ? 'opacity-50 cursor-not-allowed'">
 
-                </option>
-            </select>
+            <div class="relative mt-4 group">
+                <select _="on change or load if my.value is not '' remove [@disabled] from #addBtn else add [@disabled] to #addBtn"
+                        id="collectionSelect" th:field="*{selectedCollectionId}"
+                        class="block w-full appearance-none rounded-md border border-emerald-500 bg-emerald-900 px-3 py-2 pr-10 text-sm
+                           text-white shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/30">
+                    <option value="">Choose a collection</option>
+                    <!-- Iterate over the list sent from the controller -->
+                    <option th:each="col : ${userCollections}" th:value="${col.id}"
+                            th:text="${col.name}"
+                            th:disabled="${col.alreadyContainsMovie}" th:classappend="${col.alreadyContainsMovie} ? 'opacity-50 cursor-not-allowed'">
+
+                    </option>
+                </select>
+
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg class="h-5 w-5 text-emerald-300 transition-colors group-focus-within:text-emerald-400"
+                         viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </div>
+
             <div class="flex justify-between items-center mt-4">
 
                 <div>
