@@ -2,13 +2,12 @@ package com.example.movieapi.schedule;
 
 import com.example.movieapi.service.CollectionRefreshService;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@DisallowConcurrentExecution
 public class RefreshUpcomingCollectionJob implements Job {
     private final CollectionRefreshService collectionRefreshService;
 
