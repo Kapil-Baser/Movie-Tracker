@@ -1,5 +1,6 @@
 package com.example.movieapi.configuration;
 
+import com.example.movieapi.schedule.RefreshUpcomingCollectionJob;
 import com.example.movieapi.schedule.UpdateMovieStreamingDatesJob;
 import com.example.movieapi.schedule.MovieOutForStreamingPublisher;
 import org.quartz.*;
@@ -46,6 +47,27 @@ public class QuartzConfig {
                 .forJob(movieOutForSteamingToday())
                 .withIdentity("Publish_Movies_Streaming_Today_Trigger")
                 .withSchedule(SimpleScheduleBuilder.repeatHourlyForever(12))
+                .build();
+    }
+
+    @Bean
+    public JobDetail refreshUpcomingMoviesCollectionJob() {
+        return JobBuilder
+                .newJob(RefreshUpcomingCollectionJob.class)
+                .storeDurably()
+                .withIdentity("Refresh_Upcoming_Collection_Job")
+                .withDescription("Refresh upcoming movies collection")
+                .build();
+    }
+
+    @Bean
+    public Trigger refreshUpcomingCollectionTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob(refreshUpcomingMoviesCollectionJob())
+                .withIdentity("Refresh_Upcoming_Collection_Trigger")
+                .withSchedule(SimpleScheduleBuilder
+                        .repeatHourlyForever(48)
+                        .withMisfireHandlingInstructionIgnoreMisfires())
                 .build();
     }
 }
