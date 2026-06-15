@@ -2,9 +2,11 @@ package com.example.movieapi.repository;
 
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -56,4 +58,13 @@ public interface CollectionRepository extends JpaRepository<MovieCollection, Lon
                                             @Param("collectionName") String collectionName);
 
     void deleteByOwnerAndId(AppUser owner, Long collectionId);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = """
+    DELETE FROM movie_tracker_schema.movie_collections
+        WHERE collection_id IN (SELECT mc.id FROM movie_tracker_schema.movie_collection AS mc WHERE mc.name = :collectionName)
+        AND movie_id IN (SELECT m.id FROM movie_tracker_schema.movies AS m WHERE m.release_date < NOW() - INTERVAL '45 day');
+    """, nativeQuery = true)
+    int deleteStaleMoviesByCollection(@Param("collectionName") String collectionName);
 }
