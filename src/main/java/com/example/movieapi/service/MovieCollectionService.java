@@ -42,6 +42,15 @@ public class MovieCollectionService {
         this.moviesRepository = moviesRepository;
     }
 
+    public MovieCollection getMovieCollectionByName(String movieCollectionName) {
+        return collectionRepository.findByName(movieCollectionName)
+                .orElseThrow(() -> new NoSuchElementException("Movie collection with name " + movieCollectionName + " not found"));
+    }
+
+    public int deleteStaleMoviesByCollection(String collectionName) {
+        return collectionRepository.deleteStaleMoviesByCollection(collectionName);
+    }
+
     @Transactional
     public MovieCollection addMoviesToCollection(String name, List<Movie> movies) {
 
