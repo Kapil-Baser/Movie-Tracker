@@ -28,17 +28,6 @@ public class UserCollectionsController {
         this.movieViewAssemblerService = movieViewAssemblerService;
     }
 
-    @PostMapping("/collections/watchlist/toggle")
-    public String watchListToggle(@RequestParam Long movieId,
-                                  @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-                                  Model model) {
-        boolean isWatchListed = movieCollectionService.toggleWatchListed(authenticatedUser, movieId);
-
-        model.addAttribute("movieId", movieId);
-        model.addAttribute("isWatchListed", isWatchListed);
-        return "fragments/buttons :: watch-list-button";
-    }
-
     @GetMapping("/collections")
     public String showUserCollectionForm(@RequestParam("movie_id") Long movieId,
                                          @RequestParam("movie_title") String movieTitle,
