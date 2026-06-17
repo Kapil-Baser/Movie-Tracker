@@ -79,13 +79,14 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/webjars/**",
                                 "/",
-                                "/nowPlaying/**",
                                 "/trending/**",
+                                "/nowPlaying/**",
                                 "/upcoming/**",
                                 "/register/**",
                                 "/error",
                                 "/favicon.ico",
-                                "/tailwind.css"
+                                "/tailwind.css",
+                                "/js/**"
                         )
                                 .permitAll()
                                 .anyRequest()
