@@ -14,15 +14,18 @@
 <body>
 
     <!--Back to Top button-->
-    <div th:fragment="backToTop" class="fixed right-[2rem] bottom-[2rem] border border-emerald-600 bg-transparent w-[44px] h-[44px] flex items-center justify-center rounded-md"
+    <div th:fragment="backToTop" class="fixed right-[2rem] bottom-[2rem] text-white"
          _="on intersection(intersecting) from #top-sentinel
-            if intersecting hide me
-            else show me">
-        <button _="on click go to the top of the body"
-                class="cursor-pointer" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"
-                 class="size-8 stroke-white">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+               if intersecting hide me
+               else show me" style="display: none;">
+
+        <button _="on click go to the top of the body smoothly" class="cursor-pointer bg-amber-900 hover:cursor-pointer
+                                   hover:bg-amber-800 transition-colors duration-300 flex items-center justify-center p-3 rounded-full"
+                type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path fill-rule="evenodd"
+                      d="M11.47 2.47a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 1 1-1.06 1.06l-6.22-6.22V21a.75.75 0 0 1-1.5 0V4.81l-6.22 6.22a.75.75 0 1 1-1.06-1.06l7.5-7.5Z"
+                      clip-rule="evenodd" />
             </svg>
         </button>
     </div>
