@@ -380,7 +380,7 @@ public class MovieSyncService {
                         List<TraktAllVideosResponse> allVideos =  traktService.getAllVideos(movie.getTraktId());
 
                         Optional<TraktAllVideosResponse> trailerOpt = allVideos.stream()
-                                .filter(v -> v != null && "Official Trailer".equals(v.getTitle()))
+                                .filter(v -> "trailer".equals(v.getType()) && v.getTitle().contains("Trailer"))
                                 .findFirst();
 
                         if (trailerOpt.isPresent()) {
