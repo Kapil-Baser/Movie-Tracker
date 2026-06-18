@@ -3,6 +3,7 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.dto.MovieViewDto;
 import com.example.movieapi.dto.PagedMovieView;
+import com.example.movieapi.dto.SearchResultView;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.*;
@@ -14,13 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 @Controller
-//@RequestMapping("/movies")
 public class HomeController {
 
     private final MovieCollectionService collectionService;
@@ -106,11 +105,31 @@ public class HomeController {
     }
 
     @GetMapping("/search")
-    public String searchMovieByName(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        List<MovieDto> movieDtoList = movieService.getMoviesByKeyword(keyword);
-        model.addAttribute("movies", movieDtoList);
+    public String searchMovieByName(@RequestParam(value = "keyword", required = false) String keyword,
+                                    Model model,
+                                    @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        SearchResultView searchResultView = prepareSearchResultsView(authenticatedUser, keyword, 0);
+        model.addAttribute("searchResults", searchResultView);
         model.addAttribute("keyword", keyword);
         return "search-results";
+    }
+
+    @GetMapping("/search/next")
+    public String searchResultsNextPage(@RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+                                        @RequestParam(value = "keyword")  String keyword,
+                                        Model model, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        SearchResultView searchResultView = prepareSearchResultsView(authenticatedUser, keyword, pageNumber);
+        model.addAttribute("searchResults", searchResultView);
+        model.addAttribute("keyword", keyword);
+        return "fragments/search-results :: search-results-card";
+    }
+
+    @GetMapping("/search-suggestions")
+    public String searchSuggestions(@RequestParam(value = "keyword", required = false) String keyword,
+                                    Model model) {
+        var suggestions = movieService.searchSuggestions(keyword);
+        model.addAttribute("suggestions", suggestions);
+        return "fragments/search-results :: search-suggestions";
     }
 
     private PagedMovieView preparePagedMovieView(AuthenticatedUser authenticatedUser,
@@ -119,5 +138,11 @@ public class HomeController {
         Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 18);
         List<MovieViewDto> movieViewDtos = viewAssemblerService.buildMovieView(authenticatedUser, pagedMovies.getContent());
         return new PagedMovieView(movieViewDtos, pagedMovies.hasNext(), pagedMovies.getNumber() + 1);
+    }
+
+    private SearchResultView prepareSearchResultsView(AuthenticatedUser authenticatedUser, String keyword, int pageNumber) {
+        Page<MovieDto> searchResults = movieService.searchMovies(keyword, pageNumber);
+        List<MovieViewDto> viewDtos = viewAssemblerService.buildMovieView(authenticatedUser, searchResults.getContent());
+        return new  SearchResultView(viewDtos, searchResults.hasNext(), searchResults.getNumber() + 1);
     }
 }
