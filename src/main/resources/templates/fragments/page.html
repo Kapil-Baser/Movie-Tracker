@@ -38,3 +38,11 @@
     <p class="text-sm mt-2 text-gray-400">Collections are the perfect way to group films!</p>
   </div>
 </div>
+
+<th:block th:fragment="movieCollection">
+  <th:block th:each="movie, iterStat : ${movies}">
+    <th:block th:with="isLast = ${iterStat.last && hasNext} ? true : false">
+      <th:block th:replace="~{fragments/movie-card :: movieCollection-card (movie = ${movie}, isLast = ${isLast})}"></th:block>
+    </th:block>
+  </th:block>
+</th:block>
