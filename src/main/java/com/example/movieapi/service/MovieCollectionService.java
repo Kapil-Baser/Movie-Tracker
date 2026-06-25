@@ -47,6 +47,11 @@ public class MovieCollectionService {
                 .orElseThrow(() -> new NoSuchElementException("Movie collection with name " + movieCollectionName + " not found"));
     }
 
+    public MovieCollection getCollectionByIdAndOwner(Long collectionId, AppUser owner) {
+        return collectionRepository.findByIdAndOwner(collectionId, owner)
+                .orElseThrow(() -> new NoSuchElementException("Collection with id " + collectionId + " not found"));
+    }
+
     public int deleteStaleMoviesByCollection(String collectionName) {
         return collectionRepository.deleteStaleMoviesByCollection(collectionName);
     }
@@ -115,7 +120,7 @@ public class MovieCollectionService {
         MovieCollection collection = collectionRepository.findByOwnerIdAndName(user.getId(), collectionName)
                 .orElseGet(() -> createUserCollection(user, collectionName));
 
-        if (collection.getMovies().contains(movie)) {
+        if (collection.containsMovie(movie)) {
             throw new IllegalArgumentException("Movie already in collection");
         }
 
@@ -127,10 +132,19 @@ public class MovieCollectionService {
         Movie movie = movieService.getMovieById(movieId);
         MovieCollection collection = collectionRepository.getReferenceById(collectionId);
 
-        if (collection.getMovies().contains(movie)) {
+        if (collection.containsMovie(movie)) {
             throw new IllegalArgumentException("Movie already in collection");
         }
         collection.addMovie(movie);
+        collectionRepository.save(collection);
+    }
+
+    public void deleteMovieFromCollection(Long collectionId, Long movieId, AuthenticatedUser authenticatedUser) {
+        AppUser user = authenticatedUser.getUser();
+        Movie movie = movieService.getMovieById(movieId);
+        MovieCollection collection = getCollectionByIdAndOwner(collectionId, user);
+
+        collection.removeMovie(movie);
         collectionRepository.save(collection);
     }
 
