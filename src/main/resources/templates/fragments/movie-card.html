@@ -76,3 +76,42 @@
 
   </div>
 </div>
+
+<th:block th:fragment="movieCollection-card (movie, isLast)">
+  <div th:hx-get="${isLast} ? @{/collections/{collectionId}/movies(collectionId=${collectionId}, page=${currentPage + 1})} : null"
+       th:hx-trigger="${isLast}  ? 'revealed' : null"
+       th:hx-swap="${isLast} ? 'afterend' : null"
+       th:id="|movie-card-${movie.id}|" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl movie-item">
+    <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w154' + ${movie.posterPath}" src="http://image.tmdb.org/t/p/w154/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg" alt=""/>
+    <div class="space-y-2 px-4 flex-1 min-w-0">
+      <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
+      <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
+        <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-white space-x-4">
+          <span th:text="${movie.releaseDate}" class=" font-thin ">Aug 4, 2025</span>
+          <span th:text="${movie.runtime}" class="text-sm font-semibold text-white">2h 24min</span>
+        </div>
+        <button hx:delete="@{/user/collections/{collectionId}/movies/{movieId}/delete(collectionId=${collectionId}, movieId=${movie.id})}"
+                hx:vals="${ {_csrf.parameterName : _csrf.token} }"
+                hx-swap="outerHTML"
+                hx-target="closest .movie-item"
+                class="flex items-center text-white bg-amber-900 rounded-lg px-1.5 py-1 shadow-lg hover:bg-amber-800 hover:cursor-pointer"
+                type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+               class="size-4 mr-1 fill-white">
+            <path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+            <path fill-rule="evenodd"
+                  d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+                  clip-rule="evenodd"></path>
+          </svg>
+          <span>Mark as watched</span>
+        </button>
+      </div>
+      <div class="rounded-lg bg-emerald-950/50 p-2">
+        <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
+      </div>
+    </div>
+  </div>
+</th:block>
