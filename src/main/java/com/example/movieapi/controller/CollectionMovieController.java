@@ -61,4 +61,13 @@ public class CollectionMovieController {
         movieCollectionService.deleteMovieFromCollection(collectionId, movieId, authenticatedUser);
         return ResponseEntity.ok().build();
     }
+
+    @HxRequest
+    @PostMapping("/{movieId}/watch")
+    public ResponseEntity<Void> moveToWatchedHistory(@PathVariable Long collectionId,
+                                                     @PathVariable Long movieId,
+                                                     @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        movieCollectionService.movieToWatchedHistory(collectionId, movieId, authenticatedUser);
+        return ResponseEntity.ok().build();
+    }
 }
