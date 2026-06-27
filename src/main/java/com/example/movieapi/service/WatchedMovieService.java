@@ -27,7 +27,7 @@ public class WatchedMovieService {
         this.watchedMovieRepository = watchedMovieRepository;
         this.movieService = movieService;
     }
-
+    // TODO: Make use of Functional programming to change this method
     public boolean toggleWatched(AuthenticatedUser authenticatedUser, Long movieId) {
         AppUser user = authenticatedUser.getUser();
         Movie movie = movieService.getMovieById(movieId);
@@ -97,5 +97,21 @@ public class WatchedMovieService {
         LocalDateTime endDate = watchedAtDate.plusDays(1).atStartOfDay();
 
         return watchedMovieRepository.findCountByUserAndWatchedAt(user, startDate, endDate);
+    }
+
+    public void addMovieToWatchedMovies(AppUser user, Movie movie) {
+        WatchedMovie watchedMovie = watchedMovieRepository.findByUserAndMovie(user, movie)
+                .map( existing -> {
+                    existing.setWatchedAt(LocalDateTime.now());
+                    return existing;
+                })
+                .orElseGet(() ->
+                    WatchedMovie.builder()
+                            .user(user)
+                            .movie(movie)
+                            .watchedAt(LocalDateTime.now())
+                            .build());
+
+        watchedMovieRepository.save(watchedMovie);
     }
 }
