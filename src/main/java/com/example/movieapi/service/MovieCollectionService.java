@@ -30,16 +30,18 @@ public class MovieCollectionService {
     private final UserRepository userRepository;
     private final MovieService movieService;
     private final MoviesRepository moviesRepository;
+    private final WatchedMovieService watchedMovieService;
     private static final String FAVORITES = "Favorites";
     private static final String WATCHLIST = "WatchList";
 
     @Autowired
-    public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository) {
+    public MovieCollectionService(CollectionRepository collectionRepository, MovieMapper movieMapper, UserRepository userRepository, MovieService movieService, MoviesRepository moviesRepository, WatchedMovieService watchedMovieService) {
         this.collectionRepository = collectionRepository;
         this.movieMapper = movieMapper;
         this.userRepository = userRepository;
         this.movieService = movieService;
         this.moviesRepository = moviesRepository;
+        this.watchedMovieService = watchedMovieService;
     }
 
     public MovieCollection getMovieCollectionByName(String movieCollectionName) {
@@ -146,6 +148,18 @@ public class MovieCollectionService {
 
         collection.removeMovie(movie);
         collectionRepository.save(collection);
+    }
+
+    @Transactional
+    public void movieToWatchedHistory(Long collectionId, Long movieId, AuthenticatedUser authenticatedUser) {
+        AppUser user = userRepository.getReferenceById(authenticatedUser.getUser().getId());
+        Movie movie = movieService.getMovieById(movieId);
+
+        // First removing the movie from watchlist
+        deleteMovieFromCollection(collectionId, movieId, authenticatedUser);
+
+        // Adding the movie to Watched History
+        watchedMovieService.addMovieToWatchedMovies(user, movie);
     }
 
     public String getCollectionName(Long collectionId) {
