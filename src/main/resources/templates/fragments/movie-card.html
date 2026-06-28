@@ -84,7 +84,18 @@
        th:id="|movie-card-${movie.id}|" class="flex rounded-2xl bg-emerald-800 p-1 shadow-xl movie-item">
     <img class="rounded-xl" th:src="'http://image.tmdb.org/t/p/w154' + ${movie.posterPath}" src="http://image.tmdb.org/t/p/w154/cpf7vsRZ0MYRQcnLWteD5jK9ymT.jpg" alt=""/>
     <div class="space-y-2 px-4 flex-1 min-w-0">
-      <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
+      <div class="flex justify-between items-center">
+        <p th:text="${movie.title}" class="text-3xl text-emerald-200 font-bold">Weapons</p>
+        <button th:hx-delete="@{/collections/{collectionId}/movies/{movieId}(collectionId=${collectionId}, movieId=${movie.id})}"
+                hx:vals="${ {_csrf.parameterName : _csrf.token} }"
+                hx-swap="outerHTML" hx-target="closest .movie-item"
+                class="flex hover:cursor-pointer" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+               class="size-6 stroke-red-700/90">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
       <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
         <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
       </div>
@@ -93,7 +104,7 @@
           <span th:text="${movie.releaseDate}" class=" font-thin ">Aug 4, 2025</span>
           <span th:text="${movie.runtime}" class="text-sm font-semibold text-white">2h 24min</span>
         </div>
-        <button hx:delete="@{/user/collections/{collectionId}/movies/{movieId}/delete(collectionId=${collectionId}, movieId=${movie.id})}"
+        <button hx:post="@{/collections/{collectionId}/movies/{movieId}/watch(collectionId=${collectionId}, movieId=${movie.id})}"
                 hx:vals="${ {_csrf.parameterName : _csrf.token} }"
                 hx-swap="outerHTML"
                 hx-target="closest .movie-item"
