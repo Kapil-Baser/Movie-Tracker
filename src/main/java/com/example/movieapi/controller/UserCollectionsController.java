@@ -75,4 +75,13 @@ public class UserCollectionsController {
         movieCollectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
         return ResponseEntity.ok().build();
     }
+
+    @HxRequest
+    @DeleteMapping("/collections/{collectionId}/movies/{movieId}/delete")
+    public ResponseEntity<Void> removeMovieFromCollection(@PathVariable Long collectionId,
+                                       @PathVariable Long movieId,
+                                       @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        movieCollectionService.deleteMovieFromCollection(collectionId, movieId, authenticatedUser);
+        return  ResponseEntity.ok().build();
+    }
 }
