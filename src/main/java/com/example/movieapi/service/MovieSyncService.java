@@ -197,17 +197,32 @@ public class MovieSyncService {
                 .toList();
     }
 
-    public List<MovieDto> syncDigitalReleaseDates() {
-        // Getting only the movies which do not have a digital release date
-        List<Movie> movies = movieService.getMoviesWithNoDigitalReleaseDate();
+    public void updateMovieRuntime() {
+        List<Movie> moviesWithMissingRuntime = movieService.getMoviesMissingRuntime();
+        log.info("Movies with missing runtime: {}", moviesWithMissingRuntime.size());
 
-        List<Movie> updatedMovies = movies.stream()
-                .map(this::fetchReleaseDateFromTmdbAndUpdate)
-                .toList();
+        List<Long> tmdbIds = moviesWithMissingRuntime.stream().map(Movie::getTmdbId).toList();
 
-        log.info("Updated total {} movies", updatedMovies.size());
+        Map<Long, Movie> moviesMap = moviesWithMissingRuntime.stream()
+                .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
 
-        return movieMapper.toMovieDto(updatedMovies);
+        List<TmdbMovieDetailsResponse> movieDetailsResponses = getMovieDetailsFromTmdbAsync(tmdbIds);
+
+        List<Movie> moviesToUpdate = new ArrayList<>();
+
+        for (TmdbMovieDetailsResponse response : movieDetailsResponses) {
+            Movie movie = moviesMap.get(response.getId());
+            int runtime = response.getRuntime();
+            if (movie != null && runtime > 0) {
+                movie.setRuntime(runtime);
+                moviesToUpdate.add(movie);
+                log.info("Updated movie: {} with runtime: {}", movie.getTitle(), movie.getRuntime());
+            } else {
+                log.info("Runtime not found for movie: {}", response.getTitle());
+            }
+        }
+
+        movieService.saveAll(moviesToUpdate);
     }
 
     @Transactional
