@@ -3,13 +3,11 @@ package com.example.movieapi.mapper;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.model.tmdb.model.TmdbGenre;
-import com.example.movieapi.model.response.MovieResultResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.utility.FormatUtil;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,22 +30,6 @@ public class MovieMapper {
                 .trailer(traktMovie.getTrailer())
                 .duringCredits(traktMovie.isHasDuringCredits())
                 .afterCredits(traktMovie.isHasAfterCredits())
-                .build();
-    }
-
-
-    public Movie toEntity(MovieResultResponse movieResult) {
-        return Movie.builder()
-                .id(movieResult.getId())
-                .title(movieResult.getTitle())
-                .originalTitle(movieResult.getOriginalTitle())
-                .overview(movieResult.getOverview())
-                .backdropPath(movieResult.getBackdropPath())
-                .posterPath(movieResult.getPosterPath())
-                .releaseDate(movieResult.getReleaseDate())
-                .createdAt(LocalDateTime.now())
-                .afterCredits(false)
-                .duringCredits(false)
                 .build();
     }
 
