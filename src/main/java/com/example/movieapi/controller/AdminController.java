@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.service.MovieSyncService;
 import org.springframework.http.HttpStatus;
@@ -33,16 +34,12 @@ public class AdminController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
+    // TODO: Should return the synced movies
     @PostMapping("/sync-release-dates")
     public ResponseEntity<String> syncReleaseDates() {
         movieSyncService.fetchAndSyncDigitalReleaseDates();
         return ResponseEntity.ok("Synced release dates");
     }
-
-    /*@PostMapping("/now-playing")
-    public ResponseEntity<List<MovieDto>> syncNowPlaying() {
-        return ResponseEntity.ok(movieSyncService.syncNowPlayingMovies());
-    }*/
 
     @GetMapping("/anticipated")
     public ResponseEntity<List<MovieDto>> syncMostAnticipated() {
@@ -68,13 +65,22 @@ public class AdminController {
     }
 
     @PostMapping("/update-youtube-trailers")
-    public ResponseEntity<String> updateMoviesWithTrailers() {
-        movieSyncService.syncYouTubeTrailers();
-        return ResponseEntity.ok("Updated YouTube trailers");
+    public ResponseEntity<YouTubeSyncSummary> updateMoviesWithTrailers() {
+        return ResponseEntity.ok(movieSyncService.syncYouTubeTrailers());
     }
 
     @GetMapping("/details/{movie_id}")
     public ResponseEntity<TmdbMovieDetailsResponse> getMovieDetails(@PathVariable("movie_id") Long movieId) {
         return ResponseEntity.ok(movieSyncService.getMovieDetails(movieId));
+    }
+
+    @GetMapping("/update-runtime")
+    public void updateMoviesMissingRuntime() {
+        movieSyncService.updateMovieRuntime();
+    }
+
+    @GetMapping("/mostwatched")
+    public void getMostWatchedMovies() {
+        movieSyncService.syncMostWatchedMovies();
     }
 }
