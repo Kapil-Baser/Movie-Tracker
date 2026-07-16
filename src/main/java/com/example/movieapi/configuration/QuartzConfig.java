@@ -1,6 +1,7 @@
 package com.example.movieapi.configuration;
 
 import com.example.movieapi.schedule.RefreshUpcomingCollectionJob;
+import com.example.movieapi.schedule.UpdateMovieRuntimeJob;
 import com.example.movieapi.schedule.UpdateMovieStreamingDatesJob;
 import com.example.movieapi.schedule.MovieOutForStreamingPublisher;
 import org.quartz.*;
@@ -70,4 +71,25 @@ public class QuartzConfig {
                         .withMisfireHandlingInstructionIgnoreMisfires())
                 .build();
     }
+
+    @Bean
+    public JobDetail updateMoviesMissingRuntimeJob() {
+        return JobBuilder.newJob(UpdateMovieRuntimeJob.class)
+                .storeDurably()
+                .withIdentity("Update_Movies_Missing_Runtime")
+                .withDescription("Job to scan and update movies which are missing runtime")
+                .build();
+    }
+
+    @Bean
+    public Trigger updateMoviesMissingRuntimeTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob(updateMoviesMissingRuntimeJob())
+                .withIdentity("Update_Movies_Missing_Runtime_Trigger")
+                .withSchedule(SimpleScheduleBuilder
+                        .repeatHourlyForever(120)
+                        .withMisfireHandlingInstructionIgnoreMisfires())
+                .build();
+    }
+
 }
