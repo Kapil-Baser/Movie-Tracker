@@ -26,10 +26,6 @@ public class AsyncConfig {
 
     @Bean(name = "customExecutor")
     public Executor asyncExecutor() {
-        return Executors.newFixedThreadPool(30 , r ->  {
-            Thread t = new Thread(r);
-            t.setDaemon(true);
-            return t;
-        });
+        return Executors.newVirtualThreadPerTaskExecutor();
     }
 }
