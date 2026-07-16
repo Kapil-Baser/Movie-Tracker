@@ -27,25 +27,30 @@ public class WatchedMovieService {
         this.watchedMovieRepository = watchedMovieRepository;
         this.movieService = movieService;
     }
-    // TODO: Make use of Functional programming to change this method
+
     public boolean toggleWatched(AuthenticatedUser authenticatedUser, Long movieId) {
         AppUser user = authenticatedUser.getUser();
         Movie movie = movieService.getMovieById(movieId);
 
-        Optional<WatchedMovie> optWatchedMovieRecord = watchedMovieRepository.findByUserAndMovie(user, movie);
+        return watchedMovieRepository.findByUserAndMovie(user, movie)
+                .map(this::markUnwatched)
+                .orElseGet(() -> markWatched(user, movie));
+    }
 
-        if (optWatchedMovieRecord.isPresent()) {
-            watchedMovieRepository.delete(optWatchedMovieRecord.get());
-            return false;
-        } else {
-            WatchedMovie watchedMovie = WatchedMovie.builder()
-                    .user(user)
-                    .movie(movie)
-                    .watchedAt(LocalDateTime.now())
-                    .build();
-            watchedMovieRepository.save(watchedMovie);
-            return true;
-        }
+    private boolean markUnwatched(WatchedMovie movie) {
+        watchedMovieRepository.delete(movie);
+        return false;
+    }
+
+    private boolean markWatched(AppUser user, Movie movie) {
+        WatchedMovie watchedMovie = WatchedMovie.builder()
+                .user(user)
+                .movie(movie)
+                .watchedAt(LocalDateTime.now())
+                .build();
+
+        watchedMovieRepository.save(watchedMovie);
+        return true;
     }
 
     public Map<LocalDate, List<WatchedMovieDto>> getWatchedMovies(AuthenticatedUser authenticatedUser) {
