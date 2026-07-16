@@ -36,18 +36,6 @@ public class WatchedHistoryController {
         return "watched-history";
     }
 
-    /*@PostMapping("/toggle")
-    public String toggleWatched(@RequestParam Long movieId,
-                                @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-                                Model model) {
-        boolean isWatched = watchedMovieService.toggleWatched(authenticatedUser, movieId);
-
-        model.addAttribute("isWatched", isWatched);
-        model.addAttribute("movieId", movieId);
-
-        return "fragments/buttons :: mark-as-watched-unwatched-button";
-    }*/
-
     @HxRequest
     @PostMapping("/toggle")
     public FragmentsRendering toggleWatched(@RequestParam Long movieId,
