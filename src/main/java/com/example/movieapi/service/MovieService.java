@@ -83,7 +83,6 @@ public class MovieService {
         }
     }
 
-    @Transactional
     public List<Movie> updateTraktMovies(List<TraktMovie> traktMovies, List<Movie> moviesToUpdate) {
         if (traktMovies == null || traktMovies.isEmpty()) {
             log.info("No trakt movies to update");
@@ -187,11 +186,6 @@ public class MovieService {
         return moviesToBeUpdated;
     }
 
-    public Movie saveMovie(TraktMovie traktMovie) {
-        Movie movie = movieMapper.toEntity(traktMovie);
-        return moviesRepository.save(movie);
-    }
-
     public Movie getMovieById(Long movieId) {
         return moviesRepository.findById(movieId)
                 .orElseThrow(() -> new RuntimeException("Movie not found in database with id: " + movieId));
@@ -204,32 +198,6 @@ public class MovieService {
                 .map(TmdbCountryRelease::getReleaseDates)
                 .flatMap(Collection::stream)
                 .toList();
-    }
-
-    @Transactional
-    public Movie updateUsReleaseDates(Movie movie, List<TmdbCountryRelease> allReleases) {
-
-        List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(allReleases);
-
-        if (usReleaseDates.isEmpty()) {
-            log.warn("No US release dates found for movie: {}", movie.getTitle());
-            return movie;
-        }
-
-        Movie updatedMovie = processReleaseDates(usReleaseDates, movie);
-
-        Movie savedMovie = moviesRepository.save(updatedMovie);
-        log.info("Updated US release dates for movie: {}", savedMovie.getTitle());
-        return savedMovie;
-    }
-
-    public Movie setUsReleaseDates(Movie movieWithNoDigitalReleaseDate, List<TmdbCountryRelease> allReleases) {
-        List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(allReleases);
-        if (usReleaseDates.isEmpty()) {
-            return null;
-        }
-        log.info("Set US release dates for movie: {}", movieWithNoDigitalReleaseDate.getTitle());
-        return processReleaseDates(usReleaseDates, movieWithNoDigitalReleaseDate);
     }
 
     public Movie setUsDigitalReleaseDate(Movie movie, List<TmdbCountryRelease> allReleases) {
@@ -328,5 +296,9 @@ public class MovieService {
 
     public List<Movie> saveAll(List<Movie> movies) {
         return moviesRepository.saveAll(movies);
+    }
+
+    public List<Movie> getMoviesMissingRuntime() {
+        return moviesRepository.findMoviesMissingRuntime();
     }
 }
