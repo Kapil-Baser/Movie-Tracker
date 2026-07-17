@@ -3,6 +3,7 @@ package com.example.movieapi.service;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
+import com.example.movieapi.model.trakt.response.TraktMostWatchedMoviesResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,13 +49,26 @@ public class TraktService {
     public String getTrendingMoviesApi() {
         return traktServiceClient
                 .get()
-                .uri(uriBuilder -> uriBuilder.path("/movies/trending")
-                        .queryParam("page", 2)
+                .uri(uriBuilder -> uriBuilder.path("/movies/watched/weekly")
+                        .queryParam("page", 1)
                         .queryParam("limit", 20)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .body(String.class);
+    }
+
+    public List<TraktMostWatchedMoviesResponse> getMostWatchedMovies(int page) {
+        return traktServiceClient
+                .get()
+                .uri(uriBuilder -> uriBuilder.path("/movies/watched/weekly")
+                        .queryParam("extended", "full")
+                        .queryParam("page", page)
+                        .queryParam("limit", 20)
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<TraktMostWatchedMoviesResponse>>() {});
     }
 
     public List<TraktMovie> getPopularMovies() {
