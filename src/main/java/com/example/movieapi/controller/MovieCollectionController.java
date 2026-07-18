@@ -2,7 +2,6 @@ package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.CollectionView;
 import com.example.movieapi.dto.NewCollectionDto;
-import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -11,7 +10,6 @@ import com.example.movieapi.service.MovieViewAssemblerService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,26 +44,6 @@ public class MovieCollectionController {
         CollectionView collectionView = movieViewAssemblerService.buildAllCollectionView(authenticatedUser, page);
         model.addAttribute("collectionView", collectionView);
         return "fragments/page :: collectionPage";
-    }
-
-    @GetMapping("/{collectionId}")
-    public String showCollection(@PathVariable(value = "collectionId") Long collectionId,
-                                 @RequestParam(value = "page", defaultValue = "1") int pageRequest,
-                                 @RequestParam(value = "size", defaultValue = "3") int size,
-                                 Model model) {
-
-        int page = Math.max(0, pageRequest - 1);
-        Page<MovieDto> pageOfMovies = collectionService.getMoviesFromCollectionPaged(collectionId, page, size);
-        String collectionName = collectionService.getCollectionName(collectionId);
-
-        model.addAttribute("moviesPage", pageOfMovies);
-        model.addAttribute("currentPage", pageRequest);
-        model.addAttribute("pageSize", size);
-        model.addAttribute("totalPages", pageOfMovies.getTotalPages());
-        model.addAttribute("collectionId", collectionId);
-        model.addAttribute("collectionName", collectionName);
-
-        return "collection-page";
     }
 
     // HTMX endpoint: Returns just the form fragment
