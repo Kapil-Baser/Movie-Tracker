@@ -34,7 +34,7 @@ public class MovieEnrichmentEventListener {
     }
 
 
-    @Async
+    @Async("customExecutor")
     @EventListener(condition = "#event.provider == 'Trakt'")
     public void enrichMoviesFromTrakt(MovieEnrichmentEvent event) {
         List<Movie> moviesToEnrich = event.moviesToEnrich();
