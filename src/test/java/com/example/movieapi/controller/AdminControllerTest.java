@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.TmdbSyncCollectionSummary;
 import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.service.MovieSyncService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -97,35 +97,47 @@ class AdminControllerTest {
     }
 
     @Test
-    void syncNowPlayingFromTmdb_returnsNoContentWhenSyncingIsNotPossible() throws Exception {
-        when(movieSyncService.syncNowPlayingMoviesFromTmdb(1)).thenReturn(List.of());
+    void syncNowPlayingCollectionFromTmdb_returnsNoContentWhenSyncingIsNotPossible() throws Exception {
+        TmdbSyncCollectionSummary summary = TmdbSyncCollectionSummary.builder()
+                .totalFetchedFromTmdb(0)
+                .alreadyInDatabase(0)
+                .newlySaved(0)
+                .movies(List.of())
+                .build();
+
+        when(movieSyncService.syncNowPlayingCollectionFromTmdb(1)).thenReturn(summary);
 
         mockMvc.perform(post("/api/v1/admin/movie/now-playing/{page_no}", 1).with(csrf())
                 .with(user("admin")
                         .roles("ADMIN")))
                 .andExpect(status().isNoContent());
 
-        verify(movieSyncService, times(1)).syncNowPlayingMoviesFromTmdb(1);
+        verify(movieSyncService, times(1)).syncNowPlayingCollectionFromTmdb(1);
     }
 
     @Test
-    void syncNowPlayingFromTmdb_returnsCreatedWhenSyncingIsPossible() throws Exception {
+    void syncNowPlayingCollectionFromTmdb_returnsCreatedWhenSyncingIsPossible() throws Exception {
+        List<MovieDto> movieDtos = createMovieDtoList();
 
-        List<MovieDto> movieDtoList = createMovieDtoList();
+        TmdbSyncCollectionSummary summary = TmdbSyncCollectionSummary.builder()
+                .totalFetchedFromTmdb(2)
+                .alreadyInDatabase(0)
+                .newlySaved(2)
+                .movies(movieDtos)
+                .build();
 
-        when(movieSyncService.syncNowPlayingMoviesFromTmdb(1)).thenReturn(movieDtoList);
+        when(movieSyncService.syncNowPlayingCollectionFromTmdb(1)).thenReturn(summary);
 
         mockMvc.perform(post("/api/v1/admin/movie/now-playing/{page_no}", 1)
                 .with(csrf())
                 .with(user("admin").roles("ADMIN")))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").isNumber())
-                .andExpect(jsonPath("$[0].title").value("Project Hail Mary"))
-                .andExpect(jsonPath("$[1].id").isNumber())
-                .andExpect(jsonPath("$[1].title").value("Scream 7"))
+                .andExpect(jsonPath("$.totalFetchedFromTmdb").value(2))
+                .andExpect(jsonPath("$.alreadyInDatabase").value(0))
+                .andExpect(jsonPath("$.newlySaved").value(2))
+                .andExpect(jsonPath("$.movies", hasSize(2)))
                 .andExpect(status().isCreated());
 
-        verify(movieSyncService, times(1)).syncNowPlayingMoviesFromTmdb(1);
+        verify(movieSyncService, times(1)).syncNowPlayingCollectionFromTmdb(1);
     }
 
     @Test
