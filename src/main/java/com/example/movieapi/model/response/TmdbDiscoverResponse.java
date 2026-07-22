@@ -1,5 +1,6 @@
 package com.example.movieapi.model.response;
 
+import com.example.movieapi.model.tmdb.model.TmdbMovie;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ public class TmdbDiscoverResponse {
 
     private int page;
 
-    private List<MovieResultResponse> results;
+    private List<TmdbMovie> results;
 
     @JsonProperty("total_pages")
     private Long totalPages;
