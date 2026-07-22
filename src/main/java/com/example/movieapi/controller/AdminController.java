@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.TmdbSyncCollectionSummary;
 import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.service.MovieSyncService;
@@ -26,12 +27,12 @@ public class AdminController {
     }
 
     @PostMapping("/upcoming/{page_no}")
-    public ResponseEntity<List<MovieDto>> syncUpcomingMoviesFromTmdb(@PathVariable(name = "page_no") int page) {
-        List<MovieDto> dto = movieSyncService.syncUpcomingMovies(page);
-        if (dto.isEmpty()) {
+    public ResponseEntity<TmdbSyncCollectionSummary> syncUpcomingMoviesFromTmdb(@PathVariable(name = "page_no") int page) {
+        TmdbSyncCollectionSummary result = movieSyncService.syncUpcomingCollectionFromTmdb(page);
+        if (result.movies().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     // TODO: Should return the synced movies
@@ -47,12 +48,12 @@ public class AdminController {
     }
 
     @PostMapping("/now-playing/{page_no}")
-    public ResponseEntity<List<MovieDto>> syncNowPlayingFromTmdb(@PathVariable(name = "page_no") int page) {
-        List<MovieDto> dto = movieSyncService.syncNowPlayingMoviesFromTmdb(page);
-        if (dto.isEmpty()) {
+    public ResponseEntity<TmdbSyncCollectionSummary> syncNowPlayingCollectionFromTmdb(@PathVariable(name = "page_no") int page) {
+        TmdbSyncCollectionSummary result = movieSyncService.syncNowPlayingCollectionFromTmdb(page);
+        if (result.movies().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(dto, HttpStatus.CREATED);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @PostMapping("/trending")
@@ -79,8 +80,8 @@ public class AdminController {
         movieSyncService.updateMovieRuntime();
     }
 
-    @GetMapping("/mostwatched")
-    public void getMostWatchedMovies() {
-        movieSyncService.syncMostWatchedMovies();
+    @GetMapping("/mostwatched/{page_no}")
+    public void getMostWatchedMovies(@PathVariable("page_no") int page) {
+        movieSyncService.syncMostWatchedMovies(page);
     }
 }
