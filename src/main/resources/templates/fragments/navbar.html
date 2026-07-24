@@ -17,7 +17,7 @@
           hover:after:w-full">Trending</a>
     </div>
 
-    <form sec:authorize="isAuthenticated()" th:action="@{/search}" method="GET">
+    <form sec:authorize="isAuthenticated()" id="movie-search-form" th:action="@{/search}" method="GET">
         <div class="relative w-full max-w-md mx-auto"
              _="on click elsewhere add .hidden to #search-dropdown">
             <div class="flex items-center border rounded-lg overflow-hidden shadow-sm ring-0 focus-within:ring-1">
@@ -57,21 +57,6 @@
             </div>
         </div>
     </form>
-
-    <!--<form action="#" th:action="@{/search}" method="GET">
-        <div class="flex rounded-full border-2 border-emerald-600 overflow-hidden max-w-md mx-auto">
-            <input type="search" placeholder="Search a Movie..." required
-                   class="w-full outline-none bg-white text-sm px-5 py-2 text-gray-700"
-                   name="keyword" th:value="${keyword}"/>
-            <button type="submit" class="flex items-center justify-center bg-amber-900 hover:bg-amber-800 px-6">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192.904 192.904" width="18px" class="fill-white">
-                    <path
-                            d="m190.707 180.101-47.078-47.077c11.702-14.072 18.752-32.142 18.752-51.831C162.381 36.423 125.959 0 81.191 0 36.422 0 0 36.423 0 81.193c0 44.767 36.422 81.187 81.191 81.187 19.688 0 37.759-7.049 51.831-18.751l47.079 47.078a7.474 7.474 0 0 0 5.303 2.197 7.498 7.498 0 0 0 5.303-12.803zM15 81.193C15 44.694 44.693 15 81.191 15c36.497 0 66.189 29.694 66.189 66.193 0 36.496-29.692 66.187-66.189 66.187C44.693 147.38 15 117.689 15 81.193z">
-                    </path>
-                </svg>
-            </button>
-        </div>
-    </form>-->
 
     <!-- Show only when not logged in -->
     <div sec:authorize="isAnonymous()" class="flex">
