@@ -32,7 +32,8 @@
 <!--Search suggestions fragment-->
 <th:block th:fragment="search-suggestions (suggestions)">
   <ul th:each="suggestion : ${suggestions}" class="max-h-60 overflow-y-auto divide-y divide-gray-100">
-    <li th:text="${suggestion}" _="on click put my textContent.trim() into #search-input's value then add .hidden to #search-dropdown"
+    <li th:text="${suggestion}" _="on click put my textContent.trim() into #search-input's value then add .hidden to #search-dropdown
+                                then call #movie-search-form.submit()"
         class="px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-900 cursor-pointer transition-colors duration-150">
       Mortal Kombat
     </li>
