@@ -22,7 +22,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.quartz.auto-startup=false")
 @AutoConfigureMockMvc
 class AdminControllerTest {
 
@@ -157,7 +157,8 @@ class AdminControllerTest {
 
         List<MovieDto> movieDtoList = createMovieDtoList();
 
-        when(movieSyncService.syncTrendingMoviesFromTrakt()).thenReturn(movieDtoList);
+        //when(movieSyncService.syncTrendingMoviesFromTrakt()).thenReturn(movieDtoList);
+        doReturn(movieDtoList).when(movieSyncService).syncTrendingMoviesFromTrakt();
 
         mockMvc.perform(post("/api/v1/admin/movie/trending")
                 .with(csrf())
