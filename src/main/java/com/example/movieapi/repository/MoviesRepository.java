@@ -1,5 +1,6 @@
 package com.example.movieapi.repository;
 
+import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Movie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +27,8 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m.id FROM Movie m")
     List<Long> findAllMovieIds();
 
-    @Query("SELECT m FROM MovieCollection c JOIN c.movies m WHERE c.id = :collectionId")
-    Page<Movie> findMoviesByCollectionId(@Param("collectionId") Long collectionId, Pageable pageable);
+    @Query("SELECT m FROM MovieCollection c JOIN c.movies m WHERE c.id = :collectionId AND c.owner = :owner")
+    Page<Movie> findMoviesByCollectionId(@Param("collectionId") Long collectionId, @Param("owner") AppUser owner, Pageable pageable);
 
     @Query("SELECT m FROM MovieCollection mc JOIN mc.movies m WHERE mc.name = :collectionName")
     Page<Movie> findMoviesByCollectionNameContainingIgnoreCase(String collectionName, Pageable pageable);
