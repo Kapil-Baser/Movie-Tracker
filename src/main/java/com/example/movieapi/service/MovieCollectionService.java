@@ -4,6 +4,7 @@ import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
+import com.example.movieapi.exception.CollectionAccessDeniedException;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
@@ -212,9 +213,12 @@ public class MovieCollectionService {
         return movieIds != null ? movieIds : Collections.emptySet();
     }
 
-    public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size) {
+    public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size, AppUser owner) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionId(collectionId, pageable);
+        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionId(collectionId, owner, pageable);
+        if (!moviesPage.hasContent()) {
+            throw new CollectionAccessDeniedException("Requesting user: " + owner.getUsername() + " does not own this collection with ID: " + collectionId);
+        }
         return moviesPage.map(movieMapper::toMovieDto);
     }
 
