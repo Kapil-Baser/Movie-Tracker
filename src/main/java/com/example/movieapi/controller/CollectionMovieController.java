@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
@@ -24,9 +25,9 @@ public class CollectionMovieController {
 
     @GetMapping
     public String showMoviesInCollection(@PathVariable(value = "collectionId") Long collectionId,
-                                         Model model) {
+                                         Model model, @AuthenticationPrincipal(expression = "user") AppUser owner) {
 
-        Page<MovieDto> firstPage = movieCollectionService.getMoviesFromCollectionPaged(collectionId, 0, 3);
+        Page<MovieDto> firstPage = movieCollectionService.getMoviesFromCollectionPaged(collectionId, 0, 3, owner);
         String collectionName = movieCollectionService.getCollectionName(collectionId);
 
         model.addAttribute("movies", firstPage.getContent());
@@ -42,8 +43,8 @@ public class CollectionMovieController {
     @GetMapping
     public String showNextPage(@PathVariable(value = "collectionId") Long collectionId,
                                @RequestParam(defaultValue = "1") int page,
-                               Model model) {
-        Page<MovieDto> nextPage = movieCollectionService.getMoviesFromCollectionPaged(collectionId, page, 3);
+                               Model model, @AuthenticationPrincipal(expression = "user") AppUser owner) {
+        Page<MovieDto> nextPage = movieCollectionService.getMoviesFromCollectionPaged(collectionId, page, 3, owner);
 
         model.addAttribute("movies", nextPage.getContent());
         model.addAttribute("currentPage", page);
