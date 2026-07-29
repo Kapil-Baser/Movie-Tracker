@@ -28,7 +28,7 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     List<Long> findAllMovieIds();
 
     @Query("SELECT m FROM MovieCollection c JOIN c.movies m WHERE c.id = :collectionId AND c.owner = :owner")
-    Page<Movie> findMoviesByCollectionId(@Param("collectionId") Long collectionId, @Param("owner") AppUser owner, Pageable pageable);
+    Page<Movie> findMoviesByCollectionIdAndOwner(@Param("collectionId") Long collectionId, @Param("owner") AppUser owner, Pageable pageable);
 
     @Query("SELECT m FROM MovieCollection mc JOIN mc.movies m WHERE mc.name = :collectionName")
     Page<Movie> findMoviesByCollectionNameContainingIgnoreCase(String collectionName, Pageable pageable);
