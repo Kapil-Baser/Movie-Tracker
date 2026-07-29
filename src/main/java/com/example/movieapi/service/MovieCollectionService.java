@@ -142,22 +142,21 @@ public class MovieCollectionService {
         collectionRepository.save(collection);
     }
 
-    public void deleteMovieFromCollection(Long collectionId, Long movieId, AuthenticatedUser authenticatedUser) {
-        AppUser user = authenticatedUser.getUser();
+    public void deleteMovieFromCollection(Long collectionId, Long movieId, AppUser owner) {
         Movie movie = movieService.getMovieById(movieId);
-        MovieCollection collection = getCollectionByIdAndOwner(collectionId, user);
+        MovieCollection collection = getCollectionByIdAndOwner(collectionId, owner);
 
         collection.removeMovie(movie);
         collectionRepository.save(collection);
     }
 
     @Transactional
-    public void movieToWatchedHistory(Long collectionId, Long movieId, AuthenticatedUser authenticatedUser) {
-        AppUser user = userRepository.getReferenceById(authenticatedUser.getUser().getId());
+    public void movieToWatchedHistory(Long collectionId, Long movieId, AppUser owner) {
+        AppUser user = userRepository.getReferenceById(owner.getId());
         Movie movie = movieService.getMovieById(movieId);
 
         // First removing the movie from watchlist
-        deleteMovieFromCollection(collectionId, movieId, authenticatedUser);
+        deleteMovieFromCollection(collectionId, movieId, owner);
 
         // Adding the movie to Watched History
         watchedMovieService.addMovieToWatchedMovies(user, movie);
@@ -215,7 +214,7 @@ public class MovieCollectionService {
 
     public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size, AppUser owner) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionId(collectionId, owner, pageable);
+        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionIdAndOwner(collectionId, owner, pageable);
         if (!moviesPage.hasContent()) {
             throw new CollectionAccessDeniedException("Requesting user: " + owner.getUsername() + " does not own this collection with ID: " + collectionId);
         }
