@@ -5,21 +5,44 @@ A Spring Boot application to track movies, keep a watch history, make a movie co
 - User authentication with Spring Security and Google OAuth2
 - Browse trending, upcoming and now playing movies
 - Organize movies into custom collections
+- Search movies by title using PostgreSQL Full-Text Search
 - Mark movies as watched
 - Track watch history with timestamps
-- Subscribe to a movie and get notified via email or Google Calander
+- Subscribe to a movie and get notified via email or Google Calendar
+
+# Key Technical Features
+- PostgreSQL Full-Text Search
+- Quartz Scheduler for automatic movie collection updates
+- OAuth2 authentication with Google
+- Flyway database versioning and migrations
+- Java Virtual Threads for asynchronous background processing using CompletableFuture
+- HTMX-powered dynamic UI without a JavaScript framework
+- JPA entity relationships for users, collections, subscriptions, and watch history
+- Server-side rendering with Thymeleaf, enhanced using HTMX and HyperScript
 
 ## Tech Stack
+### Backend
 - Java 25+
 - Spring Boot
 - Spring MVC
 - Spring Security (OAuth2, Form Login)
 - Spring Data JPA / Hibernate
-- Thymeleaf + HTMX + Tailwindcss
-- Database: PostgreSQL
-- Flyway to handle versioned SQL migrations
+- Hibernate
+
+### Frontend
+- Thymeleaf
+- HTMX
+- HyperScript
+- Tailwind CSS
+
+### Database
+- PostgreSQL
+- PostgreSQL Full-Text Search (tsvector/tsquery)
+- Flyway
+
+### Build & Tools
 - Maven
-- Docker
+- Git
   
 ## Screenshots
 ### Homepage
