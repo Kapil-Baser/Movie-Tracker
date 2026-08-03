@@ -134,20 +134,6 @@ public class MovieSyncService {
                 .build();
     }
 
-    /*public TmdbSyncCollectionSummary syncNowPlayingCollectionFromTmdb(int page) {
-        TmdbSyncResult result = fetchAndSyncFromTmdb(page);
-
-        if (!result.allMovies().isEmpty()) {
-            movieCollectionService.addToCollection("Now Playing", result.allMovies());
-        }
-        return TmdbSyncCollectionSummary.builder()
-                .totalFetchedFromTmdb(result.totalFetchedFromTmdb())
-                .alreadyInDatabase(result.alreadyInDatabase())
-                .newlySaved(result.newlySaved())
-                .movies(movieMapper.toMovieDto(result.allMovies()))
-                .build();
-    }*/
-
     private TmdbSyncResult fetchAndSyncFromTmdb(List<TmdbMovie> tmdbMovies) {
         if (tmdbMovies.isEmpty()) {
             log.warn("Could not fetch any movies");
