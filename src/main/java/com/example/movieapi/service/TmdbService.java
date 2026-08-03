@@ -2,6 +2,7 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.*;
+import com.example.movieapi.model.tmdb.model.TmdbMovie;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.resilience.annotation.Retryable;
@@ -90,7 +91,7 @@ public class TmdbService {
         return Objects.requireNonNull(response);
     }
 
-    public List<MovieResultResponse> getUpcomingMovies(int page) {
+    public List<TmdbMovie> getUpcomingMovies(int page) {
         TmdbDiscoverResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
                         .queryParam("page", page)
@@ -105,7 +106,7 @@ public class TmdbService {
         return Objects.requireNonNull(response).getResults();
     }
 
-    public List<MovieResultResponse> discoverMovies(int releaseYear, LocalDate minReleaseDate, int releaseType) {
+    public List<TmdbMovie> discoverMovies(int releaseYear, LocalDate minReleaseDate, int releaseType) {
         TmdbDiscoverResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
                         .queryParam("page", 1)
