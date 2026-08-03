@@ -27,7 +27,7 @@ public class AdminController {
     }
 
     @PostMapping("/upcoming/{page_no}")
-    public ResponseEntity<TmdbSyncCollectionSummary> syncUpcomingMoviesFromTmdb(@PathVariable(name = "page_no") int page) {
+    public ResponseEntity<TmdbSyncCollectionSummary> syncUpcomingCollectionFromTmdb(@PathVariable(name = "page_no") int page) {
         TmdbSyncCollectionSummary result = movieSyncService.syncUpcomingCollectionFromTmdb(page);
         if (result.movies().isEmpty()) {
             return ResponseEntity.noContent().build();
