@@ -11,7 +11,6 @@ import com.example.movieapi.service.MovieViewAssemblerService;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -86,22 +85,5 @@ public class MovieCollectionController {
         model.addAttribute("collection", collection);
 
         return "redirect:htmx:/collections";
-    }
-
-    @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId,
-                                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        collectionService.deleteCollectionByUserAndId(authenticatedUser.getUser(), collectionId);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/delete-confirmation")
-    public String showDeleteConfirmation() {
-        return "fragments/buttons :: confirmation-prompt";
-    }
-
-    @GetMapping("/cancel-delete")
-    public String hideDeleteConfirmation() {
-        return "fragments/buttons :: delete-button";
     }
 }
