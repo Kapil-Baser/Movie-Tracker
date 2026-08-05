@@ -3,6 +3,7 @@ package com.example.movieapi.controller;
 import com.example.movieapi.dto.CollectionView;
 import com.example.movieapi.dto.NewCollectionDto;
 import com.example.movieapi.entity.AppUser;
+import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.MovieCollectionService;
@@ -80,7 +81,7 @@ public class MovieCollectionController {
             return "fragments/collection-form :: collection-add-form";
         }
 
-        MovieCollection collection = collectionService.createUserCollection(user, newCollectionDto.getName());
+        MovieCollection collection = collectionService.createUserCollection(user, newCollectionDto.getName(), CollectionType.CUSTOM);
 
         model.addAttribute("collection", collection);
 
@@ -88,30 +89,10 @@ public class MovieCollectionController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        collectionService.deleteCollectionByUserAndId(authenticatedUser, collectionId);
+    public ResponseEntity<Void> deleteCollection(@RequestParam(name = "collection_id") Long collectionId,
+                                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        collectionService.deleteCollectionByUserAndId(authenticatedUser.getUser(), collectionId);
         return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/save")
-    public String saveCollection(@Valid @ModelAttribute("collectionDto") NewCollectionDto newCollectionDto,
-                                 BindingResult result,
-                                 @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-
-        if (result.hasErrors()) {
-            return "new-collection";
-        }
-
-        AppUser user = authenticatedUser.getUser();
-
-        if (collectionService.nameExists(newCollectionDto.getName(), user.getId())) {
-            result.rejectValue("name", "name.duplicate", "This collection name already exists");
-            return "new-collection";
-        }
-
-        collectionService.createUserCollection(user, newCollectionDto.getName());
-
-        return "redirect:/collections";
     }
 
     @GetMapping("/delete-confirmation")
