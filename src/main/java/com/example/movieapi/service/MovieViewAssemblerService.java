@@ -92,12 +92,12 @@ public class MovieViewAssemblerService {
         return new CollectionView(List.of(), movieCollectionsPage.hasNext(), movieCollectionsPage.getNumber());
     }
 
-    public List<CollectionOptionDto> buildCollectionOptions(AuthenticatedUser authenticatedUser, Long movieId) {
-        // First we get all the user collections
-        List<MovieCollection> collections = collectionService.getAllUserCollection(authenticatedUser.getUser());
+    public List<MovieCollectionView> buildMovieCollectionView(AuthenticatedUser authenticatedUser, Long movieId) {
+        // First we get all the collections for a given user
+        List<MovieCollection> movieCollections = collectionService.getAllUserCollection(authenticatedUser.getUser());
 
-        return collections.stream()
-                .map(collection -> new CollectionOptionDto(
+        return movieCollections.stream()
+                .map(collection -> new MovieCollectionView(
                         collection.getName(),
                         collection.getId(),
                         collection.containsMovieWithId(movieId))
