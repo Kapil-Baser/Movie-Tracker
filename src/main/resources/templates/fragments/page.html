@@ -39,10 +39,23 @@
   </div>
 </div>
 
-<th:block th:fragment="movieCollection">
+<!--<th:block th:fragment="movieCollection">
   <th:block th:each="movie, iterStat : ${movies}">
     <th:block th:with="isLast = ${iterStat.last && hasNext} ? true : false">
       <th:block th:replace="~{fragments/movie-card :: movieCollection-card (movie = ${movie}, isLast = ${isLast})}"></th:block>
     </th:block>
   </th:block>
+</th:block>-->
+
+<th:block th:fragment="movieCollectionView">
+  <th:block th:each="movie, iterStat : ${collectionView.movies}">
+    <th:block th:with="isLast = ${iterStat.last && collectionView.hasNext} ? true : false">
+      <th:block th:replace="~{fragments/movie-card :: movieCollection-card (movie = ${movie},
+                              isLast = ${isLast},
+                              collectionId = ${collectionView.collection.id},
+                              collectionType = ${collectionView.collection.type.toString()},
+                              currentPage = ${collectionView.currentPage})}"></th:block>
+    </th:block>
+  </th:block>
+
 </th:block>
