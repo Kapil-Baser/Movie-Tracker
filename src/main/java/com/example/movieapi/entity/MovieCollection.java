@@ -34,6 +34,9 @@ public class MovieCollection {
     )
     private Set<Movie> movies = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
+    private CollectionType type;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
