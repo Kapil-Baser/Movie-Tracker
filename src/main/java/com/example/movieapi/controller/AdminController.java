@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.MovieRuntimeUpdateSummary;
 import com.example.movieapi.dto.TmdbSyncCollectionSummary;
 import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
@@ -75,9 +76,9 @@ public class AdminController {
         return ResponseEntity.ok(movieSyncService.getMovieDetails(movieId));
     }
 
-    @GetMapping("/update-runtime")
-    public void updateMoviesMissingRuntime() {
-        movieSyncService.updateMovieRuntime();
+    @PatchMapping("/update-runtime")
+    public ResponseEntity<MovieRuntimeUpdateSummary> updateMoviesMissingRuntime() {
+        return ResponseEntity.ok(movieSyncService.updateMovieRuntime());
     }
 
     @GetMapping("/mostwatched/{page_no}")
