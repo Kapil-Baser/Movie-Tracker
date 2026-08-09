@@ -1,6 +1,7 @@
 package com.example.movieapi.controller;
 
 import com.example.movieapi.dto.MovieDto;
+import com.example.movieapi.dto.MovieRuntimeUpdateSummary;
 import com.example.movieapi.dto.TmdbSyncCollectionSummary;
 import com.example.movieapi.dto.YouTubeSyncSummary;
 import com.example.movieapi.service.MovieSyncService;
@@ -195,6 +196,22 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.failures").value(0));
 
         verify(movieSyncService, times(1)).syncYouTubeTrailers();
+    }
+
+    @Test
+    void updateMoviesMissingRuntime_returnsUpdatedRuntimeSummary() throws Exception {
+        MovieRuntimeUpdateSummary runtimeUpdateSummary = new MovieRuntimeUpdateSummary(27, 19);
+
+        when(movieSyncService.updateMovieRuntime()).thenReturn(runtimeUpdateSummary);
+
+        mockMvc.perform(patch("/api/v1/admin/movie/update-runtime")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.moviesMissingRuntime").value(27))
+                .andExpect(jsonPath("$.moviesUpdatedWithRuntime").value(19));
+
+        verify(movieSyncService, times(1)).updateMovieRuntime();
     }
 
 }
