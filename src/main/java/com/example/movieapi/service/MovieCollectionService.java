@@ -2,6 +2,7 @@ package com.example.movieapi.service;
 
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
+import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.exception.CollectionAccessDeniedException;
@@ -81,11 +82,11 @@ public class MovieCollectionService {
                 });
     }
 
-    private MovieCollection getOrCreateCollection(AppUser user, String name) {
-        return collectionRepository.findByOwnerIdAndName(user.getId(), name)
+    private MovieCollection getOrCreateCollection(AppUser user, String collectionName, CollectionType type) {
+        return collectionRepository.findByOwnerIdAndName(user.getId(), collectionName)
                 .orElseGet(() -> {
-                    log.info("Creating {} collection for user: {}", name, user.getUsername());
-                    return createUserCollection(user, name);
+                    log.info("Creating {} collection for user: {}", collectionName, user.getUsername());
+                    return createUserCollection(user, collectionName, type);
                 });
     }
 
@@ -109,14 +110,15 @@ public class MovieCollectionService {
                 .orElse(new ArrayList<>());
     }
 
-    public MovieCollection createUserCollection(AppUser user, String name) {
+    public MovieCollection createUserCollection(AppUser user, String collectionName, CollectionType type) {
         MovieCollection collection = new MovieCollection();
-        collection.setName(name);
+        collection.setName(collectionName);
         collection.setOwner(user);
+        collection.setType(type);
         return collectionRepository.save(collection);
     }
 
-    public MovieCollection addMoviesToUserCollection(Authentication auth, Long movieId, String collectionName) {
+    /*public MovieCollection addMoviesToUserCollection(Authentication auth, Long movieId, String collectionName) {
 
         AppUser user = getCurrentUser(auth);
         Movie movie = movieService.getMovieById(movieId);
@@ -129,7 +131,7 @@ public class MovieCollectionService {
 
         collection.addMovie(movie);
         return collectionRepository.save(collection);
-    }
+    }*/
 
     public void addMovieToUserCollection(Long movieId, Long collectionId) {
         Movie movie = movieService.getMovieById(movieId);
@@ -166,11 +168,6 @@ public class MovieCollectionService {
          return collectionRepository.findNameById(collectionId);
     }
 
-    private AppUser getCurrentUser(Authentication auth) {
-        String username = auth.getName();
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
     public boolean nameExists(String name, Long userId) {
         return collectionRepository.existsByNameAndOwnerId(name, userId);
     }
@@ -180,7 +177,7 @@ public class MovieCollectionService {
         AppUser user = authenticatedUser.getUser();
 
         Movie existing = movieService.getMovieById(movieId);
-        MovieCollection favoritesMoviesCollection = getOrCreateCollection(user, FAVORITES);
+        MovieCollection favoritesMoviesCollection = getOrCreateCollection(user, FAVORITES, CollectionType.FAVORITES);
 
         boolean isFavorated = favoritesMoviesCollection.getMovies().contains(existing);
 
@@ -231,7 +228,7 @@ public class MovieCollectionService {
         AppUser user = authenticatedUser.getUser();
         Movie movie = movieService.getMovieById(movieId);
 
-        com.example.movieapi.entity.MovieCollection watchList = getOrCreateCollection(user, WATCHLIST);
+        MovieCollection watchList = getOrCreateCollection(user, WATCHLIST, CollectionType.WATCHLIST);
 
         boolean isWatchListed = watchList.containsMovieWithId(movieId);
 
@@ -245,6 +242,7 @@ public class MovieCollectionService {
         return !isWatchListed;
     }
 
+    // TODO: Might remove the newlyAdded movies count since I am already seeing that in the returned sync summary DTO
     public void addToCollection(String collectionName, List<Movie> movies) {
         MovieCollection collection = getOrCreateCollection(collectionName);
 
@@ -261,9 +259,8 @@ public class MovieCollectionService {
     }
 
     @Transactional
-    public void deleteCollectionByUserAndId(AuthenticatedUser authenticatedUser, Long collectionId) {
-        AppUser user = authenticatedUser.getUser();
-        collectionRepository.deleteByOwnerAndId(user, collectionId);
-        log.info("Deleted {} collection from collection repository", collectionId);
+    public void deleteCollectionByUserAndId(AppUser owner, Long collectionId) {
+        collectionRepository.deleteByOwnerAndId(owner, collectionId);
+        log.info("User:{} has deleted collection with ID:{}", owner.getEmail(), collectionId);
     }
 }
