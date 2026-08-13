@@ -117,6 +117,32 @@ class AdminControllerTest {
     }
 
     @Test
+    void syncUpcomingCollectionFromTmdb_returnsSummaryDtoWhenSuccess() throws Exception  {
+        List<MovieDto> movieDtos = createMovieDtoList();
+
+        TmdbSyncCollectionSummary summary = TmdbSyncCollectionSummary.builder()
+                .totalFetchedFromTmdb(2)
+                .alreadyInDatabase(0)
+                .newlySaved(2)
+                .movies(movieDtos)
+                .build();
+
+        when(movieSyncService.syncUpcomingCollectionFromTmdb(1)).thenReturn(summary);
+
+        mockMvc.perform(post("/api/v1/admin/movie/upcoming/{page_no}", 1)
+                .with(csrf())
+                .with(user("admin")
+                        .roles("ADMIN")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.totalFetchedFromTmdb").value(2))
+                .andExpect(jsonPath("$.alreadyInDatabase").value(0))
+                .andExpect(jsonPath("$.newlySaved").value(2))
+                .andExpect(jsonPath("$.movies", hasSize(2)));
+
+        verify(movieSyncService, times(1)).syncUpcomingCollectionFromTmdb(1);
+    }
+
+    @Test
     void syncNowPlayingCollectionFromTmdb_returnsCreatedWhenSyncingIsPossible() throws Exception {
         List<MovieDto> movieDtos = createMovieDtoList();
 
