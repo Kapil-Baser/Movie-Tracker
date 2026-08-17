@@ -168,7 +168,7 @@
     </button>
 
     <button th:fragment="modal-delete (collectionId)" type="button" id="modal-delete-btn"
-            hx:delete="@{/user/collections/delete(collection_id=${collectionId})}"
+            hx:delete="@{/user/collections/{collectionId}(collectionId=${collectionId})}"
             hx:target="|#collection-card-${collectionId}|"
             hx-swap="outerHTML"
             hx:vals="${ {_csrf.parameterName : _csrf.token} }"
