@@ -10,11 +10,11 @@
           after:h-[2px] after:w-0 after:bg-emerald-500
           after:transition-all after:duration-300
           hover:after:w-full">Upcoming</a>
-        <a th:href="@{/trending}" class="relative group
+        <!--<a th:href="@{/trending}" class="relative group
           after:absolute after:bottom-0 after:left-0
           after:h-[2px] after:w-0 after:bg-emerald-500
           after:transition-all after:duration-300
-          hover:after:w-full">Trending</a>
+          hover:after:w-full">Trending</a>-->
     </div>
 
     <form sec:authorize="isAuthenticated()" id="movie-search-form" th:action="@{/search}" method="GET">
