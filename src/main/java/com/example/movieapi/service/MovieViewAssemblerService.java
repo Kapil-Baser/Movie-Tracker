@@ -79,12 +79,8 @@ public class MovieViewAssemblerService {
         if (movieCollectionsPage.hasContent()) {
             List<MovieCollection> movieCollections = movieCollectionsPage.getContent();
             List<CollectionDto> collectionDtos = movieCollections.stream()
-                    .map(mc -> {
-                        Long id = mc.getId();
-                        String name = mc.getName();
-                        String size = mc.formattedCollectionSize();
-                        return new CollectionDto(id, name, size);
-                    }).toList();
+                    .map(this::toCollectionDto)
+                    .toList();
 
             return new CollectionView(collectionDtos, movieCollectionsPage.hasNext(), movieCollectionsPage.getNumber() + 1);
         }
@@ -103,5 +99,28 @@ public class MovieViewAssemblerService {
                         collection.containsMovieWithId(movieId))
                 )
                 .toList();
+    }
+
+
+    public MoviesInCollectionView buildMoviesInCollectionView(Long collectionId, AppUser owner, int pageNumber, int pageSize) {
+        Page<MovieDto> moviesPage = collectionService.getMoviesFromCollectionPaged(collectionId, pageNumber, pageSize, owner);
+
+        MovieCollection collection = collectionService.getCollectionByIdAndOwner(collectionId, owner);
+
+        return MoviesInCollectionView.builder()
+                .collection(toCollectionDto(collection))
+                .movies(moviesPage.getContent())
+                .currentPage(moviesPage.getNumber())
+                .hasNext(moviesPage.hasNext())
+                .build();
+    }
+
+    private CollectionDto toCollectionDto(MovieCollection collection) {
+        return CollectionDto.builder()
+                .name(collection.getName())
+                .id(collection.getId())
+                .type(collection.getType())
+                .formattedSize(collection.formattedCollectionSize())
+                .build();
     }
 }
