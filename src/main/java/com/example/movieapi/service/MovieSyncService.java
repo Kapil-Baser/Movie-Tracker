@@ -231,11 +231,11 @@ public class MovieSyncService {
                 .toList();
     }
 
-    public void updateMovieRuntime() {
+    public MovieRuntimeUpdateSummary updateMovieRuntime() {
         List<Movie> moviesWithMissingRuntime = movieService.getMoviesMissingRuntime();
         if (moviesWithMissingRuntime.isEmpty()) {
             log.info("No new movie with missing runtime found");
-            return;
+            return MovieRuntimeUpdateSummary.empty();
         }
         log.info("Movies with missing runtime: {}", moviesWithMissingRuntime.size());
 
@@ -260,7 +260,9 @@ public class MovieSyncService {
             }
         }
 
-        movieService.saveAll(moviesToUpdate);
+        List<Movie> updatedMoviesWithRuntime = movieService.saveAll(moviesToUpdate);
+
+        return new MovieRuntimeUpdateSummary(moviesWithMissingRuntime.size(), updatedMoviesWithRuntime.size());
     }
 
     @Transactional
