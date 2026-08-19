@@ -9,21 +9,25 @@
   <a th:href="@{/collections/{collectionId}/movies(collectionId=${collection.id})}" class="absolute inset-0"></a>
 
     <div class="flex flex-col p-2 h-full justify-end">
-      <div class="relative flex items-center space-x-3">
+      <div class="flex items-center space-x-3">
         <span th:text="${collection.name}" class="text-xl text-white font-semibold drop-shadow-md">Favorites</span>
-        <button th:hx-get="@{/user/collections/{collectionId}/edit(collectionId=${collection.id})}"
-                hx-target="closest div"
-                th:hx-swap="outerHTML" class="px-1 pointer-events-auto">
-          <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  class="size-5 fill-white"
-          >
-            <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z"/>
-            <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z"/>
-          </svg>
-        </button>
+
+        <th:block th:if="${collection.type.name() == 'CUSTOM'}">
+          <button th:hx-get="@{/user/collections/{collectionId}/edit(collectionId=${collection.id})}"
+                  hx-target="closest div"
+                  th:hx-swap="outerHTML" class="relative px-1 pointer-events-auto hover:cursor-pointer">
+            <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="size-5 fill-white hover:fill-emerald-300 transition-colors"
+            >
+              <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z"/>
+              <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z"/>
+            </svg>
+          </button>
+        </th:block>
+
       </div>
       <span th:text="${collection.formattedSize}" class="text-amber-700"></span>
     </div>
@@ -43,10 +47,11 @@
 
 </div>
 
-<!--Collection rename fragment-->
-<div th:fragment="collectionRename(collectionId, collection)" class="flex items-center space-x-3">
+<!--Collection rename form fragment-->
+<div th:fragment="collectionRenameForm(collection)" class="flex items-center space-x-3"
+     _="on htmx:afterSettle focus the first <input/> in me">
 
-  <form th:hx-put="@{/user/collections/{collectionId}(collectionId=${collectionId})}"
+  <form th:hx-put="@{/user/collections/{collectionId}(collectionId=${collection.id})}"
         hx-target="closest div"
         hx-swap="outerHTML"
         hx:vals="${ {_csrf.parameterName : _csrf.token} }" th:object="${collection}" class="relative pointer-events-auto">
@@ -55,21 +60,21 @@
           class="text-red-400 text-sm block mb-2">
     </span>
 
-    <input type="text" th:field="*{name}" class="text-xl text-white font-semibold outline-none ring-1 rounded-md px-2">
+    <input type="text" th:field="*{name}" class="px-2 text-xl text-white font-semibold outline-none ring-1 rounded-md focus:ring-emerald-300">
     <input type="hidden" th:field="*{id}">
-    <button type="submit" class="px-2 bg-amber-300 rounded-sm">Confirm</button>
-    <button th:hx-get="@{/user/collections/{collectionId}/edit/cancel(collectionId=${collectionId})}"
+    <button type="submit" class="px-2 py-1 text-white bg-amber-900 hover:bg-amber-800 transition-colors hover:cursor-pointer rounded-md">Confirm</button>
+    <button th:hx-get="@{/user/collections/{collectionId}/edit/cancel(collectionId=${collection.id})}"
             hx-target="closest div"
-            hx-swap="outerHTML" class="px-2 bg-amber-300 rounded-sm">Cancel</button>
+            hx-swap="outerHTML" class="px-2 py-1 text-white bg-gray-600 hover:bg-gray-500 transition-colors hover:cursor-pointer rounded-md">Cancel</button>
   </form>
 </div>
 
 <!--Collection name fragment-->
-<div th:fragment="collectionName(collectionName, collectionId)" class="relative flex items-center space-x-3">
-  <span th:text="${collectionName}" class="text-xl text-white font-semibold drop-shadow-md">Favorites</span>
-  <button th:hx-get="@{/user/collections/{collectionId}/edit(collectionId=${collectionId})}"
+<div th:fragment="collectionName(collection)" class="flex items-center space-x-3">
+  <span th:text="${collection.name}" class="text-xl text-white font-semibold drop-shadow-md">Favorites</span>
+  <button th:hx-get="@{/user/collections/{collectionId}/edit(collectionId=${collection.id})}"
           hx-target="closest div"
-          th:hx-swap="outerHTML" class="px-1 pointer-events-auto">
+          th:hx-swap="outerHTML" class="relative px-1 pointer-events-auto hover:cursor-pointer">
     <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
