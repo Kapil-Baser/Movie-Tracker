@@ -1,5 +1,6 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.CollectionRenameDto;
 import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.CollectionType;
@@ -12,13 +13,12 @@ import com.example.movieapi.repository.CollectionRepository;
 import com.example.movieapi.repository.MoviesRepository;
 import com.example.movieapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -262,5 +262,13 @@ public class MovieCollectionService {
     public void deleteCollectionByUserAndId(AppUser owner, Long collectionId) {
         collectionRepository.deleteByOwnerAndId(owner, collectionId);
         log.info("User:{} has deleted collection with ID:{}", owner.getEmail(), collectionId);
+    }
+
+    public void renameCollection(AppUser user, @Valid CollectionRenameDto renameDto) {
+        MovieCollection collection = getCollectionByIdAndOwner(renameDto.getId(), user);
+
+        collection.setName(renameDto.getName());
+
+        collectionRepository.save(collection);
     }
 }
