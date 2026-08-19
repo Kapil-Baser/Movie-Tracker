@@ -14,6 +14,6 @@ import lombok.Setter;
 public class NewCollectionDto {
 
     @NotBlank(message = "Name cannot be blank or empty.")
-    @Size(min = 6, max = 255, message = "Collection name must be between 6 and 255 characters.")
+    @Size(min = 1, max = 255, message = "Collection name must be between 1 and 255 characters.")
     private String name;
 }
