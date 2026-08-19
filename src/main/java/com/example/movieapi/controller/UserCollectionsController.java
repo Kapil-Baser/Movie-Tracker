@@ -50,7 +50,6 @@ public class UserCollectionsController {
         return "fragments/modal :: movie-collection-form";
     }
 
-    // TODO: Maybe here also check the authenticated user is adding a movie to a collection they own
     @HxRequest
     @PostMapping("/collections/add-movie")
     public String addMovieToCollection(@ModelAttribute SelectedCollectionDto dto, Model model) {
@@ -83,17 +82,14 @@ public class UserCollectionsController {
 
     @HxRequest
     @GetMapping("/collections/{collectionId}/edit")
-    public String renameCollectionForm(@PathVariable(name = "collectionId") Long collectionId,
-                                   @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-                                   Model model) {
+    public String renameCollectionForm(@PathVariable(name = "collectionId") Long collectionId, Model model) {
         String collectionName = movieCollectionService.getCollectionName(collectionId);
 
         CollectionRenameDto renameDto = new CollectionRenameDto(collectionName, collectionId);
-        model.addAttribute("collectionId", collectionId);
         model.addAttribute("collection", renameDto);
 
 
-        return "fragments/collection-card :: collectionRename";
+        return "fragments/collection-card :: collectionRenameForm";
     }
 
     @HxRequest
@@ -104,29 +100,32 @@ public class UserCollectionsController {
                                    @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
                                    Model model) {
 
+        model.addAttribute("collection", renameDto);
+
         if (bindingResult.hasErrors()) {
-            // Returning the form with errors
-            model.addAttribute("collectionId", collectionId);
-            model.addAttribute("collection", renameDto);
-            return "fragments/collection-card :: collectionRename";
+            return "fragments/collection-card :: collectionRenameForm";
         }
 
         AppUser user = authenticatedUser.getUser();
 
         if (movieCollectionService.nameExists(renameDto.getName(), user.getId())) {
             bindingResult.rejectValue("name", "name.duplicate", "This collection name already exists");
-            model.addAttribute("collection", renameDto);
-            return "fragments/collection-card :: collectionRename";
+            return "fragments/collection-card :: collectionRenameForm";
         }
+
+        movieCollectionService.renameCollection(user, renameDto);
+
         return "fragments/collection-card :: collectionName";
     }
 
     @HxRequest
     @GetMapping("/collections/{collectionId}/edit/cancel")
-    public String cancelCollectionRename(@PathVariable Long collectionId, Model model) {
+    public String cancelRename(@PathVariable Long collectionId, Model model) {
+
         String collectionName = movieCollectionService.getCollectionName(collectionId);
-        model.addAttribute("collectionName", collectionName);
-        model.addAttribute("collectionId", collectionId);
+        CollectionRenameDto renameDto = new CollectionRenameDto(collectionName, collectionId);
+
+        model.addAttribute("collection", renameDto);
         return "fragments/collection-card :: collectionName";
     }
 }
