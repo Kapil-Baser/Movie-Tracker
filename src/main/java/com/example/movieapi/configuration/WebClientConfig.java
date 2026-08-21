@@ -13,8 +13,9 @@ public class WebClientConfig {
     @Value("${api.key}")
     private String apiAccessToken;
 
-    @Value("${trakt.api.key}")
-    private String traktApiKey;
+    @Value("${mdblist.base.url}")
+    private String mdbListBaseUrl;
+
     @Value(("${trakt.client}"))
     private String traktClientId;
     @Value("${trakt.base.url}")
@@ -26,6 +27,13 @@ public class WebClientConfig {
                 .baseUrl("https://api.themoviedb.org/3/")
                 .defaultHeader("Authorization", "Bearer " + apiAccessToken)
                 .defaultHeader("Accept", "authenticate/json")
+                .build();
+    }
+
+    @Bean(name = "mdbListServiceClient")
+    public RestClient mdbListRestClient() {
+        return RestClient.builder()
+                .baseUrl(mdbListBaseUrl)
                 .build();
     }
 
