@@ -132,7 +132,23 @@ public class TmdbService {
     public TmdbMovieDetailsResponse getMovieDetails(Long tmdbId) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/movie/" + tmdbId)
-                        .queryParam("append_to_response", "release_dates")
+                        .queryParam("append_to_response", "release_dates,videos")
+                        .build())
+                .retrieve()
+                .body(TmdbMovieDetailsResponse.class);
+    }
+
+    @Retryable(
+            includes = ResourceAccessException.class,
+            maxRetries = 4,
+            jitter = 100,
+            multiplier = 2,
+            maxDelay = 1500
+    )
+    public TmdbMovieDetailsResponse getMovieDetailsExtended(Long tmdbId) {
+        return restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/movie/" + tmdbId)
+                        .queryParam("append_to_response", "release_dates,videos")
                         .build())
                 .retrieve()
                 .body(TmdbMovieDetailsResponse.class);
