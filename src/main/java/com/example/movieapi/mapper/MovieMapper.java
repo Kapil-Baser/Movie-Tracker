@@ -55,13 +55,11 @@ public class MovieMapper {
                 .map(movie -> MovieDto.builder()
                         .id(movie.getId())
                         .title(movie.getTitle())
-                        .overview(movie.getOverview())
+                        .runtime(FormatUtil.formatRuntime(movie.getRuntime()))
                         .trailer(movie.getTrailer())
-                        .backdropPath(movie.getBackdropPath())
-                        .posterPath(movie.getPosterPath())
                         .usDigitalReleaseDate(FormatUtil.formatReleaseDate(movie.getUsDigitalDate()))
                         .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
-                        //.genres(movie.getTmdbGenres())
+                        .genres(movie.getTmdbGenres())
                         .build()
                 ).toList();
     }
