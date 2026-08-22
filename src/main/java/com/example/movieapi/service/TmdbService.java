@@ -96,7 +96,6 @@ public class TmdbService {
                 .uri(uriBuilder -> uriBuilder.path("discover/movie")
                         .queryParam("page", page)
                         .queryParam("with_original_language", "en")
-                        .queryParam("primary_release_year", LocalDate.now().getYear())
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
                         .queryParam("primary_release_date.lte", LocalDate.now().plusWeeks(12))
                         .build())
