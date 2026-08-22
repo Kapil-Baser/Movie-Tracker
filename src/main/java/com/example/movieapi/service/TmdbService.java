@@ -105,22 +105,6 @@ public class TmdbService {
         return Objects.requireNonNull(response).getResults();
     }
 
-    public List<TmdbMovie> discoverMovies(int releaseYear, LocalDate minReleaseDate, int releaseType) {
-        TmdbDiscoverResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("discover/movie")
-                        .queryParam("page", 1)
-                        .queryParam("with_original_language", "en")
-                        //.queryParam("primary_release_year", releaseYear)
-                        //.queryParam("primary_release_date.gte", minReleaseDate)
-                        //.queryParam("primary_release_date.lte", LocalDate.now().plusMonths(3))
-                        .queryParam("with_release_type", "4")
-                        .build())
-                .retrieve()
-                .body(TmdbDiscoverResponse.class);
-
-        return Objects.requireNonNull(response).getResults();
-    }
-
     @Retryable(
             includes = ResourceAccessException.class,
             maxRetries = 4,
