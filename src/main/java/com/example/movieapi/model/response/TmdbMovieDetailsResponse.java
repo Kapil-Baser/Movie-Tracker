@@ -49,4 +49,6 @@ public class TmdbMovieDetailsResponse {
     // Using append_to_response to also get release dates
     @JsonProperty("release_dates")
     private TmdbReleaseDatesResponse releaseDates;
+
+    private TmdbVideosResponse videos;
 }
