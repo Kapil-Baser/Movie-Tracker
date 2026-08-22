@@ -51,6 +51,7 @@ public class Movie {
     @Column(name = "runtime")
     private Integer runtime;
 
+    // TODO: Change to string to make it easier and not have to convert
     @Column(name = "rating")
     private BigDecimal rating;
 
@@ -93,6 +94,9 @@ public class Movie {
 
     @Column(name = "us_certification", length = 20)
     private String usCertification;
+
+    @ManyToMany(mappedBy = "movies")
+    private Set<MovieCollection> collections;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
