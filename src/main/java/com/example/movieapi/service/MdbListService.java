@@ -59,4 +59,13 @@ public class MdbListService {
                 .retrieve()
                 .body(MdbListMovies.class);
     }
+
+    public MdbListMovie getMovieDetails(String mediaProvider, String mediaId) {
+        return mdbListClient.get().uri(uriBuilder -> uriBuilder
+                .path("/{mediaProvider}/movie/{mediaId}")
+                .queryParam("apikey", mdbListApiKey)
+                .build(mediaProvider, mediaId))
+                .retrieve()
+                .body(MdbListMovie.class);
+    }
 }
