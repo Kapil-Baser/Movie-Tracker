@@ -73,6 +73,11 @@ public class MovieCollectionService {
         return saved;
     }
 
+    public MovieCollection addToNowPlayingCollection(List<Movie> movies) {
+        return addMoviesToCollection("Now Playing", movies);
+    }
+
+    // TODO: Make it take collection type
     private MovieCollection getOrCreateCollection(String name) {
         return collectionRepository.findByName(name)
                 .orElseGet(() -> {
@@ -117,21 +122,6 @@ public class MovieCollectionService {
         collection.setType(type);
         return collectionRepository.save(collection);
     }
-
-    /*public MovieCollection addMoviesToUserCollection(Authentication auth, Long movieId, String collectionName) {
-
-        AppUser user = getCurrentUser(auth);
-        Movie movie = movieService.getMovieById(movieId);
-        MovieCollection collection = collectionRepository.findByOwnerIdAndName(user.getId(), collectionName)
-                .orElseGet(() -> createUserCollection(user, collectionName));
-
-        if (collection.containsMovie(movie)) {
-            throw new IllegalArgumentException("Movie already in collection");
-        }
-
-        collection.addMovie(movie);
-        return collectionRepository.save(collection);
-    }*/
 
     public void addMovieToUserCollection(Long movieId, Long collectionId) {
         Movie movie = movieService.getMovieById(movieId);
@@ -242,20 +232,16 @@ public class MovieCollectionService {
         return !isWatchListed;
     }
 
-    // TODO: Might remove the newlyAdded movies count since I am already seeing that in the returned sync summary DTO
     public void addToCollection(String collectionName, List<Movie> movies) {
         MovieCollection collection = getOrCreateCollection(collectionName);
 
-        int newlyAddedMovies =  0;
         for (Movie movie : movies) {
             if (!collection.containsMovie(movie)) {
                 collection.addMovie(movie);
-                newlyAddedMovies++;
             }
         }
 
-        MovieCollection saved = collectionRepository.save(collection);
-        log.info("Added {} new movies to collection {}", newlyAddedMovies, saved.getName());
+        collectionRepository.save(collection);
     }
 
     @Transactional
