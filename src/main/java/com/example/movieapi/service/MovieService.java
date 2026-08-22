@@ -4,13 +4,10 @@ import com.example.movieapi.dto.MovieDto;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
-import com.example.movieapi.model.tmdb.model.TmdbCountryRelease;
-import com.example.movieapi.model.tmdb.model.TmdbGenre;
-import com.example.movieapi.model.tmdb.model.TmdbReleaseDate;
+import com.example.movieapi.model.tmdb.model.*;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.repository.MoviesRepository;
 import com.example.movieapi.utility.ReleaseTypeUtil;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -155,35 +152,46 @@ public class MovieService {
         return moviesRepository.saveAll(unsavedMovies);
     }
 
-    @Transactional
-    public List<Movie> saveTmdbMoviesWithReleaseDates(List<TmdbMovieDetailsResponse> movieResults) {
+    public List<Movie> enrichAndSaveTmdbMovies(List<TmdbMovieDetailsResponse> movieResults) {
         if (movieResults == null || movieResults.isEmpty()) {
             log.info("Tmdb Api response is empty");
             return List.of();
         }
 
-        // Getting us release dates
-        List<Movie> moviesUpdatedWithReleaseDates = processReleaseDatesOfTmdbMovies(movieResults);
+        // Getting us release dates and trailer
+        List<Movie> enrichedMovies = enrichMovieFromTmdbDetails(movieResults);
 
-        return moviesRepository.saveAll(moviesUpdatedWithReleaseDates);
+        return moviesRepository.saveAll(enrichedMovies);
     }
 
-    private List<Movie> processReleaseDatesOfTmdbMovies(List<TmdbMovieDetailsResponse> tmdbMovies) {
-        List<Movie> moviesToBeUpdated = new ArrayList<>();
+    private List<Movie> enrichMovieFromTmdbDetails(List<TmdbMovieDetailsResponse> tmdbMovies) {
+        List<Movie> enrichedMovies = new ArrayList<>();
 
         for (TmdbMovieDetailsResponse movieResult : tmdbMovies) {
-            List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(movieResult.getReleaseDates().getResults());
             Movie movie = movieMapper.toEntity(movieResult);
+
+            List<TmdbReleaseDate> usReleaseDates = getUsReleaseDates(movieResult.getReleaseDates().getResults());
             if (!usReleaseDates.isEmpty()) {
-                Movie movieWithReleaseDates = processReleaseDates(usReleaseDates, movie);
-                moviesToBeUpdated.add(movieWithReleaseDates);
+                processReleaseDates(usReleaseDates, movie);
             } else {
-                log.info("Movie with IMDB ID: {} does not have a US release date", movieResult.getImdbId());
-                moviesToBeUpdated.add(movie);
+                log.info("Movie with TMDB ID: {} does not have a US release date", movieResult.getId());
             }
+
+            List<TmdbVideo> tmdbVideos = movieResult.getVideos().getResults();
+
+            processTrailers(tmdbVideos, movie);
+
+            enrichedMovies.add(movie);
         }
 
-        return moviesToBeUpdated;
+        return enrichedMovies;
+    }
+
+    private void processTrailers(List<TmdbVideo> tmdbVideos, Movie movie) {
+         tmdbVideos.stream()
+                .filter(tmdbVideo -> tmdbVideo.isOfficial() && "Trailer".equals(tmdbVideo.getType()))
+                .findFirst()
+                .ifPresent(tmdbVideo -> movie.setTrailer("https://youtube.com/watch?v=" + tmdbVideo.getKey()));
     }
 
     public Movie getMovieById(Long movieId) {
@@ -215,7 +223,7 @@ public class MovieService {
         return null;
     }
 
-    private Movie processReleaseDates(List<TmdbReleaseDate> usReleaseDates, Movie movie) {
+    private void processReleaseDates(List<TmdbReleaseDate> usReleaseDates, Movie movie) {
 
         // Find and set Theatrical Date
         usReleaseDates.stream()
@@ -237,8 +245,6 @@ public class MovieService {
                 .filter(date -> date.getType() == ReleaseTypeUtil.PHYSICAL)
                 .findFirst()
                 .ifPresent(tmdbReleaseDate -> movie.setUsPhysicalDate(tmdbReleaseDate.getReleaseDate()));
-
-        return movie;
     }
 
     public List<Movie> moviesOutForStreamingToday() {
@@ -288,6 +294,12 @@ public class MovieService {
 
     public List<Movie> findAllByTmdbIdIn(List<Long> tmdbIds) {
         return moviesRepository.findAllByTmdbIdIn(tmdbIds);
+    }
+
+    public Map<Long, Movie> getExistingMoviesMapByTmdbIds(List<Long> tmdbIds) {
+        return findAllByTmdbIdIn(tmdbIds)
+                .stream()
+                .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
     }
 
     public List<Movie> findAllByTraktIdIn(List<Long> traktIds) {
