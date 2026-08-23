@@ -4,6 +4,8 @@ import com.example.movieapi.dto.*;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.event.MovieEnrichmentEvent;
 import com.example.movieapi.mapper.MovieMapper;
+import com.example.movieapi.model.mdblist.MdbListMovie;
+import com.example.movieapi.model.mdblist.MdbListMovies;
 import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.tmdb.model.TmdbMovie;
@@ -31,6 +33,7 @@ public class MovieSyncService {
 
     private final TmdbService tmdbService;
     private final TraktService traktService;
+    private final MdbListService mdbListService;
     private final MovieService movieService;
     private final MovieMapper movieMapper;
     private final MovieCollectionService movieCollectionService;
@@ -39,7 +42,7 @@ public class MovieSyncService {
 
     @Autowired
     public MovieSyncService(TmdbService tmdbService,
-                            TraktService traktService,
+                            TraktService traktService, MdbListService mdbListService,
                             MovieService movieService,
                             MovieMapper movieMapper,
                             MovieCollectionService movieCollectionService,
@@ -47,6 +50,7 @@ public class MovieSyncService {
                             @Qualifier("customExecutor") Executor asyncExecutor) {
         this.tmdbService = tmdbService;
         this.traktService = traktService;
+        this.mdbListService = mdbListService;
         this.movieService = movieService;
         this.movieMapper = movieMapper;
         this.movieCollectionService = movieCollectionService;
@@ -78,7 +82,7 @@ public class MovieSyncService {
         log.info("Fetched {} new upcoming movies with TMDB IDs: {}", newMovies.size(), newMoviesIds);
 
         // Saving the returned movies
-        List<Movie> savedMovies = movieService.saveTmdbMoviesWithReleaseDates(newMovies);
+        List<Movie> savedMovies = movieService.enrichAndSaveTmdbMovies(newMovies);
         log.info("Saved {} new movies", savedMovies.size());
 
         // Publish the movie enrichment event to get additional details of movies from Trakt API
@@ -159,6 +163,8 @@ public class MovieSyncService {
 
         List<Movie> allMovies = Stream.concat(newlySavedMovies.stream(), existingMoviesMap.values().stream()).toList();
 
+        enrichWithRating(newlySavedMovies);
+
         return TmdbSyncResult.builder()
                 .totalFetchedFromTmdb(tmdbIds.size())
                 .alreadyInDatabase(existingMoviesMap.size())
@@ -206,10 +212,9 @@ public class MovieSyncService {
         List<TmdbMovieDetailsResponse> newNowPlayingMoviesResponse = getMovieDetailsFromTmdbAsync(tmdbIds);
         log.info("Fetched {} new trending movies", newNowPlayingMoviesResponse.size());
 
-        List<Movie> savedMovies = movieService.saveTmdbMoviesWithReleaseDates(newNowPlayingMoviesResponse);
+        List<Movie> savedMovies = movieService.enrichAndSaveTmdbMovies(newNowPlayingMoviesResponse);
         log.info("Saved {} new trending movies", savedMovies.size());
 
-        movieEnrichmentEventPublisher.publishEvent(new MovieEnrichmentEvent(savedMovies, "Trakt"));
         return savedMovies;
     }
 
@@ -495,7 +500,7 @@ public class MovieSyncService {
 
         List<TmdbMovieDetailsResponse> tmdbMovies = getMovieDetailsFromTmdbAsync(new ArrayList<>(newTraktMoviesMap.keySet()));
 
-        List<Movie> savedTmdbMovies = movieService.saveTmdbMoviesWithReleaseDates(tmdbMovies);
+        List<Movie> savedTmdbMovies = movieService.enrichAndSaveTmdbMovies(tmdbMovies);
 
         List<Movie> updatedMovies = movieService.updateTraktMovies(new ArrayList<>(newTraktMoviesMap.values()), savedTmdbMovies);
         log.info("Updated {} movies", updatedMovies.size());
@@ -503,5 +508,67 @@ public class MovieSyncService {
         var mostWatchedMoviesToBeAddedToCollection = Stream.concat(existingMap.values().stream(), savedTmdbMovies.stream()).toList();
 
         movieCollectionService.addToCollection("Now Playing", mostWatchedMoviesToBeAddedToCollection);
+    }
+
+    public void enrichWithRating(List<Movie> movies) {
+        List<CompletableFuture<Void>> futures = movies.stream()
+                .map(movie -> CompletableFuture.supplyAsync(() ->
+                                mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
+                        .thenAccept(mdbListMovie -> enrichMovieWithMdbListRating(movie, mdbListMovie)))
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        movieService.saveAll(movies);
+    }
+
+    private void enrichMovieWithMdbListRating(Movie movie, MdbListMovie mdbListMovie) {
+        mdbListMovie.getRatings().stream()
+                .filter(rating -> "imdb".equals(rating.getSource()))
+                .findFirst()
+                .ifPresent(rating -> {
+                    movie.setRating(rating.getValue());
+                    movie.setVotes(rating.getVotes());
+                });
+    }
+
+    public MdbListSyncResult importAndSyncListFromMdbList(String username, String listName) {
+        MdbListMovies moviesList = mdbListService.getListItems(username, listName);
+        if (moviesList == null || moviesList.getMovies().isEmpty()) {
+            log.info("No movies found in list: {}", listName);
+            return MdbListSyncResult.empty();
+        }
+
+        List<MdbListMovie> movies = moviesList.getMovies();
+
+        List<Long> tmdbIds = movies.stream().map(MdbListMovie::getTmdbId).toList();
+
+        Map<Long, Movie> existingMovies = movieService.getExistingMoviesMapByTmdbIds(tmdbIds);
+
+        Map<Long, MdbListMovie> newMovies = movies.stream()
+                .filter(mdbListMovie -> !existingMovies.containsKey(mdbListMovie.getTmdbId()))
+                .collect(Collectors.toMap(MdbListMovie::getTmdbId, Function.identity()));
+
+        List<TmdbMovieDetailsResponse> tmdbMovies = getMovieDetailsFromTmdbAsync(new ArrayList<>(newMovies.keySet()));
+
+        List<Movie> savedTmdbMovies = movieService.enrichAndSaveTmdbMovies(tmdbMovies);
+
+        for (Movie movie : savedTmdbMovies) {
+            MdbListMovie mdbListMovie = newMovies.get(movie.getTmdbId());
+            if (mdbListMovie != null) {
+                 enrichMovieWithMdbListRating(movie, mdbListMovie);
+            }
+        }
+
+        movieService.saveAll(savedTmdbMovies);
+
+        movieCollectionService.addToNowPlayingCollection(savedTmdbMovies);
+
+        return MdbListSyncResult.builder()
+                .totalFetchedFromMdbList(movies.size())
+                .alreadyInDatabase(existingMovies.size())
+                .newlySaved(savedTmdbMovies.size())
+                .allMovies(movieMapper.toMovieDto(savedTmdbMovies))
+                .build();
     }
 }
