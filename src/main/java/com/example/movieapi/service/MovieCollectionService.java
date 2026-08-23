@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -209,8 +210,8 @@ public class MovieCollectionService {
     }
 
     public Page<MovieDto> getPaginatedMoviesFromCollectionByName(String collectionName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionNameContainingIgnoreCase(collectionName, pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("releaseDate").descending());
+        Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionName(collectionName, pageable);
         return pagedMovies.map(movieMapper::toMovieDto);
     }
 
