@@ -1,9 +1,6 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.dto.MovieDto;
-import com.example.movieapi.dto.MovieRuntimeUpdateSummary;
-import com.example.movieapi.dto.TmdbSyncCollectionSummary;
-import com.example.movieapi.dto.YouTubeSyncSummary;
+import com.example.movieapi.dto.*;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.service.MovieSyncService;
 import org.springframework.http.HttpStatus;
@@ -84,5 +81,10 @@ public class AdminController {
     @GetMapping("/mostwatched/{page_no}")
     public void getMostWatchedMovies(@PathVariable("page_no") int page) {
         movieSyncService.syncMostWatchedMovies(page);
+    }
+
+    @PostMapping("/mdblist/lists/{username}/{listName}/items")
+    public ResponseEntity<MdbListSyncResult> getMovieListFromMdbList(@PathVariable String username, @PathVariable String listName) {
+        return ResponseEntity.ok(movieSyncService.importAndSyncListFromMdbList(username, listName));
     }
 }
