@@ -4,11 +4,9 @@ import com.example.movieapi.model.mdblist.MdbListMovie;
 import com.example.movieapi.model.mdblist.MdbListMovies;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
 
 @Service
 public class MdbListService {
@@ -52,7 +50,7 @@ public class MdbListService {
         return mdbListClient.get().uri(uriBuilder -> uriBuilder
                         .path("/lists/{username}/{listName}/items")
                         .queryParam("apikey", mdbListApiKey)
-                        .queryParam("limit", 50)
+                        .queryParam("limit", 10)
                         .queryParam("append_to_response", "ratings")
                         .queryParam("mediatype", "movie")
                         .build(username, listName))
