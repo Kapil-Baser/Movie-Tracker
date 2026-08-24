@@ -1,6 +1,7 @@
 package com.example.movieapi.service;
 
 import com.example.movieapi.dto.*;
+import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.event.MovieEnrichmentEvent;
 import com.example.movieapi.mapper.MovieMapper;
@@ -11,7 +12,6 @@ import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.tmdb.model.TmdbMovie;
 import com.example.movieapi.model.trakt.model.TraktMovie;
 import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
-import com.example.movieapi.model.trakt.response.TraktMostAnticipatedResponse;
 import com.example.movieapi.model.trakt.response.TraktMostWatchedMoviesResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
 import jakarta.transaction.Transactional;
@@ -58,45 +58,6 @@ public class MovieSyncService {
         this.asyncExecutor = asyncExecutor;
     }
 
-    public List<MovieDto> syncUpcomingMovies(int page) {
-        // Fetching the base list from TMDB
-        List<TmdbMovie> movieResults = tmdbService.getUpcomingMovies(page);
-        log.info("Fetched {} upcoming movies", movieResults.size());
-
-        // Collecting all tmdb ids to check against the database which movies already exist
-        List<Long> tmdbIds = movieResults.stream()
-                .map(TmdbMovie::getId)
-                .toList();
-
-        Map<Long, Movie> existingMoviesMap = movieService.findAllByTmdbIdIn(tmdbIds).stream()
-                        .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
-        log.info("{} movies found with TMDB IDs: {}", existingMoviesMap.size(), existingMoviesMap.keySet());
-
-        List<Long> newMoviesIds = tmdbIds.stream()
-                .filter(tmdbId -> !existingMoviesMap.containsKey(tmdbId))
-                .toList();
-        log.info("Requesting more details for {} new upcoming movies", newMoviesIds.size());
-
-        // Now calling the TMDB API again to fetch details about the not saved movies
-        List<TmdbMovieDetailsResponse> newMovies = getMovieDetailsFromTmdbAsync(newMoviesIds);
-        log.info("Fetched {} new upcoming movies with TMDB IDs: {}", newMovies.size(), newMoviesIds);
-
-        // Saving the returned movies
-        List<Movie> savedMovies = movieService.enrichAndSaveTmdbMovies(newMovies);
-        log.info("Saved {} new movies", savedMovies.size());
-
-        // Publish the movie enrichment event to get additional details of movies from Trakt API
-        movieEnrichmentEventPublisher.publishEvent(new MovieEnrichmentEvent(savedMovies, "Trakt"));
-
-        // Combining the existing and new saved movies into one list
-        List<Movie> upcomingMovies = Stream.concat(existingMoviesMap.values().stream(), savedMovies.stream()).toList();
-        log.info("Combined {} movies to be added to upcoming movie collection", upcomingMovies.size());
-
-        movieCollectionService.addToCollection("Upcoming", upcomingMovies);
-
-        return movieMapper.toMovieDto(savedMovies);
-    }
-
     private static List<TmdbMovie> fetchTmdbMovies(int page, Function<Integer, List<TmdbMovie>> getTmdbMovies) {
         List<TmdbMovie> movies = getTmdbMovies.apply(page);
         if (movies == null || movies.isEmpty()) {
@@ -112,7 +73,7 @@ public class MovieSyncService {
         TmdbSyncResult result = fetchAndSyncFromTmdb(upcomingMovies);
 
         if (!result.allMovies().isEmpty()) {
-            movieCollectionService.addToCollection("Upcoming", result.allMovies());
+            movieCollectionService.addToUpcomingCollection(result.allMovies());
         }
         return TmdbSyncCollectionSummary.builder()
                 .totalFetchedFromTmdb(result.totalFetchedFromTmdb())
@@ -128,7 +89,7 @@ public class MovieSyncService {
         TmdbSyncResult result = fetchAndSyncFromTmdb(trendingMovies);
 
         if (!result.allMovies().isEmpty()) {
-            movieCollectionService.addToCollection("Now Playing", result.allMovies());
+            movieCollectionService.addToNowPlayingCollection(result.allMovies());
         }
         return TmdbSyncCollectionSummary.builder()
                 .totalFetchedFromTmdb(result.totalFetchedFromTmdb())
@@ -331,45 +292,6 @@ public class MovieSyncService {
         }
     }
 
-    public List<MovieDto> syncMostAnticipated() {
-        List<TraktMostAnticipatedResponse> anticipatedMoviesResponse = traktService.getAnticipated();
-        log.info("Fetched {} most anticipated movies from Trakt API", anticipatedMoviesResponse.size());
-
-        List<TraktMovie> anticipatedMovies = anticipatedMoviesResponse.stream()
-                .map(TraktMostAnticipatedResponse::getMovie)
-                .toList();
-
-        List<Long> traktIds = anticipatedMovies.stream()
-                .map(traktMovie -> traktMovie.getIds().getTrakt())
-                .filter(Objects::nonNull)
-                .toList();
-        log.info("Trakt Ids of most anticipated movies {}", traktIds);
-
-        // Map of existing movies
-        Map<Long, Movie> existingMoviesMap = movieService.findAllByTraktIdIn(traktIds).stream()
-                .collect(Collectors.toMap(Movie::getTraktId, movie -> movie));
-        log.info("Found {} existing movies with Trakt IDs: {}", existingMoviesMap.size(), existingMoviesMap.keySet());
-
-        List<TraktMovie> unsavedMovies = anticipatedMovies.stream()
-                .filter(traktMovie -> !existingMoviesMap.containsKey(traktMovie.getIds().getTrakt()))
-                .toList();
-        log.info("There are {} movies which needs to be saved", unsavedMovies.size());
-
-        List<Movie> savedTraktMovies = movieService.saveTraktMovies(unsavedMovies);
-
-        if (savedTraktMovies.isEmpty()) {
-            log.info("No new movies were saved to anticipated collection");
-            return List.of();
-        }
-
-        log.info("Saved {} new anticipated movies", savedTraktMovies.size());
-        // Combine saved and existing movies
-        List<Movie> anticipatedMoviesList = Stream.concat(existingMoviesMap.values().stream(), savedTraktMovies.stream()).toList();
-        movieCollectionService.addMoviesToCollection("Anticipated", anticipatedMoviesList);
-        // Convert to MovieDto and return
-        return movieMapper.toMovieDto(anticipatedMoviesList);
-    }
-
     public List<MovieDto> syncTrendingMoviesFromTrakt() {
         List<TraktTrendingResponse> trendingMoviesResponse = traktService.getTrendingMovies();
         log.info("Fetched {} trending movies from Trakt", trendingMoviesResponse.size());
@@ -402,7 +324,7 @@ public class MovieSyncService {
         }
 
         List<Movie> trendingMovies = Stream.concat(existingMoviesMap.values().stream(), savedTrendingMovies.stream()).toList();
-        movieCollectionService.addToCollection("Trending", trendingMovies);
+        movieCollectionService.addToCollection("Trending", CollectionType.CUSTOM, trendingMovies);
 
         movieEnrichmentEventPublisher.publishEvent(new MovieEnrichmentEvent(savedTrendingMovies, "TMDB"));
 
@@ -507,14 +429,20 @@ public class MovieSyncService {
 
         var mostWatchedMoviesToBeAddedToCollection = Stream.concat(existingMap.values().stream(), savedTmdbMovies.stream()).toList();
 
-        movieCollectionService.addToCollection("Now Playing", mostWatchedMoviesToBeAddedToCollection);
+        movieCollectionService.addToNowPlayingCollection(mostWatchedMoviesToBeAddedToCollection);
     }
 
     public void enrichWithRating(List<Movie> movies) {
         List<CompletableFuture<Void>> futures = movies.stream()
-                .map(movie -> CompletableFuture.supplyAsync(() ->
-                                mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
-                        .thenAccept(mdbListMovie -> enrichMovieWithMdbListRating(movie, mdbListMovie)))
+                .map(movie -> CompletableFuture
+                        .supplyAsync(
+                                () -> mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
+                        .thenAccept(mdbListMovie ->
+                                enrichMovieWithMdbListRating(movie, mdbListMovie))
+                        .exceptionally(ex -> {
+                            log.warn("Failed to get details of movie ID: {}, Exception: {}",movie.getTmdbId(), ex.getMessage());
+                            return null;
+                        }))
                 .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -527,8 +455,12 @@ public class MovieSyncService {
                 .filter(rating -> "imdb".equals(rating.getSource()))
                 .findFirst()
                 .ifPresent(rating -> {
-                    movie.setRating(rating.getValue());
-                    movie.setVotes(rating.getVotes());
+                    if (rating.getValue() != null) {
+                        movie.setRating(rating.getValue());
+                        movie.setVotes(rating.getVotes());
+                    } else {
+                        log.info("Rating not found for movie with ID: {}", movie.getTmdbId());
+                    }
                 });
     }
 
@@ -570,5 +502,15 @@ public class MovieSyncService {
                 .newlySaved(savedTmdbMovies.size())
                 .allMovies(movieMapper.toMovieDto(savedTmdbMovies))
                 .build();
+    }
+
+    public void updateMovieRating() {
+        List<Movie> movies = movieService.getMoviesMissingRating();
+        if (movies.isEmpty()) {
+            log.info("All movie ratings are up to date.");
+            return;
+        }
+
+        enrichWithRating(movies.stream().limit(15).toList());
     }
 }
