@@ -21,6 +21,8 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
 
     List<Movie> findAllByTrailerIsNull();
 
+    List<Movie> findAllByRatingIsNull();
+
     @Query("SELECT m FROM Movie m WHERE m.runtime = 0")
     List<Movie> findMoviesMissingRuntime();
 
