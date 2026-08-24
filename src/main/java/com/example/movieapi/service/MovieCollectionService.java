@@ -61,29 +61,33 @@ public class MovieCollectionService {
         return collectionRepository.deleteStaleMoviesByCollection(collectionName);
     }
 
-    @Transactional
-    public MovieCollection addMoviesToCollection(String name, List<Movie> movies) {
+    public void addToCollection(String collectionName, CollectionType type, List<Movie> movies) {
+        MovieCollection collection = getOrCreateCollection(collectionName, type);
 
-        MovieCollection collection = getOrCreateCollection(name);
+        for (Movie movie : movies) {
+            if (!collection.containsMovie(movie)) {
+                collection.addMovie(movie);
+            }
+        }
 
-        collection.setMovies(new HashSet<>(movies));
-
-        MovieCollection saved = collectionRepository.save(collection);
-        log.info("Added {} movies to collection {}", movies.size(), saved.getName());
-
-        return saved;
+        collectionRepository.save(collection);
     }
 
-    public MovieCollection addToNowPlayingCollection(List<Movie> movies) {
-        return addMoviesToCollection("Now Playing", movies);
+    public void addToNowPlayingCollection(List<Movie> movies) {
+        addToCollection("Now Playing", CollectionType.NOW_PLAYING,  movies);
+    }
+
+    public void addToUpcomingCollection(List<Movie> movies) {
+        addToCollection("Upcoming", CollectionType.UPCOMING,  movies);
     }
 
     // TODO: Make it take collection type
-    private MovieCollection getOrCreateCollection(String name) {
+    private MovieCollection getOrCreateCollection(String name, CollectionType type) {
         return collectionRepository.findByName(name)
                 .orElseGet(() -> {
                     MovieCollection collection = new MovieCollection();
                     collection.setName(name);
+                    collection.setType(type);
                     return collectionRepository.save(collection);
                 });
     }
@@ -231,18 +235,6 @@ public class MovieCollectionService {
         collectionRepository.save(watchList);
 
         return !isWatchListed;
-    }
-
-    public void addToCollection(String collectionName, List<Movie> movies) {
-        MovieCollection collection = getOrCreateCollection(collectionName);
-
-        for (Movie movie : movies) {
-            if (!collection.containsMovie(movie)) {
-                collection.addMovie(movie);
-            }
-        }
-
-        collectionRepository.save(collection);
     }
 
     @Transactional
