@@ -313,4 +313,8 @@ public class MovieService {
     public List<Movie> getMoviesMissingRuntime() {
         return moviesRepository.findMoviesMissingRuntime();
     }
+
+    public List<Movie> getMoviesMissingRating() {
+        return moviesRepository.findAllByRatingIsNull();
+    }
 }
