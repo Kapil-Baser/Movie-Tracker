@@ -10,4 +10,5 @@ import java.util.List;
 public class MdbListMovies {
 
     private List<MdbListMovie> movies;
+    private MdbListPagination pagination;
 }
