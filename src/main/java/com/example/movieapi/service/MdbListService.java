@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Optional;
+
 
 @Service
 public class MdbListService {
@@ -46,16 +48,19 @@ public class MdbListService {
                 .body(MdbListMovies.class);
     }
 
-    public MdbListMovies getListItems(String username, String listName) {
-        return mdbListClient.get().uri(uriBuilder -> uriBuilder
-                        .path("/lists/{username}/{listName}/items")
-                        .queryParam("apikey", mdbListApiKey)
-                        .queryParam("limit", 10)
-                        .queryParam("append_to_response", "ratings")
-                        .queryParam("mediatype", "movie")
-                        .build(username, listName))
+    public MdbListMovies getListItems(String username, String listName, Optional<String> nextCursor) {
+        return mdbListClient.get().uri(uriBuilder -> {
+                    uriBuilder.path("/lists/{username}/{listName}/items");
+                    uriBuilder.queryParam("apikey", mdbListApiKey);
+                    uriBuilder.queryParam("limit", 10);
+                    uriBuilder.queryParam("append_to_response", "ratings");
+                    uriBuilder.queryParam("mediatype", "movie");
+                    nextCursor.ifPresent(cursor -> uriBuilder.queryParam("cursor", cursor));
+                    return uriBuilder.build(username, listName);
+        })
                 .retrieve()
                 .body(MdbListMovies.class);
+
     }
 
     public MdbListMovie getMovieDetails(String mediaProvider, String mediaId) {
