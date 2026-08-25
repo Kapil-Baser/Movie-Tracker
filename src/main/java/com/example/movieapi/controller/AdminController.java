@@ -40,11 +40,6 @@ public class AdminController {
         return ResponseEntity.ok("Synced release dates");
     }
 
-    @GetMapping("/anticipated")
-    public ResponseEntity<List<MovieDto>> syncMostAnticipated() {
-        return ResponseEntity.ok(movieSyncService.syncMostAnticipated());
-    }
-
     @PostMapping("/now-playing/{page_no}")
     public ResponseEntity<TmdbSyncCollectionSummary> syncNowPlayingCollectionFromTmdb(@PathVariable(name = "page_no") int page) {
         TmdbSyncCollectionSummary result = movieSyncService.syncNowPlayingCollectionFromTmdb(page);
@@ -63,9 +58,9 @@ public class AdminController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
-    @PostMapping("/update-youtube-trailers")
+    @PatchMapping("/update-youtube-trailers")
     public ResponseEntity<YouTubeSyncSummary> updateMoviesWithTrailers() {
-        return ResponseEntity.ok(movieSyncService.syncYouTubeTrailers());
+        return ResponseEntity.ok(movieSyncService.syncYouTubeTrailersFromMdbList());
     }
 
     @GetMapping("/details/{movie_id}")
@@ -78,13 +73,25 @@ public class AdminController {
         return ResponseEntity.ok(movieSyncService.updateMovieRuntime());
     }
 
+    @PatchMapping("/update-rating")
+    public ResponseEntity<Void> updateMovieRating() {
+        movieSyncService.updateMovieRating();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PatchMapping("/update-digital-release-date")
+    public ResponseEntity<DigitalReleaseSummary> updateDigitalReleaseDateFromMdbList() {
+        return ResponseEntity.ok(movieSyncService.updateDigitalRelease());
+    }
+
     @GetMapping("/mostwatched/{page_no}")
     public void getMostWatchedMovies(@PathVariable("page_no") int page) {
         movieSyncService.syncMostWatchedMovies(page);
     }
 
     @PostMapping("/mdblist/lists/{username}/{listName}/items")
-    public ResponseEntity<MdbListSyncResult> getMovieListFromMdbList(@PathVariable String username, @PathVariable String listName) {
-        return ResponseEntity.ok(movieSyncService.importAndSyncListFromMdbList(username, listName));
+    public ResponseEntity<MdbListSyncResult> getMovieListFromMdbList(@PathVariable String username, @PathVariable String listName,
+                                                                     @RequestParam(required = false) String nextCursor) {
+        return ResponseEntity.ok(movieSyncService.importAndSyncListFromMdbList(username, listName, nextCursor));
     }
 }
