@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
@@ -368,7 +369,7 @@ public class MovieSyncService {
                 .join();
 
         List<Movie> moviesToUpdate = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.UPDATED))
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.UPDATED)
                 .map(TrailerFetchResult::movie)
                 .toList();
 
@@ -378,11 +379,70 @@ public class MovieSyncService {
         }
 
         long trailersNotFound = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.NOT_FOUND))
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.NOT_FOUND)
                 .count();
 
         long failures = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status().equals(TrailerFetchStatus.FAILED))
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.FAILED)
+                .count();
+
+        return YouTubeSyncSummary.builder()
+                .moviesScanned(moviesMissingTrailer.size())
+                .trailersUpdated(moviesToUpdate.size())
+                .trailersNotFound(trailersNotFound)
+                .failures(failures)
+                .build();
+    }
+
+    public YouTubeSyncSummary syncYouTubeTrailersFromMdbList() {
+        List<Movie> moviesMissingTrailer = movieService.moviesWithNoTrailers();
+        if (moviesMissingTrailer.isEmpty()) {
+            log.info("All Movies already have trailers");
+        }
+
+        List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
+                .limit(5)
+                .map(movie -> CompletableFuture.supplyAsync(() -> {
+
+                    try {
+                        MdbListMovie mdbListMovie = mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId()));
+
+                        if (mdbListMovie != null && !mdbListMovie.getTrailer().isEmpty()) {
+                            log.info("Trailer found for movie: {}", movie.getTitle());
+                            movie.setTrailer(mdbListMovie.getTrailer());
+                            return new TrailerFetchResult(movie, TrailerFetchStatus.UPDATED);
+                        }
+                        return new TrailerFetchResult(movie, TrailerFetchStatus.NOT_FOUND);
+
+                    } catch (Exception e) {
+                        log.error("Error retrieving trailer for movie with ID:{}", movie.getTmdbId(), e);
+                        return new TrailerFetchResult(movie, TrailerFetchStatus.FAILED);
+                    }
+
+                }, asyncExecutor))
+                .toList();
+
+        List<TrailerFetchResult> trailerFetchResults = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(_ -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .toList())
+                .join();
+
+        List<Movie> moviesToUpdate = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.UPDATED)
+                .map(TrailerFetchResult::movie)
+                .toList();
+
+        if (!moviesToUpdate.isEmpty()) {
+            movieService.saveAll(moviesToUpdate);
+        }
+
+        long trailersNotFound = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.NOT_FOUND)
+                .count();
+
+        long failures = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.FAILED)
                 .count();
 
         return YouTubeSyncSummary.builder()
@@ -464,8 +524,8 @@ public class MovieSyncService {
                 });
     }
 
-    public MdbListSyncResult importAndSyncListFromMdbList(String username, String listName) {
-        MdbListMovies moviesList = mdbListService.getListItems(username, listName);
+    public MdbListSyncResult importAndSyncListFromMdbList(String username, String listName, String nextCursor) {
+        MdbListMovies moviesList = mdbListService.getListItems(username, listName, Optional.ofNullable(nextCursor));
         if (moviesList == null || moviesList.getMovies().isEmpty()) {
             log.info("No movies found in list: {}", listName);
             return MdbListSyncResult.empty();
@@ -500,6 +560,7 @@ public class MovieSyncService {
                 .totalFetchedFromMdbList(movies.size())
                 .alreadyInDatabase(existingMovies.size())
                 .newlySaved(savedTmdbMovies.size())
+                .nextCursor(moviesList.getPagination().getNextCursor())
                 .allMovies(movieMapper.toMovieDto(savedTmdbMovies))
                 .build();
     }
@@ -512,5 +573,70 @@ public class MovieSyncService {
         }
 
         enrichWithRating(movies.stream().limit(15).toList());
+    }
+
+    public DigitalReleaseSummary updateDigitalRelease() {
+        List<Movie> moviesMissingDigitalDate = movieService.getMoviesWithNoDigitalReleaseDate();
+        if (moviesMissingDigitalDate.isEmpty()) {
+            log.info("All movies have digital release date");
+            return DigitalReleaseSummary.empty();
+        }
+
+        List<CompletableFuture<DigitalReleaseResult>> futures = moviesMissingDigitalDate.stream()
+                .limit(10)
+                .map(movie -> CompletableFuture.supplyAsync(() ->
+                                mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
+                        .thenApply(mdbListMovie -> {
+                            LocalDate digitalRelease = mdbListMovie.getReleasedDigital();
+                            if (digitalRelease != null) {
+                                movie.setUsDigitalDate(mdbListMovie.getReleasedDigital());
+                                log.info("Updated movie with ID:{} with release date: {}", movie.getTmdbId(), digitalRelease);
+                                return new DigitalReleaseResult(movie, ReleaseDateFetchStatus.UPDATED);
+                            } else {
+                                log.info("No release date found for movie with ID: {}", movie.getTmdbId());
+                                return new DigitalReleaseResult(movie, ReleaseDateFetchStatus.NOT_FOUND);
+                            }
+                        }
+                        ).exceptionally(ex -> {
+                            log.warn("Error while fetching movie with ID: {}", movie.getTmdbId(), ex);
+                            return new DigitalReleaseResult(movie, ReleaseDateFetchStatus.FAILED);
+                        }))
+                .toList();
+
+        List<DigitalReleaseResult> releaseResults = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenApply(_ -> futures.stream()
+                        .map(CompletableFuture::join)
+                        .toList())
+                .join();
+
+        List<Movie> updatedMovies = releaseResults.stream()
+                .filter(drr -> drr.status() == ReleaseDateFetchStatus.UPDATED)
+                .map(DigitalReleaseResult::movie)
+                .toList();
+
+        List<Long> foundIds = updatedMovies.stream()
+                .map(Movie::getTmdbId)
+                .toList();
+
+        List<Long> notFoundIds = releaseResults.stream()
+                .filter(drr -> drr.status() == ReleaseDateFetchStatus.NOT_FOUND)
+                .map(DigitalReleaseResult::movie)
+                .map(Movie::getTmdbId)
+                .toList();
+
+        long failed = releaseResults.stream()
+                .filter(drr -> drr.status() == ReleaseDateFetchStatus.FAILED)
+                .count();
+
+        movieService.saveAll(updatedMovies);
+
+        return DigitalReleaseSummary.builder()
+                .moviesScanned(moviesMissingDigitalDate.size())
+                .releaseDateFound(updatedMovies.size())
+                .foundMovieIds(foundIds)
+                .releaseDateNotFound(notFoundIds.size())
+                .notFoundMovieIds(notFoundIds)
+                .failures(failed)
+                .build();
     }
 }
