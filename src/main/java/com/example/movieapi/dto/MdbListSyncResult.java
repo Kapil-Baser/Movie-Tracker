@@ -1,6 +1,5 @@
 package com.example.movieapi.dto;
 
-import com.example.movieapi.entity.Movie;
 import lombok.Builder;
 
 import java.util.List;
@@ -9,8 +8,9 @@ import java.util.List;
 public record MdbListSyncResult(int totalFetchedFromMdbList,
                                 int alreadyInDatabase,
                                 int newlySaved,
+                                String nextCursor,
                                 List<MovieDto> allMovies) {
     public static MdbListSyncResult empty() {
-        return new MdbListSyncResult(0, 0, 0, List.of());
+        return new MdbListSyncResult(0, 0, 0, "", List.of());
     }
 }
