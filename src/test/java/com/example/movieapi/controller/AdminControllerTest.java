@@ -79,25 +79,6 @@ class AdminControllerTest {
     }
 
     @Test
-    void syncMostAnticipated_shouldSyncMostAnticipated() throws Exception {
-
-        List<MovieDto> movieDtoList = createMovieDtoList();
-
-        when(movieSyncService.syncMostAnticipated())
-                .thenReturn(movieDtoList);
-
-        mockMvc.perform(get("/api/v1/admin/movie/anticipated").with(user("admin").roles("ADMIN")))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").isNumber())
-                .andExpect(jsonPath("$[0].title").value("Project Hail Mary"))
-                .andExpect(jsonPath("$[1].id").isNumber())
-                .andExpect(jsonPath("$[1].title").value("Scream 7"))
-                .andExpect(status().isOk());
-
-        verify(movieSyncService, times(1)).syncMostAnticipated();
-    }
-
-    @Test
     void syncNowPlayingCollectionFromTmdb_returnsNoContentWhenSyncingIsNotPossible() throws Exception {
         TmdbSyncCollectionSummary summary = TmdbSyncCollectionSummary.builder()
                 .totalFetchedFromTmdb(0)
@@ -238,6 +219,16 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.moviesUpdatedWithRuntime").value(19));
 
         verify(movieSyncService, times(1)).updateMovieRuntime();
+    }
+
+    @Test
+    void updateMovieRating_returnsNoContent() throws Exception {
+        mockMvc.perform(patch("/api/v1/admin/movie/update-rating")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(movieSyncService).updateMovieRating();
     }
 
 }
