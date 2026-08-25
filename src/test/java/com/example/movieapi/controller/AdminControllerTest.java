@@ -1,9 +1,6 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.dto.MovieDto;
-import com.example.movieapi.dto.MovieRuntimeUpdateSummary;
-import com.example.movieapi.dto.TmdbSyncCollectionSummary;
-import com.example.movieapi.dto.YouTubeSyncSummary;
+import com.example.movieapi.dto.*;
 import com.example.movieapi.service.MovieSyncService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,6 +226,26 @@ class AdminControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(movieSyncService).updateMovieRating();
+    }
+
+    @Test
+    void updateDigitalReleaseDateFromMdbList_returnsSummary() throws Exception {
+        DigitalReleaseSummary summary = new DigitalReleaseSummary(5, 2, List.of(1L, 2L), 2, List.of(3L, 4L), 1 );
+
+        when(movieSyncService.updateDigitalRelease()).thenReturn(summary);
+
+        mockMvc.perform(patch("/api/v1/admin/movie/update-digital-release-date")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.moviesScanned").value(5))
+                .andExpect(jsonPath("$.releaseDateFound").value(2))
+                .andExpect(jsonPath("$.foundMovieIds").isArray())
+                .andExpect(jsonPath("$.releaseDateNotFound").value(2))
+                .andExpect(jsonPath("$.notFoundMovieIds").isArray())
+                .andExpect(jsonPath("$.failures").value(1));
+
+        verify(movieSyncService).updateDigitalRelease();
     }
 
 }
