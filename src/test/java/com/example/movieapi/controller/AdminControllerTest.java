@@ -187,10 +187,10 @@ class AdminControllerTest {
                 .failures(0)
                 .build();
 
-        when(movieSyncService.syncYouTubeTrailers()).thenReturn(youTubeSyncSummary);
+        when(movieSyncService.syncYouTubeTrailersFromMdbList()).thenReturn(youTubeSyncSummary);
 
 
-        mockMvc.perform(post("/api/v1/admin/movie/update-youtube-trailers")
+        mockMvc.perform(patch("/api/v1/admin/movie/update-youtube-trailers")
                 .with(user("admin").roles("ADMIN"))
                 .with(csrf()))
                 .andExpect(status().isOk())
@@ -199,7 +199,7 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.trailersNotFound").value(4))
                 .andExpect(jsonPath("$.failures").value(0));
 
-        verify(movieSyncService, times(1)).syncYouTubeTrailers();
+        verify(movieSyncService, times(1)).syncYouTubeTrailersFromMdbList();
     }
 
     @Test
