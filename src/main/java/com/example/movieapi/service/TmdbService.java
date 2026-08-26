@@ -65,6 +65,19 @@ public class TmdbService {
         return Objects.requireNonNull(response);
     }
 
+    public TmdbDiscoverResponse getUpcomingHorrorMovies(int page) {
+        TmdbDiscoverResponse response = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                        .queryParam("page", page)
+                        .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
+                        .queryParam("with_genres", "27")
+                        .build())
+                .retrieve()
+                .body(TmdbDiscoverResponse.class);
+
+        return Objects.requireNonNull(response);
+    }
+
     public TmdbConfigurationResponse getConfigurations() {
         TmdbConfigurationResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/configuration").build())
