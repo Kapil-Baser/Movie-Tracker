@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -108,6 +109,23 @@ public class MovieCollectionService {
         return collectionRepository.findByOwner(user, pageable);
     }
 
+    public List<MovieCollection> sortByCollectionTypeAndThenByUpdatedAt(List<MovieCollection> collections) {
+        return collections.stream()
+                .sorted(Comparator.comparingInt((MovieCollection collection) ->
+                                switch (collection.getType()) {
+                                    case NOW_PLAYING -> 0;
+                                    case UPCOMING -> 1;
+                                    case WATCHLIST -> 2;
+                                    case FAVORITES -> 3;
+                                    case CUSTOM -> 4;
+                                })
+                        .thenComparing(
+                                MovieCollection::getUpdatedAt,
+                                Comparator.nullsLast(Comparator.reverseOrder())
+                        ))
+                .toList();
+    }
+
     public int getCollectionCount(AuthenticatedUser authenticatedUser) {
         List<MovieCollection> collectionList = collectionRepository.findByOwner(authenticatedUser.getUser());
         return collectionList.size();
@@ -136,6 +154,7 @@ public class MovieCollectionService {
             throw new IllegalArgumentException("Movie already in collection");
         }
         collection.addMovie(movie);
+        collection.setUpdatedAt(LocalDateTime.now());
         collectionRepository.save(collection);
     }
 
@@ -144,6 +163,7 @@ public class MovieCollectionService {
         MovieCollection collection = getCollectionByIdAndOwner(collectionId, owner);
 
         collection.removeMovie(movie);
+        collection.setUpdatedAt(LocalDateTime.now());
         collectionRepository.save(collection);
     }
 
