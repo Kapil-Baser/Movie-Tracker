@@ -78,7 +78,10 @@ public class MovieViewAssemblerService {
 
         if (movieCollectionsPage.hasContent()) {
             List<MovieCollection> movieCollections = movieCollectionsPage.getContent();
-            List<CollectionDto> collectionDtos = movieCollections.stream()
+
+            var sorted = collectionService.sortByCollectionTypeAndThenByUpdatedAt(movieCollections);
+
+            List<CollectionDto> collectionDtos = sorted.stream()
                     .map(this::toCollectionDto)
                     .toList();
 
