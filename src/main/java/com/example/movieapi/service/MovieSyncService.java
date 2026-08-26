@@ -68,6 +68,15 @@ public class MovieSyncService {
         return movies;
     }
 
+    public TmdbSyncCollectionSummary toCollectionSummary(TmdbSyncResult result) {
+        return TmdbSyncCollectionSummary.builder()
+                .totalFetchedFromTmdb(result.totalFetchedFromTmdb())
+                .alreadyInDatabase(result.alreadyInDatabase())
+                .newlySaved(result.newlySaved())
+                .movies(movieMapper.toMovieDto(result.allMovies()))
+                .build();
+    }
+
     public TmdbSyncCollectionSummary syncUpcomingCollectionFromTmdb(int page) {
 
         List<TmdbMovie> upcomingMovies = MovieSyncService.fetchTmdbMovies(page, tmdbService::getUpcomingMovies);
@@ -76,12 +85,17 @@ public class MovieSyncService {
         if (!result.allMovies().isEmpty()) {
             movieCollectionService.addToUpcomingCollection(result.allMovies());
         }
-        return TmdbSyncCollectionSummary.builder()
-                .totalFetchedFromTmdb(result.totalFetchedFromTmdb())
-                .alreadyInDatabase(result.alreadyInDatabase())
-                .newlySaved(result.newlySaved())
-                .movies(movieMapper.toMovieDto(result.allMovies()))
-                .build();
+        return toCollectionSummary(result);
+    }
+
+    public TmdbSyncCollectionSummary syncUpcomingCollectionWithHorrorMovies(int page) {
+        List<TmdbMovie> upcomingHorrorMovies = MovieSyncService.fetchTmdbMovies(page, pageNumber -> tmdbService.getUpcomingHorrorMovies(pageNumber).getResults());
+        TmdbSyncResult result = fetchAndSyncFromTmdb(upcomingHorrorMovies);
+
+        if (!result.allMovies().isEmpty()) {
+            movieCollectionService.addToUpcomingCollection(result.allMovies());
+        }
+        return toCollectionSummary(result);
     }
 
     public TmdbSyncCollectionSummary syncNowPlayingCollectionFromTmdb(int page) {
@@ -400,14 +414,16 @@ public class MovieSyncService {
             log.info("All Movies already have trailers");
         }
 
+        Collections.shuffle(moviesMissingTrailer);
+
         List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
-                .limit(5)
+                .limit(15)
                 .map(movie -> CompletableFuture.supplyAsync(() -> {
 
                     try {
                         MdbListMovie mdbListMovie = mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId()));
 
-                        if (mdbListMovie != null && !mdbListMovie.getTrailer().isEmpty()) {
+                        if (mdbListMovie != null && mdbListMovie.getTrailer() != null) {
                             log.info("Trailer found for movie: {}", movie.getTitle());
                             movie.setTrailer(mdbListMovie.getTrailer());
                             return new TrailerFetchResult(movie, TrailerFetchStatus.UPDATED);
@@ -571,6 +587,8 @@ public class MovieSyncService {
             log.info("All movie ratings are up to date.");
             return;
         }
+
+        Collections.shuffle(movies);
 
         enrichWithRating(movies.stream().limit(15).toList());
     }
