@@ -49,6 +49,15 @@ public class AdminController {
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
+    @PostMapping("/upcoming-horror-movies/{page_no}")
+    public ResponseEntity<TmdbSyncCollectionSummary> syncUpcomingHorrorMoviesFromTmdb(@PathVariable(name = "page_no") int page) {
+        TmdbSyncCollectionSummary result = movieSyncService.syncUpcomingCollectionWithHorrorMovies(page);
+        if (result.movies().isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
+    }
+
     @PostMapping("/trending")
     public ResponseEntity<List<MovieDto>> trendingMoviesFromTrakt() {
         List<MovieDto> dto = movieSyncService.syncTrendingMoviesFromTrakt();
