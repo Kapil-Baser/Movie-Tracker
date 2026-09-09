@@ -24,6 +24,8 @@ public class MdbListMovie {
     private LocalDate released;
     @JsonProperty("released_digital")
     private LocalDate releasedDigital;
+    private String description;
+    private String tagline;
     private String language;
     @JsonProperty("spoken_language")
     private String spokenLanguage;
@@ -35,6 +37,7 @@ public class MdbListMovie {
     private String status;
     private Integer runtime;
     private List<MdbListMovieRating> ratings;
+    private List<MdbListGenres> genres;
     private String rank;
     private String certification;
     private String trailer;
