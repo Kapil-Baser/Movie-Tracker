@@ -11,7 +11,6 @@ import com.example.movieapi.model.response.TmdbReleaseDatesResponse;
 import com.example.movieapi.model.response.TmdbMovieDetailsResponse;
 import com.example.movieapi.model.tmdb.model.TmdbMovie;
 import com.example.movieapi.model.trakt.model.TraktMovie;
-import com.example.movieapi.model.trakt.response.TraktAllVideosResponse;
 import com.example.movieapi.model.trakt.response.TraktMostWatchedMoviesResponse;
 import com.example.movieapi.model.trakt.response.TraktTrendingResponse;
 import jakarta.transaction.Transactional;
@@ -346,68 +345,6 @@ public class MovieSyncService {
         return movieMapper.toMovieDto(trendingMovies);
     }
 
-    public YouTubeSyncSummary syncYouTubeTrailers() {
-        List<Movie> moviesMissingTrailer = movieService.moviesWithNoTrailers();
-        if (moviesMissingTrailer.isEmpty()) {
-            log.info("All Movies already have trailers");
-        }
-
-        List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
-                .map(movie -> CompletableFuture.supplyAsync(() -> {
-
-                    try {
-                        List<TraktAllVideosResponse> allVideos =  traktService.getAllVideos(movie.getTraktId());
-
-                        Optional<TraktAllVideosResponse> trailerOpt = allVideos.stream()
-                                .filter(v -> "trailer".equals(v.getType()) && v.getTitle().contains("Trailer"))
-                                .findFirst();
-
-                        if (trailerOpt.isPresent()) {
-                            movie.setTrailer(trailerOpt.get().getUrl());
-                            return new TrailerFetchResult(movie, TrailerFetchStatus.UPDATED);
-                        }
-                        return new TrailerFetchResult(movie, TrailerFetchStatus.NOT_FOUND);
-
-                    } catch (Exception e) {
-                        log.error("Error while trying to sync movies with trailers", e);
-                        return new TrailerFetchResult(movie, TrailerFetchStatus.FAILED);
-                    }
-
-                }, asyncExecutor))
-                .toList();
-
-        List<TrailerFetchResult> trailerFetchResults = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(_ -> futures.stream()
-                        .map(CompletableFuture::join)
-                        .toList())
-                .join();
-
-        List<Movie> moviesToUpdate = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status() == TrailerFetchStatus.UPDATED)
-                .map(TrailerFetchResult::movie)
-                .toList();
-
-        if (!moviesToUpdate.isEmpty()) {
-            movieService.saveAll(moviesToUpdate);
-            log.info("Successfully updated trailers for {} movies", moviesToUpdate.size());
-        }
-
-        long trailersNotFound = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status() == TrailerFetchStatus.NOT_FOUND)
-                .count();
-
-        long failures = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status() == TrailerFetchStatus.FAILED)
-                .count();
-
-        return YouTubeSyncSummary.builder()
-                .moviesScanned(moviesMissingTrailer.size())
-                .trailersUpdated(moviesToUpdate.size())
-                .trailersNotFound(trailersNotFound)
-                .failures(failures)
-                .build();
-    }
-
     public YouTubeSyncSummary syncYouTubeTrailersFromMdbList() {
         List<Movie> moviesMissingTrailer = movieService.moviesWithNoTrailers();
         if (moviesMissingTrailer.isEmpty()) {
@@ -417,7 +354,7 @@ public class MovieSyncService {
         Collections.shuffle(moviesMissingTrailer);
 
         List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
-                .limit(15)
+                .limit(20)
                 .map(movie -> CompletableFuture.supplyAsync(() -> {
 
                     try {
@@ -453,19 +390,28 @@ public class MovieSyncService {
             movieService.saveAll(moviesToUpdate);
         }
 
-        long trailersNotFound = trailerFetchResults.stream()
-                .filter(tfr -> tfr.status() == TrailerFetchStatus.NOT_FOUND)
-                .count();
+        List<Long> foundTmdbIds = moviesToUpdate.stream()
+                .map(Movie::getTmdbId)
+                .toList();
 
-        long failures = trailerFetchResults.stream()
+        List<Long> notFoundTmdbIds = trailerFetchResults.stream()
+                .filter(tfr -> tfr.status() == TrailerFetchStatus.NOT_FOUND)
+                .map(tfr -> tfr.movie().getTmdbId())
+                .toList();
+
+        List<Long> failureTmdbIds = trailerFetchResults.stream()
                 .filter(tfr -> tfr.status() == TrailerFetchStatus.FAILED)
-                .count();
+                .map(tfr -> tfr.movie().getTmdbId())
+                .toList();
 
         return YouTubeSyncSummary.builder()
                 .moviesScanned(moviesMissingTrailer.size())
                 .trailersUpdated(moviesToUpdate.size())
-                .trailersNotFound(trailersNotFound)
-                .failures(failures)
+                .foundTmdbIds(foundTmdbIds)
+                .trailersNotFound(notFoundTmdbIds.size())
+                .notFoundTmdbIds(notFoundTmdbIds)
+                .failures(failureTmdbIds.size())
+                .failureTmdbIds(failureTmdbIds)
                 .build();
     }
 
@@ -540,6 +486,14 @@ public class MovieSyncService {
                 });
     }
 
+    private void enrichMovieWithMdbListMovie(Movie movie, MdbListMovie mdbListMovie) {
+        movie.setTrailer(mdbListMovie.getTrailer());
+        movie.setUsDigitalDate(mdbListMovie.getReleasedDigital());
+        movie.setTagline(mdbListMovie.getTagline());
+        movie.setCertification(mdbListMovie.getCertification());
+        enrichMovieWithMdbListRating(movie, mdbListMovie);
+    }
+
     public MdbListSyncResult importAndSyncListFromMdbList(String username, String listName, String nextCursor) {
         MdbListMovies moviesList = mdbListService.getListItems(username, listName, Optional.ofNullable(nextCursor));
         if (moviesList == null || moviesList.getMovies().isEmpty()) {
@@ -600,8 +554,10 @@ public class MovieSyncService {
             return DigitalReleaseSummary.empty();
         }
 
+        Collections.shuffle(moviesMissingDigitalDate);
+
         List<CompletableFuture<DigitalReleaseResult>> futures = moviesMissingDigitalDate.stream()
-                .limit(10)
+                .limit(20)
                 .map(movie -> CompletableFuture.supplyAsync(() ->
                                 mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
                         .thenApply(mdbListMovie -> {
@@ -656,5 +612,30 @@ public class MovieSyncService {
                 .notFoundMovieIds(notFoundIds)
                 .failures(failed)
                 .build();
+    }
+
+    public String addMovie(Long tmdbId) {
+        if (movieService.existsByTmdbId(tmdbId)) {
+            return "Movie with TMDB ID: " + tmdbId + " already exists in database.";
+        }
+
+        CompletableFuture<TmdbMovieDetailsResponse> tmdbFuture = CompletableFuture.supplyAsync(() -> tmdbService.getMovieDetails(tmdbId), asyncExecutor);
+
+        CompletableFuture<MdbListMovie> mdbListFuture = CompletableFuture.supplyAsync(() -> mdbListService.getMovieDetails("tmdb", String.valueOf(tmdbId)), asyncExecutor);
+
+        Movie savedMovie = tmdbFuture.thenCombineAsync(mdbListFuture, (tmdbDetails, mdbListDetails) -> {
+            Movie movie = movieMapper.toEntity(tmdbDetails);
+            enrichMovieWithMdbListMovie(movie, mdbListDetails);
+            return movieService.save(movie);
+        }, asyncExecutor)
+                .exceptionally(throwable -> {
+                    log.warn("Error while fetching the movie details {}", throwable.getMessage());
+                    throw new RuntimeException("Could not create movie because external services were unreachable.");
+                })
+                .join();
+
+        movieCollectionService.addToNowPlayingCollection(List.of(savedMovie));
+
+        return "Movie with TMDB ID: " + tmdbId + " added to database successfully.";
     }
 }
