@@ -234,7 +234,7 @@ public class MovieCollectionService {
     }
 
     public Page<MovieDto> getPaginatedMoviesFromCollectionByName(String collectionName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("releaseDate").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending().and(Sort.by("id").ascending()));
         Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionName(collectionName, pageable);
         return pagedMovies.map(movieMapper::toMovieDto);
     }
