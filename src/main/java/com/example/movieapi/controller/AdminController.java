@@ -33,8 +33,7 @@ public class AdminController {
         return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
-    // TODO: Should return the synced movies
-    @PostMapping("/sync-release-dates")
+    @PutMapping("/sync-release-dates")
     public ResponseEntity<String> syncReleaseDates() {
         movieSyncService.fetchAndSyncDigitalReleaseDates();
         return ResponseEntity.ok("Synced release dates");
@@ -102,5 +101,11 @@ public class AdminController {
     public ResponseEntity<MdbListSyncResult> getMovieListFromMdbList(@PathVariable String username, @PathVariable String listName,
                                                                      @RequestParam(required = false) String nextCursor) {
         return ResponseEntity.ok(movieSyncService.importAndSyncListFromMdbList(username, listName, nextCursor));
+    }
+
+    @PostMapping("/{tmdbId}")
+    public ResponseEntity<String> addMovie(@PathVariable Long tmdbId) {
+        String dto = movieSyncService.addMovie(tmdbId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 }
