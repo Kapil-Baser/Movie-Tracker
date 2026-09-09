@@ -306,6 +306,10 @@ public class MovieService {
         return moviesRepository.findAllByTraktIdIn(traktIds);
     }
 
+    public Movie save(Movie movie) {
+        return moviesRepository.save(movie);
+    }
+
     public List<Movie> saveAll(List<Movie> movies) {
         return moviesRepository.saveAll(movies);
     }
