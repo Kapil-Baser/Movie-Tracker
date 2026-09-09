@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/collections")
 @RequiredArgsConstructor
-public class MovieCollectionController {
+public class CollectionsController {
 
     private final MovieCollectionService collectionService;
     private final MovieViewAssemblerService movieViewAssemblerService;
