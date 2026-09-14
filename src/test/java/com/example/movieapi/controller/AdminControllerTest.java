@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -34,14 +35,14 @@ class AdminControllerTest {
         MovieDto projectHailMaryDto = new MovieDto(1L,
                 "Project Hail Mary",
                 "Project Hail Mary overview", Set.of("Adventure", "Science-Fiction"),
-                "/8Tfys3mDZVp4tNoH2ktm06a0Tau.jpg", "/yihdXomYb5kTeSivtFndMy5iDmf.jpg",
+                BigDecimal.valueOf(5.5), 5104L,
                 null, "2026-03-15", "157", "Project Hail Mary tagline",
                 "tt12042730", null);
 
         MovieDto Scream7Dto = new MovieDto(2L,
                 "Scream 7",
                 "Scream 7 overview", Set.of("Horror", "Crime"),
-                "/hz7TdCrpLLt2Dz7S3PS2HG9rpAO.jpg", "/jjyuk0edLiW8vOSnlfwWCCLpbh5.jpg",
+                BigDecimal.valueOf(5.6), 2558L,
                 "2026-03-31", "2026-02-25", "114", "Scream 7 tagline",
                 "tt27047903", null);
 
@@ -65,7 +66,7 @@ class AdminControllerTest {
 
     @Test
     void syncReleaseDates_shouldSyncReleaseDates() throws Exception {
-        mockMvc.perform(post("/api/v1/admin/movie/sync-release-dates")
+        mockMvc.perform(put("/api/v1/admin/movie/sync-release-dates")
                         .with(user("admin")
                                 .roles("ADMIN"))
                         .with(csrf()))
@@ -162,7 +163,6 @@ class AdminControllerTest {
 
         List<MovieDto> movieDtoList = createMovieDtoList();
 
-        //when(movieSyncService.syncTrendingMoviesFromTrakt()).thenReturn(movieDtoList);
         doReturn(movieDtoList).when(movieSyncService).syncTrendingMoviesFromTrakt();
 
         mockMvc.perform(post("/api/v1/admin/movie/trending")
