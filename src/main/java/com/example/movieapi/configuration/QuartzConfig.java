@@ -67,7 +67,7 @@ public class QuartzConfig {
                 .forJob(refreshUpcomingMoviesCollectionJob())
                 .withIdentity("Refresh_Upcoming_Collection_Trigger")
                 .withSchedule(SimpleScheduleBuilder
-                        .repeatHourlyForever(48)
+                        .repeatHourlyForever(120)
                         .withMisfireHandlingInstructionIgnoreMisfires())
                 .build();
     }
