@@ -10,9 +10,23 @@
         <div th:if="${movie.genres}" class="space-x-2 text-emerald-400 font-semibold">
           <span th:each="genre : ${movie.genres}" class="inline-block" th:text="${genre}">Action</span>
         </div>
-        <div class="space-x-4">
+        <div class="flex space-x-4">
           <span th:text="${movie.releaseDate}" class="text-sm font-thin text-white">Aug 4, 2025</span>
           <span th:text="${movie.runtime}" class="text-sm font-semibold text-white">2h 24min</span>
+          <div class="flex space-x-1 items-center text-white font-thin text-sm">
+            <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    class="size-4 fill-yellow-300"
+            >
+              <path fill-rule="evenodd" d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L7.998 12.08l-3.135 1.915a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z" clip-rule="evenodd"/>
+            </svg>
+            <span th:text="${movie.rating} ?: 'Unrated'">5.5</span>
+            <th:block th:if="${movie.votes != null}">
+              <span th:text="|(${movie.votes})|">(64680)</span>
+            </th:block>
+          </div>
         </div>
         <div class="rounded-lg bg-emerald-950/50 p-2">
           <p th:text="${movie.overview}" class="text-white leading-relaxed">While working underground to fix a water main, Brooklyn plumbers—and brothers—Mario and Luigi are transported down a mysterious pipe and wander into a magical new world. But when the brothers are separated, Mario embarks on an epic quest to find Luigi.</p>
