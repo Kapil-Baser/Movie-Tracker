@@ -71,12 +71,12 @@ public class MovieMapper {
                 .overview(movie.getOverview())
                 .imdbId(movie.getImdbId())
                 .trailer(movie.getTrailer())
-                .backdropPath(movie.getBackdropPath())
+                .rating(movie.getRating())
+                .votes(movie.getVotes())
                 .posterPath(movie.getPosterPath())
                 .runtime(FormatUtil.formatRuntime(movie.getRuntime()))
                 .usDigitalReleaseDate(FormatUtil.formatReleaseDate(movie.getUsDigitalDate()))
                 .releaseDate(FormatUtil.formatReleaseDate(movie.getReleaseDate()))
-                //.genres(movie.getTmdbGenres())
                 .build();
     }
 }
