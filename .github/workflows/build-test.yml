@@ -31,7 +31,7 @@ jobs:
         uses: nogsantos/ssh-scp-deploy@v1.3.0
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: $${{ secrets.VPS_USERNAME }}
+          username: $${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           src: ./target/movieapi-0.0.1-SNAPSHOT.jar
           remote: /home/deploy/movie-tracker.jar
