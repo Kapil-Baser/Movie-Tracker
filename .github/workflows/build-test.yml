@@ -17,9 +17,6 @@ jobs:
           java-version: 25
           distribution: 'temurin'
           cache: maven
-
-      - name: Building the JAR
-        run: mvn -B package --file pom.xml
         
       - name: Listing files
         run: tree
