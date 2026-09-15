@@ -1,0 +1,25 @@
+name: Build the Movie Tracker App
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setting up the JDK 25
+        uses: actions/setup-java@6
+        with:
+          java-version: 25
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Building the JAR
+        run: mvn -B package --file pom.xml
+        
+      - name: Listing files
+        run: tree
