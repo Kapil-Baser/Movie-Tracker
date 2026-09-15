@@ -20,6 +20,9 @@ jobs:
           java-version: '25'
           distribution: temurin
           cache: maven
+
+      - name: Testing
+        run: mvn -B test
         
       - name: Listing files
         run: tree
