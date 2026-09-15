@@ -28,10 +28,10 @@ jobs:
         run: tree
 
       - name: Transfering JAR to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: nogsantos/ssh-scp-deploy@v1.3.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: $${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: ./target/movieapi-0.0.1-SNAPSHOT.jar
-          target: /home/movie-tracker.jar
+          src: ./target/movieapi-0.0.1-SNAPSHOT.jar
+          remote: /home/movie-tracker.jar
