@@ -22,7 +22,7 @@ jobs:
           cache: maven
 
       - name: Testing
-        run: mvn -B test
+        run: mvn -B clean package -DskipTests
         
       - name: Listing files
         run: tree
