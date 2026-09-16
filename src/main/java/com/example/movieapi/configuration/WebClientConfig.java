@@ -3,29 +3,32 @@ package com.example.movieapi.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
 @Configuration
 public class WebClientConfig {
 
-    @Value("${api.key}")
-    private String apiAccessToken;
+    @Value("${tmdb.api.key}")
+    private String tmdbApiKey;
+
+    @Value("${tmdb.base.url}")
+    private String tmdbBaseUrl;
 
     @Value("${mdblist.base.url}")
     private String mdbListBaseUrl;
 
     @Value(("${trakt.client}"))
     private String traktClientId;
+
     @Value("${trakt.base.url}")
     private String traktBaseUrl;
 
     @Bean(name = "tmdbServiceClient")
     public RestClient restClient() {
         return RestClient.builder()
-                .baseUrl("https://api.themoviedb.org/3/")
-                .defaultHeader("Authorization", "Bearer " + apiAccessToken)
+                .baseUrl(tmdbBaseUrl)
+                .defaultHeader("Authorization", "Bearer " + tmdbApiKey)
                 .defaultHeader("Accept", "authenticate/json")
                 .build();
     }
@@ -49,12 +52,4 @@ public class WebClientConfig {
                 })
                 .build();
     }
-
-    public HttpHeaders httpHeaders() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Content-Type", "application/json");
-        httpHeaders.add("User-Agent", "MovieTracker/1.0");
-        return httpHeaders;
-    }
-
 }
