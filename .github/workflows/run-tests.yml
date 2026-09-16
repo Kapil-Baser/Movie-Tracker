@@ -16,5 +16,8 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Creating the required env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Running Tests
         run: mvn -B test
