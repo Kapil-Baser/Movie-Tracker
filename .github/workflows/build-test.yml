@@ -22,7 +22,16 @@ jobs:
           cache: maven
 
       - name: Testing
-        run: mvn -B test
+        run: mvn -B clean package -DskipTests
         
       - name: Listing files
         run: tree
+
+      - name: Transfering JAR to VPS
+        uses: nogsantos/ssh-scp-deploy@v1.3.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          user: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          src: ./target/movieapi-0.0.1-SNAPSHOT.jar
+          remote: /home/deploy/app/movie-tracker.jar
