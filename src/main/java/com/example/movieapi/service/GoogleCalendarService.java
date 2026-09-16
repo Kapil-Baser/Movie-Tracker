@@ -27,9 +27,9 @@ import java.util.Optional;
 @Slf4j
 public class GoogleCalendarService {
 
-    @Value("${GOOGLE_CLIENT_ID}")
+    @Value("${GOOGLE_CLIENT_ID:dummy_client_id}")
     private String clientId;
-    @Value("${GOOGLE_CLIENT_SECRET}")
+    @Value("${GOOGLE_CLIENT_SECRET:dummy_secret}")
     private String clientSecret;
 
     private final UserRepository userRepository;
