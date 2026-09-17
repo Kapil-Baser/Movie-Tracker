@@ -6,13 +6,17 @@ import com.example.movieapi.service.MailService;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class UserRegisteredListener {
 
+    @Value("${host}")
+    private String host;
     private final EmailVerificationService emailVerificationService;
     private final MailService mailService;
 
@@ -22,6 +26,7 @@ public class UserRegisteredListener {
         this.mailService = mailService;
     }
 
+    @Async("customExecutor")
     @EventListener
     public void sendConfirmationToken(UserRegisteredEvent event) {
         log.info("Generating token for user: {}", event.user().getUsername());
@@ -30,7 +35,7 @@ public class UserRegisteredListener {
 
         String to = event.user().getEmail();
         String name = event.user().getUsername();
-        String link = "http://192.210.217.141/auth/confirm?token=" + token;
+        String link = host + "/auth/confirm?token=" + token;
 
         try {
             mailService.sendRegistrationEmail(to, name, link);
