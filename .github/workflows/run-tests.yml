@@ -45,4 +45,16 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           src: ./target/*.jar
           remote: /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar
+
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd movie_tracker
+            rm movie-tracker-old.jar
+            mv movie-tracker.jar movie-tracker-old.jar
+            mv /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar .
         
