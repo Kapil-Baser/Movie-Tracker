@@ -55,7 +55,7 @@ public class TmdbService {
 
     public TmdbDiscoverResponse getTrendingHorrorMovies() {
         TmdbDiscoverResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                .uri(uriBuilder -> uriBuilder.path("/discover/movie")
                         .queryParam("with_original_language", "en")
                         .queryParam("with_genres", "27")
                         .build())
@@ -67,7 +67,7 @@ public class TmdbService {
 
     public TmdbDiscoverResponse getUpcomingHorrorMovies(int page) {
         TmdbDiscoverResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                .uri(uriBuilder -> uriBuilder.path("/discover/movie")
                         .queryParam("page", page)
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
                         .queryParam("with_genres", "27")
@@ -106,7 +106,7 @@ public class TmdbService {
 
     public List<TmdbMovie> getUpcomingMovies(int page) {
         TmdbDiscoverResponse response = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("discover/movie")
+                .uri(uriBuilder -> uriBuilder.path("/discover/movie")
                         .queryParam("page", page)
                         .queryParam("with_original_language", "en")
                         .queryParam("primary_release_date.gte", LocalDate.now().withDayOfMonth(1))
