@@ -3,7 +3,6 @@ package com.example.movieapi.service;
 import com.example.movieapi.dto.RegisterUserDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Provider;
-import com.example.movieapi.event.TokenResendEvent;
 import com.example.movieapi.event.UserRegisteredEvent;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.RoleRepository;
@@ -73,12 +72,6 @@ public class UserService implements UserDetailsService {
         return optAppUser
                 .map(AuthenticatedUser::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        /*var user = repository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(("User not found")));
-        var authenticatedUser = new AuthenticatedUser(user);
-        log.info("Username {} authorities {}", authenticatedUser.getUser(), authenticatedUser.getAuthorities());
-        return authenticatedUser;*/
     }
 
     public void changePassword(AuthenticatedUser authenticatedUser, String newPassword) {
