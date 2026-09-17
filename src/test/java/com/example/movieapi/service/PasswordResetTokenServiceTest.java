@@ -96,12 +96,13 @@ class PasswordResetTokenServiceTest {
     }
 
     @Test
-    void createToken_shouldReturnNull_whenUserDoesNotExist() {
+    void createToken_shouldThrowException_whenUserDoesNotExist() {
         when(userService.loadUserByEmail(email)).thenThrow(new UsernameNotFoundException("User not found"));
 
-        String token = passwordResetTokenService.createToken(email);
 
-        assertThat(token).isNull();
+        assertThatThrownBy(() -> passwordResetTokenService.createToken(email))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("User not found");
 
         verifyNoInteractions(passwordResetTokenRepository);
     }
