@@ -30,13 +30,7 @@ public class PasswordResetTokenService {
     @Transactional
     public String createToken(String email) {
 
-        AppUser user;
-        try {
-            user = userService.loadUserByEmail(email);
-        } catch (UsernameNotFoundException _) {
-            log.warn("Password reset requested for non-existent email: {}", email);
-            return null;
-        }
+        AppUser user = userService.loadUserByEmail(email);
 
         List<PasswordResetToken> active = repository.findAllByUserAndConfirmedAtIsNullAndRevokedFalse(user);
         for (PasswordResetToken token : active) {
