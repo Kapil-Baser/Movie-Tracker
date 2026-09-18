@@ -1,5 +1,4 @@
-name: Run tests
-
+name: Run tests and build and deploy
 on: workflow_dispatch
 
 jobs:
@@ -44,7 +43,7 @@ jobs:
           user: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           src: ./target/*.jar
-          remote: /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar
+          remote: ./target/movie-tracker.jar
 
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.0.3
@@ -57,4 +56,5 @@ jobs:
             rm movie-tracker-old.jar
             mv movie-tracker.jar movie-tracker-old.jar
             mv /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar .
+            sudo systemctl restart movie-tracker.service
         
