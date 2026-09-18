@@ -45,7 +45,7 @@ jobs:
           src: ./target/*.jar
           remote: ./target/movie-tracker.jar
 
-      - name: Test SSH Connection
+      - name: Rename old JAR and restart the systemd service on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
