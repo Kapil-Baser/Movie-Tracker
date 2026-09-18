@@ -44,7 +44,7 @@ jobs:
           user: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           src: ./target/*.jar
-          remote: /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar
+          remote: ./target/movie-tracker-${{ github.ref_name }}.jar
 
       - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.0.3
@@ -56,5 +56,5 @@ jobs:
             cd movie_tracker
             rm movie-tracker-old.jar
             mv movie-tracker.jar movie-tracker-old.jar
-            mv /home/${{ secrets.VPS_USER }}/target/movie-tracker.jar .
+            mv ./target/movie-tracker-${{ github.ref_name }}.jar .
         
