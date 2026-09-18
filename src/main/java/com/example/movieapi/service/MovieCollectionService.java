@@ -82,7 +82,7 @@ public class MovieCollectionService {
         addToCollection("Upcoming", CollectionType.UPCOMING,  movies);
     }
 
-    // TODO: Make it take collection type
+
     private MovieCollection getOrCreateCollection(String name, CollectionType type) {
         return collectionRepository.findByName(name)
                 .orElseGet(() -> {
