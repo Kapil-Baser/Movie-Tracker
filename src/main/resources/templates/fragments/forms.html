@@ -59,3 +59,20 @@
         <a th:href=@{/auth/login} class="font-semibold text-blue-500 cursor-pointer hover:underline underline-offset-6">Back to login</a>
     </div>
 </div>
+
+<div th:fragment="changeWatchedOnDate" id="watchedOnDateContainer" class="flex gap-x-1 items-center mb-1">
+    <form th:action="@{/user/movies/history}" th:object="${changeDate}" method="POST">
+        <input type="hidden" th:field="*{oldWatchedDate}"/>
+        <input
+                min="2017-04-01"
+                type="date"
+                th:field="*{newWatchedDate}"
+                class="text-sm text-white mb-2"
+                required
+        >
+        <button type="submit">Apply</button>
+        <button th:hx-get="@{/user/movies/history/edit/cancel(watchedOn=${changeDate.oldWatchedDate})}"
+                th:hx-swap="outerHTML"
+                hx-target="closest #watchedOnDateContainer">Cancel</button>
+    </form>
+</div>
