@@ -1,5 +1,6 @@
 package com.example.movieapi.controller;
 
+import com.example.movieapi.dto.ChangeWatchedOnDateDto;
 import com.example.movieapi.dto.WatchedMovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -67,6 +68,29 @@ public class WatchedHistoryController {
             htmxResponse.setRetarget("closest .movies-container");
         }
 
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/edit")
+    public String showDatePickerForm(@RequestParam LocalDate watchedOn, Model model) {
+        ChangeWatchedOnDateDto dto = ChangeWatchedOnDateDto.builder()
+                .oldWatchedDate(watchedOn)
+                .build();
+
+        model.addAttribute("changeDate", dto);
+        return "fragments/forms :: changeWatchedOnDate";
+    }
+
+    @GetMapping("/edit/cancel")
+    public String cancelWatchedOnDate(@RequestParam LocalDate watchedOn, Model model) {
+
+
+        model.addAttribute("watchedOnDate", watchedOn);
+        return "fragments/head :: watchedHistoryHeader";
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> changeWatchedOnDate(@ModelAttribute ChangeWatchedOnDateDto changeDate) {
         return ResponseEntity.ok().build();
     }
 }
