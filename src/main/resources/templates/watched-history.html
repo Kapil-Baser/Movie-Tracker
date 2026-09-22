@@ -51,7 +51,7 @@
                     end" />
                         </div>
                         <th:block th:each="historyMap : ${movieHistoryMap}">
-                            <div id="movies-container" class="mb-4">
+                            <div class="mb-4 movies-container">
 
                                 <th:block th:replace="~{fragments/head :: watchedHistoryHeader (watchedOnDate=${historyMap.key})}"></th:block>
 
