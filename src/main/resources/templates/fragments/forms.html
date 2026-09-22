@@ -60,19 +60,33 @@
     </div>
 </div>
 
-<div th:fragment="changeWatchedOnDate" id="watchedOnDateContainer" class="flex gap-x-1 items-center mb-1">
-    <form th:action="@{/user/movies/history}" th:object="${changeDate}" method="POST">
-        <input type="hidden" th:field="*{oldWatchedDate}"/>
+<div th:fragment="changeWatchedOnDate" id="watchedOnDateContainer" class="flex gap-x-1 items-center mb-1"
+     >
+    <form th:hx-post="@{/user/movies/history}"
+          th:object="${changeDate}"
+          th:hx-swap="outerHTML"
+          hx-target="closest #watchedOnDateContainer"
+          hx:vals="${ {_csrf.parameterName : _csrf.token} }">
+        <label for="newWatchedDate" class="text-white text-sm font-semibold">Choose a date:</label>
         <input
+                id="newWatchedDate"
                 min="2017-04-01"
+                th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
                 type="date"
                 th:field="*{newWatchedDate}"
-                class="text-sm text-white mb-2"
+                class="text-sm font-semibold text-emerald-500 pl-2"
+                autofocus
                 required
         >
-        <button type="submit">Apply</button>
+        <input type="hidden" th:field="*{oldWatchedDate}"/>
+
+        <button
+                class="bg-amber-900 hover:bg-amber-800 text-white text-sm p-1 rounded-md hover:cursor-pointer"
+                type="submit">Apply</button>
+
         <button th:hx-get="@{/user/movies/history/edit/cancel(watchedOn=${changeDate.oldWatchedDate})}"
                 th:hx-swap="outerHTML"
-                hx-target="closest #watchedOnDateContainer">Cancel</button>
+                hx-target="closest #watchedOnDateContainer"
+                class="bg-gray-600 hover:bg-gray-700 text-white text-sm p-1 rounded-md hover:cursor-pointer">Cancel</button>
     </form>
 </div>
