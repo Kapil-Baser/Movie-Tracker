@@ -1,5 +1,6 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.ChangeWatchedAtDateDto;
 import com.example.movieapi.dto.WatchedMovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Movie;
@@ -253,5 +254,72 @@ class WatchedMovieServiceTest {
         int result = watchedMovieService.getWatchedMoviesCount(user, LocalDate.of(2025, 12, 10));
 
         assertThat(result).isEqualTo(5);
+    }
+
+    @Test
+    void updateWatchedAt_shouldUpdateWatchedDateForAllMoviesFound() {
+        LocalDate oldDate = LocalDate.of(2026, 9, 20);
+        LocalDate newDate = LocalDate.of(2026, 9, 15);
+
+        ChangeWatchedAtDateDto dto = new ChangeWatchedAtDateDto(oldDate, newDate);
+
+        WatchedMovie movie1 = new WatchedMovie();
+        WatchedMovie movie2 = new WatchedMovie();
+
+        when(watchedMovieRepository.findByUserAndWatchedAt(user, oldDate.atStartOfDay(), oldDate.plusDays(1).atStartOfDay()))
+                .thenReturn(List.of(movie1, movie2));
+
+        watchedMovieService.updateWatchedAt(user, dto);
+
+        assertThat(movie1.getWatchedAt()).isNotNull();
+        assertThat(movie2.getWatchedAt()).isNotNull();
+
+        assertThat(movie1.getWatchedAt().toLocalDate()).isEqualTo(newDate);
+        assertThat(movie2.getWatchedAt().toLocalDate()).isEqualTo(newDate);
+
+        verify(watchedMovieRepository).save(movie1);
+        verify(watchedMovieRepository).save(movie2);
+    }
+
+    @Test
+    void updateWatchedAt_shouldFindMoviesWithinOldWatchedDate() {
+        LocalDate oldDate = LocalDate.of(2026, 9, 10);
+        LocalDate newDate = LocalDate.of(2026, 9, 15);
+
+        ChangeWatchedAtDateDto dto =
+                new ChangeWatchedAtDateDto(oldDate, newDate);
+
+        when(watchedMovieRepository.findByUserAndWatchedAt(
+                any(),
+                any(),
+                any()
+        )).thenReturn(Collections.emptyList());
+
+        watchedMovieService.updateWatchedAt(user, dto);
+
+        verify(watchedMovieRepository).findByUserAndWatchedAt(
+                user,
+                oldDate.atStartOfDay(),
+                oldDate.plusDays(1).atStartOfDay()
+        );
+    }
+
+    @Test
+    void updateWatchedAt_shouldNotSaveAnythingWhenNoMoviesAreFound() {
+        LocalDate oldDate = LocalDate.of(2026, 9, 10);
+        LocalDate newDate = LocalDate.of(2026, 9, 15);
+
+        ChangeWatchedAtDateDto dto =
+                new ChangeWatchedAtDateDto(oldDate, newDate);
+
+        when(watchedMovieRepository.findByUserAndWatchedAt(
+                eq(user),
+                any(),
+                any()
+        )).thenReturn(Collections.emptyList());
+
+        watchedMovieService.updateWatchedAt(user, dto);
+
+        verify(watchedMovieRepository, never()).save(any());
     }
 }
