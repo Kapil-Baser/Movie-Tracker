@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangeWatchedOnDateDto {
+public class ChangeWatchedAtDateDto {
     private LocalDate oldWatchedDate;
     private LocalDate newWatchedDate;
 }
