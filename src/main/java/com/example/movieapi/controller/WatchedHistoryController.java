@@ -1,6 +1,6 @@
 package com.example.movieapi.controller;
 
-import com.example.movieapi.dto.ChangeWatchedOnDateDto;
+import com.example.movieapi.dto.ChangeWatchedAtDateDto;
 import com.example.movieapi.dto.WatchedMovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.model.AuthenticatedUser;
@@ -54,6 +54,7 @@ public class WatchedHistoryController {
                 .build();
     }
 
+    @HxRequest
     @DeleteMapping("/unwatched")
     public ResponseEntity<Void> markUnwatched(@RequestParam Long movieId,
                                               @RequestParam LocalDate date,
@@ -71,26 +72,37 @@ public class WatchedHistoryController {
         return ResponseEntity.ok().build();
     }
 
+    @HxRequest
     @GetMapping("/edit")
     public String showDatePickerForm(@RequestParam LocalDate watchedOn, Model model) {
-        ChangeWatchedOnDateDto dto = ChangeWatchedOnDateDto.builder()
+        ChangeWatchedAtDateDto dto = ChangeWatchedAtDateDto.builder()
                 .oldWatchedDate(watchedOn)
                 .build();
 
         model.addAttribute("changeDate", dto);
-        return "fragments/forms :: changeWatchedOnDate";
+        return "fragments/forms :: changeWatchedAtDate";
     }
 
+    @HxRequest
     @GetMapping("/edit/cancel")
     public String cancelWatchedOnDate(@RequestParam LocalDate watchedOn, Model model) {
-
-
         model.addAttribute("watchedOnDate", watchedOn);
         return "fragments/head :: watchedHistoryHeader";
     }
 
+    @HxRequest
     @PostMapping
-    public ResponseEntity<Void> changeWatchedOnDate(@ModelAttribute ChangeWatchedOnDateDto changeDate) {
-        return ResponseEntity.ok().build();
+    public String changeWatchedOnDate(@ModelAttribute ChangeWatchedAtDateDto changeDate,
+                                      @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                      Model model) {
+        if (changeDate.getOldWatchedDate().equals(changeDate.getNewWatchedDate())) {
+            model.addAttribute("watchedOnDate", changeDate.getOldWatchedDate());
+            return "fragments/head :: watchedHistoryHeader";
+        }
+
+        watchedMovieService.updateWatchedAt(authenticatedUser.getUser(), changeDate);
+
+        model.addAttribute("watchedOnDate", changeDate.getNewWatchedDate());
+        return "fragments/head :: watchedHistoryHeader";
     }
 }
