@@ -1,5 +1,6 @@
 package com.example.movieapi.service;
 
+import com.example.movieapi.dto.ChangeWatchedAtDateDto;
 import com.example.movieapi.dto.WatchedMovieDto;
 import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Movie;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,6 +104,21 @@ public class WatchedMovieService {
         LocalDateTime endDate = watchedAtDate.plusDays(1).atStartOfDay();
 
         return watchedMovieRepository.findCountByUserAndWatchedAt(user, startDate, endDate);
+    }
+
+    @Transactional
+    public void updateWatchedAt(AppUser user, ChangeWatchedAtDateDto dto) {
+        LocalDateTime startDate = dto.getOldWatchedDate().atStartOfDay();
+        LocalDateTime endDate = dto.getOldWatchedDate().plusDays(1).atStartOfDay();
+
+        LocalDateTime newWatchedAt = dto.getNewWatchedDate().atTime(LocalTime.now());
+
+        List<WatchedMovie> watchedMovies = watchedMovieRepository.findByUserAndWatchedAt(user, startDate, endDate);
+
+        watchedMovies.forEach(wm -> {
+            wm.setWatchedAt(newWatchedAt);
+            watchedMovieRepository.save(wm);
+        });
     }
 
     public void addMovieToWatchedMovies(AppUser user, Movie movie) {
