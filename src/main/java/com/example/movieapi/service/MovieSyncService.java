@@ -547,6 +547,15 @@ public class MovieSyncService {
         enrichWithRating(movies.stream().limit(15).toList());
     }
 
+    public void updateMovieRatings() {
+        LocalDate startDate = LocalDate.now().minusMonths(3).withDayOfMonth(1);
+        LocalDate endDate = startDate.plusMonths(1);
+
+        List<Movie> movies = movieService.getMoviesByReleaseDate(startDate, endDate);
+
+        enrichWithRating(movies);
+    }
+
     public DigitalReleaseSummary updateDigitalRelease() {
         List<Movie> moviesMissingDigitalDate = movieService.getMoviesWithNoDigitalReleaseDate();
         if (moviesMissingDigitalDate.isEmpty()) {
