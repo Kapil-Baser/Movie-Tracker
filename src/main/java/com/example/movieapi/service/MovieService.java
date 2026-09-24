@@ -321,4 +321,8 @@ public class MovieService {
     public List<Movie> getMoviesMissingRating() {
         return moviesRepository.findAllByRatingIsNull();
     }
+
+    public List<Movie> getMoviesByReleaseDate(LocalDate startDate, LocalDate endDate) {
+        return moviesRepository.findMoviesByReleaseDateBetween(startDate, endDate);
+    }
 }
