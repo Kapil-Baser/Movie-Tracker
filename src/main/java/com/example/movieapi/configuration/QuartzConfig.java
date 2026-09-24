@@ -1,9 +1,6 @@
 package com.example.movieapi.configuration;
 
-import com.example.movieapi.schedule.RefreshUpcomingCollectionJob;
-import com.example.movieapi.schedule.UpdateMovieRuntimeJob;
-import com.example.movieapi.schedule.UpdateMovieStreamingDatesJob;
-import com.example.movieapi.schedule.MovieOutForStreamingPublisher;
+import com.example.movieapi.schedule.*;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,6 +86,24 @@ public class QuartzConfig {
                 .withSchedule(SimpleScheduleBuilder
                         .repeatHourlyForever(120)
                         .withMisfireHandlingInstructionIgnoreMisfires())
+                .build();
+    }
+
+    @Bean
+    public JobDetail updateMovieRatingsOnceAMonthJob() {
+        return JobBuilder.newJob(UpdateMovieRatingsJob.class)
+                .storeDurably()
+                .withIdentity("Update_Movie_Ratings")
+                .withDescription("Updates rating of all movies released 3 months ago")
+                .build();
+    }
+
+    @Bean
+    public Trigger updateMovieRatingsTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob(updateMovieRatingsOnceAMonthJob())
+                .withIdentity("Update_Movie_Rating_Job_Trigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 10 14 24 * ?"))
                 .build();
     }
 
