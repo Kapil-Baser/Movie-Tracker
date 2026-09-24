@@ -26,6 +26,9 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE m.runtime = 0")
     List<Movie> findMoviesMissingRuntime();
 
+    @Query("SELECT m FROM Movie m WHERE m.releaseDate >= :startDate AND m.releaseDate < :endDate")
+    List<Movie> findMoviesByReleaseDateBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     @Query("SELECT m.id FROM Movie m")
     List<Long> findAllMovieIds();
 
