@@ -93,6 +93,7 @@ public class QuartzConfig {
     public JobDetail updateMovieRatingsOnceAMonthJob() {
         return JobBuilder.newJob(UpdateMovieRatingsJob.class)
                 .storeDurably()
+                .requestRecovery()
                 .withIdentity("Update_Movie_Ratings")
                 .withDescription("Updates rating of all movies released 3 months ago")
                 .build();
@@ -103,8 +104,7 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(updateMovieRatingsOnceAMonthJob())
                 .withIdentity("Update_Movie_Rating_Job_Trigger")
-                .withSchedule(CronScheduleBuilder.cronSchedule("0 10 14 24 * ?"))
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 14 28 * ?"))
                 .build();
     }
-
 }
