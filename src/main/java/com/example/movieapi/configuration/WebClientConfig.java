@@ -1,5 +1,6 @@
 package com.example.movieapi.configuration;
 
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +35,13 @@ public class WebClientConfig {
     }
 
     @Bean(name = "mdbListServiceClient")
-    public RestClient mdbListRestClient() {
+    public RestClient mdbListRestClient(RateLimiter mdbListRateLimiter) {
         return RestClient.builder()
                 .baseUrl(mdbListBaseUrl)
+                .requestInterceptor(((request, body, execution) -> {
+                    RateLimiter.waitForPermission(mdbListRateLimiter);
+                    return execution.execute(request, body);
+                }))
                 .build();
     }
 
