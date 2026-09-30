@@ -498,16 +498,14 @@ public class MovieSyncService {
                 .build();
     }
 
-    public void updateMovieRating() {
+    public void updateMoviesMissingRating() {
         List<Movie> movies = movieService.getMoviesMissingRating();
         if (movies.isEmpty()) {
             log.info("All movie ratings are up to date.");
             return;
         }
 
-        Collections.shuffle(movies);
-
-        enrichWithRating(movies.stream().limit(15).toList());
+        enrichWithRating(movies);
     }
 
     public void updateMovieRatings() {

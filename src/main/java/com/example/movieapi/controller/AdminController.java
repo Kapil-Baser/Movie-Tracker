@@ -83,7 +83,7 @@ public class AdminController {
 
     @PatchMapping("/update-rating")
     public ResponseEntity<Void> updateMovieRating() {
-        movieSyncService.updateMovieRating();
+        movieSyncService.updateMoviesMissingRating();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
