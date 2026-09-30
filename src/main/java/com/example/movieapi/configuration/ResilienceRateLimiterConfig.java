@@ -14,9 +14,9 @@ public class ResilienceRateLimiterConfig {
     @Bean
     public RateLimiterRegistry rateLimiterRegistry() {
         RateLimiterConfig config = RateLimiterConfig.custom()
-                .limitForPeriod(1)
+                .limitForPeriod(2)
                 .limitRefreshPeriod(Duration.ofSeconds(3))
-                .timeoutDuration(Duration.ofSeconds(300)) // 100 requests per 5 minutes
+                .timeoutDuration(Duration.ofSeconds(300)) // 200 requests per 5 minutes
                 .build();
 
         return RateLimiterRegistry.of(config);
