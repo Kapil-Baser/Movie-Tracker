@@ -352,10 +352,7 @@ public class MovieSyncService {
             log.info("All Movies already have trailers");
         }
 
-        Collections.shuffle(moviesMissingTrailer);
-
         List<CompletableFuture<TrailerFetchResult>> futures = moviesMissingTrailer.stream()
-                .limit(20)
                 .map(movie -> CompletableFuture.supplyAsync(() -> {
 
                     try {
