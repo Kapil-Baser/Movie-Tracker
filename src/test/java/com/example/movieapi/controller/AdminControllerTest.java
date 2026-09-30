@@ -227,7 +227,7 @@ class AdminControllerTest {
                 .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(movieSyncService).updateMovieRating();
+        verify(movieSyncService).updateMoviesMissingRating();
     }
 
     @Test
