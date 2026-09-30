@@ -4,6 +4,7 @@ import com.example.movieapi.dto.*;
 import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.Movie;
 import com.example.movieapi.event.MovieEnrichmentEvent;
+import com.example.movieapi.exception.ExternalMovieApiUnreachableException;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.mdblist.MdbListMovie;
 import com.example.movieapi.model.mdblist.MdbListMovies;
@@ -639,7 +640,7 @@ public class MovieSyncService {
         }, asyncExecutor)
                 .exceptionally(throwable -> {
                     log.warn("Error while fetching the movie details {}", throwable.getMessage());
-                    throw new RuntimeException("Could not create movie because external services were unreachable.");
+                    throw new ExternalMovieApiUnreachableException("Could not create movie because external services were unreachable.");
                 })
                 .join();
 
