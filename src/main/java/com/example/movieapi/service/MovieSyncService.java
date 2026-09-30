@@ -149,41 +149,6 @@ public class MovieSyncService {
                 .build();
     }
 
-
-    /*private TmdbSyncResult fetchAndSyncFromTmdb(int page) {
-        TmdbTrendingMoviesResponse nowPlayingMoviesResponse = tmdbService.getTrendingMovies(page);
-        if (nowPlayingMoviesResponse == null || nowPlayingMoviesResponse.getResults().isEmpty()) {
-            log.warn("Could not fetch any trending movies");
-            return TmdbSyncResult.empty();
-        }
-        log.info("Fetched {} movies from TMDB API", nowPlayingMoviesResponse.getResults().size());
-
-        List<Long> tmdbIds = nowPlayingMoviesResponse.getResults().stream()
-                .map(TmdbMovie::getId)
-                .toList();
-
-        Map<Long, Movie> existingMoviesMap = movieService.findAllByTmdbIdIn(tmdbIds).stream()
-                .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
-        log.info("Found {} out of {} movies in database", existingMoviesMap.size(), tmdbIds.size());
-
-        List<Long> newMoviesIds = tmdbIds.stream()
-                .filter(tmdbId -> !existingMoviesMap.containsKey(tmdbId))
-                .toList();
-
-        List<Movie> newlySavedMovies = newMoviesIds.isEmpty()
-                ? List.of()
-                : fetchAndSaveMovies(newMoviesIds);
-
-        List<Movie> allMovies = Stream.concat(newlySavedMovies.stream(), existingMoviesMap.values().stream()).toList();
-
-        return TmdbSyncResult.builder()
-                .totalFetchedFromTmdb(tmdbIds.size())
-                .alreadyInDatabase(existingMoviesMap.size())
-                .newlySaved(newlySavedMovies.size())
-                .allMovies(allMovies)
-                .build();
-    }*/
-
     private List<Movie> fetchAndSaveMovies(List<Long> tmdbIds) {
         List<TmdbMovieDetailsResponse> newNowPlayingMoviesResponse = getMovieDetailsFromTmdbAsync(tmdbIds);
         log.info("Fetched {} new trending movies", newNowPlayingMoviesResponse.size());
