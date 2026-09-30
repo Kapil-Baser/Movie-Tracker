@@ -4,10 +4,13 @@ import com.example.movieapi.model.mdblist.MdbListMovie;
 import com.example.movieapi.model.mdblist.MdbListMovies;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -63,6 +66,15 @@ public class MdbListService {
 
     }
 
+    @Retryable(
+            includes = HttpClientErrorException.TooManyRequests.class,
+            maxRetries = 5,
+            delay = 3,
+            jitter = 1,
+            multiplier = 2.0,
+            maxDelay = 60,
+            timeUnit = TimeUnit.SECONDS
+    )
     public MdbListMovie getMovieDetails(String mediaProvider, String mediaId) {
         return mdbListClient.get().uri(uriBuilder -> uriBuilder
                 .path("/{mediaProvider}/movie/{mediaId}")
