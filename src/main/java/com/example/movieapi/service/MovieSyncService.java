@@ -564,10 +564,7 @@ public class MovieSyncService {
             return DigitalReleaseSummary.empty();
         }
 
-        Collections.shuffle(moviesMissingDigitalDate);
-
         List<CompletableFuture<DigitalReleaseResult>> futures = moviesMissingDigitalDate.stream()
-                .limit(20)
                 .map(movie -> CompletableFuture.supplyAsync(() ->
                                 mdbListService.getMovieDetails("tmdb", String.valueOf(movie.getTmdbId())), asyncExecutor)
                         .thenApply(mdbListMovie -> {
