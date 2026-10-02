@@ -149,12 +149,18 @@ public class MovieSyncService {
                 .build();
     }
 
-    private List<Movie> fetchAndSaveMovies(List<Long> tmdbIds) {
-        List<TmdbMovieDetailsResponse> newNowPlayingMoviesResponse = getMovieDetailsFromTmdbAsync(tmdbIds);
-        log.info("Fetched {} new trending movies", newNowPlayingMoviesResponse.size());
+    private List<TmdbMovieDetailsResponse> fetchAndFilterMovies(List<Long> tmdbIds) {
+        List<TmdbMovieDetailsResponse> newMoviesResponse = getMovieDetailsFromTmdbAsync(tmdbIds);
+        log.info("Fetched {} new movies", newMoviesResponse.size());
 
-        List<Movie> savedMovies = movieService.enrichAndSaveTmdbMovies(newNowPlayingMoviesResponse);
-        log.info("Saved {} new trending movies", savedMovies.size());
+        return movieService.filterOutShortFilms(newMoviesResponse);
+    }
+
+    private List<Movie> fetchAndSaveMovies(List<Long> tmdbIds) {
+        List<TmdbMovieDetailsResponse> filteredMovies = fetchAndFilterMovies(tmdbIds);
+
+        List<Movie> savedMovies = movieService.enrichAndSaveTmdbMovies(filteredMovies);
+        log.info("Saved {} new movies", savedMovies.size());
 
         return savedMovies;
     }
