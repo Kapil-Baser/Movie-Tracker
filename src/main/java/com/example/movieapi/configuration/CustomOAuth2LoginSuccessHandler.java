@@ -28,8 +28,7 @@ public class CustomOAuth2LoginSuccessHandler extends AbstractAuthenticationTarge
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
             OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
                     oauthToken.getAuthorizedClientRegistrationId(),
                     oauthToken.getName()
@@ -47,11 +46,6 @@ public class CustomOAuth2LoginSuccessHandler extends AbstractAuthenticationTarge
         }
 
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-//        successHandler.setDefaultTargetUrl("/movies");
         successHandler.onAuthenticationSuccess(request, response, authentication);
-
-        /*new SavedRequestAwareAuthenticationSuccessHandler().onAuthenticationSuccess(
-                    request, response, authentication
-        );*/
     }
 }
