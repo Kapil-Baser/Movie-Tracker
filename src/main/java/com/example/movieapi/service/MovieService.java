@@ -164,6 +164,24 @@ public class MovieService {
         return moviesRepository.saveAll(enrichedMovies);
     }
 
+    private List<TmdbMovieDetailsResponse> filterOutUnwantedLanguages(List<TmdbMovieDetailsResponse> movies) {
+        return movies.stream()
+                .filter(tmdbMovieResponse -> {
+                    String language = tmdbMovieResponse.getOriginalLanguage();
+                    return language.equals("en") || language.equals("hi") || language.equals("jp");
+                })
+                .toList();
+    }
+
+    public List<TmdbMovieDetailsResponse> filterOutShortFilms(List<TmdbMovieDetailsResponse> movies) {
+        return movies.stream()
+                .filter(tmdbMovie -> {
+                    int runtime = tmdbMovie.getRuntime();
+                    return runtime == 0 || runtime >= 60;
+                })
+                .toList();
+    }
+
     private List<Movie> enrichMovieFromTmdbDetails(List<TmdbMovieDetailsResponse> tmdbMovies) {
         List<Movie> enrichedMovies = new ArrayList<>();
 
