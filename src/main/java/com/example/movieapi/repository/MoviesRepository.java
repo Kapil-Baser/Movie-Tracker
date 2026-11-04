@@ -4,6 +4,7 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.Movie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,7 +37,7 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
     Page<Movie> findMoviesByCollectionIdAndOwner(@Param("collectionId") Long collectionId, @Param("owner") AppUser owner, Pageable pageable);
 
     @Query("SELECT m FROM Movie m JOIN m.collections mc WHERE mc.name = :collectionName")
-    Page<Movie> findMoviesByCollectionName(String collectionName, Pageable pageable);
+    Slice<Movie> findMoviesByCollectionName(String collectionName, Pageable pageable);
 
     List<Movie> findAllByUsDigitalDate(LocalDate date);
 
@@ -54,7 +55,7 @@ public interface MoviesRepository extends JpaRepository<Movie, Long> {
             WHERE :keyword <% title
             ORDER BY similarity(title, :keyword) DESC
             """, nativeQuery = true)
-    Page<Movie> fuzzySearch(@Param("keyword") String keyword, Pageable pageable);
+    Slice<Movie> fuzzySearch(@Param("keyword") String keyword, Pageable pageable);
 
     @Query(value = """
         SELECT title FROM Movies
