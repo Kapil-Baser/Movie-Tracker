@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -288,13 +289,13 @@ public class MovieService {
         return moviePage.map(movieMapper::toMovieDto);
     }
 
-    public Page<MovieDto> searchMovies(String keyword, int pageNumber) {
+    public Slice<MovieDto> searchMovies(String keyword, int pageNumber) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return Page.empty();
         }
         Pageable pageable = PageRequest.of(pageNumber, 4);
 
-        Page<Movie> moviePage = moviesRepository.fuzzySearch(keyword.trim(), pageable);
+        Slice<Movie> moviePage = moviesRepository.fuzzySearch(keyword.trim(), pageable);
 
         return moviePage.map(movieMapper::toMovieDto);
     }
