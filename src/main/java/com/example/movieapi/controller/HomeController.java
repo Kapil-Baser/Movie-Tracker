@@ -9,7 +9,7 @@ import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.service.*;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -135,13 +135,13 @@ public class HomeController {
     private PagedMovieView preparePagedMovieView(AuthenticatedUser authenticatedUser,
                                                  String collectionName,
                                                  int pageNumber) {
-        Page<MovieDto> pagedMovies = collectionService.getPaginatedMoviesFromCollectionByName(collectionName, pageNumber, 18);
+        Slice<MovieDto> pagedMovies = collectionService.getMoviesFromCollectionByName(collectionName, pageNumber, 18);
         List<MovieViewDto> movieViewDtos = viewAssemblerService.buildMovieView(authenticatedUser, pagedMovies.getContent());
         return new PagedMovieView(movieViewDtos, pagedMovies.hasNext(), pagedMovies.getNumber() + 1);
     }
 
     private SearchResultView prepareSearchResultsView(AuthenticatedUser authenticatedUser, String keyword, int pageNumber) {
-        Page<MovieDto> searchResults = movieService.searchMovies(keyword, pageNumber);
+        Slice<MovieDto> searchResults = movieService.searchMovies(keyword, pageNumber);
         List<MovieViewDto> viewDtos = viewAssemblerService.buildMovieView(authenticatedUser, searchResults.getContent());
         return new  SearchResultView(viewDtos, searchResults.hasNext(), searchResults.getNumber() + 1);
     }
