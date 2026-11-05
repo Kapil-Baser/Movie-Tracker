@@ -6,7 +6,6 @@ import com.example.movieapi.entity.AppUser;
 import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.MovieCollection;
 import com.example.movieapi.entity.Movie;
-import com.example.movieapi.exception.CollectionAccessDeniedException;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
@@ -224,9 +223,6 @@ public class MovieCollectionService {
     public Slice<MovieDto> getMoviesFromCollection(Long collectionId, int page, int size, AppUser owner) {
         Pageable pageable = PageRequest.of(page, size);
         Slice<Movie> moviesPage = moviesRepository.findMoviesByCollectionIdAndOwner(collectionId, owner, pageable);
-        if (!moviesPage.hasContent()) {
-            throw new CollectionAccessDeniedException("Requesting user: " + owner.getUsername() + " does not own this collection with ID: " + collectionId);
-        }
         return moviesPage.map(movieMapper::toMovieDto);
     }
 
