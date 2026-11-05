@@ -16,10 +16,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -224,18 +221,19 @@ public class MovieCollectionService {
         return movieIds != null ? movieIds : Collections.emptySet();
     }
 
-    public Page<MovieDto> getMoviesFromCollectionPaged(Long collectionId, int page, int size, AppUser owner) {
+    public Slice<MovieDto> getMoviesFromCollection(Long collectionId, int page, int size, AppUser owner) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Movie> moviesPage = moviesRepository.findMoviesByCollectionIdAndOwner(collectionId, owner, pageable);
+        Slice<Movie> moviesPage = moviesRepository.findMoviesByCollectionIdAndOwner(collectionId, owner, pageable);
         if (!moviesPage.hasContent()) {
             throw new CollectionAccessDeniedException("Requesting user: " + owner.getUsername() + " does not own this collection with ID: " + collectionId);
         }
         return moviesPage.map(movieMapper::toMovieDto);
     }
 
-    public Page<MovieDto> getPaginatedMoviesFromCollectionByName(String collectionName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending().and(Sort.by("id").ascending()));
-        Page<Movie> pagedMovies = moviesRepository.findMoviesByCollectionName(collectionName, pageable);
+    public Slice<MovieDto> getMoviesFromCollectionByName(String collectionName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()
+                .and(Sort.by("id").ascending()));
+        Slice<Movie> pagedMovies = moviesRepository.findMoviesByCollectionName(collectionName, pageable);
         return pagedMovies.map(movieMapper::toMovieDto);
     }
 
