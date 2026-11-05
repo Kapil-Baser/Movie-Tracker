@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -106,7 +107,7 @@ public class MovieViewAssemblerService {
 
 
     public MoviesInCollectionView buildMoviesInCollectionView(Long collectionId, AppUser owner, int pageNumber, int pageSize) {
-        Page<MovieDto> moviesPage = collectionService.getMoviesFromCollectionPaged(collectionId, pageNumber, pageSize, owner);
+        Slice<MovieDto> moviesPage = collectionService.getMoviesFromCollection(collectionId, pageNumber, pageSize, owner);
 
         MovieCollection collection = collectionService.getCollectionByIdAndOwner(collectionId, owner);
 
