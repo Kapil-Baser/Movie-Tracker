@@ -257,7 +257,7 @@ public class MovieCollectionService {
         log.info("User:{} has deleted collection with ID:{}", owner.getEmail(), collectionId);
     }
 
-    public void renameCollection(AppUser user, @Valid CollectionRenameDto renameDto) {
+    public void renameCollection(AppUser user, CollectionRenameDto renameDto) {
         MovieCollection collection = getCollectionByIdAndOwner(renameDto.getId(), user);
 
         collection.setName(renameDto.getName());
