@@ -26,7 +26,7 @@ public class UserRegisteredListener {
         this.mailService = mailService;
     }
 
-    @Async("customExecutor")
+    @Async
     @EventListener
     public void sendConfirmationToken(UserRegisteredEvent event) {
         log.info("Generating token for user: {}", event.user().getUsername());

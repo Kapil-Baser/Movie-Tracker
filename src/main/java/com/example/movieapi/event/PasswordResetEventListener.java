@@ -26,7 +26,7 @@ public class PasswordResetEventListener {
         this.mailService = mailService;
     }
 
-    @Async("customExecutor")
+    @Async
     @EventListener
     public void sendResetTokenMail(PasswordResetEvent event) {
 
