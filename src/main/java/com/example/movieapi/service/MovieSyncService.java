@@ -48,7 +48,7 @@ public class MovieSyncService {
                             MovieMapper movieMapper,
                             MovieCollectionService movieCollectionService,
                             ApplicationEventPublisher movieEnrichmentEventPublisher,
-                            @Qualifier("customExecutor") Executor asyncExecutor) {
+                            Executor asyncExecutor) {
         this.tmdbService = tmdbService;
         this.traktService = traktService;
         this.mdbListService = mdbListService;
