@@ -87,12 +87,6 @@ public class UserService implements UserDetailsService {
         logoutHandler.logout(request, null, null);
     }
 
-    /*public void resendToken(String email) {
-        AppUser user = loadUserByEmail(email);
-
-        eventPublisher.publishEvent(new TokenResendEvent(user));
-    }*/
-
     public void resetPassword(AppUser user, String newPassword) {
         // Set the new password
         user.setPassword(passwordEncoder.encode(newPassword));
