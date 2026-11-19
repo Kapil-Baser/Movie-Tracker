@@ -1,8 +1,7 @@
-
 <th:block th:fragment="nowPlayingPage (pagedMovies)">
   <th:block th:each="movie, iterStat : ${pagedMovies.movies}">
     <th:block th:with="isLast = ${iterStat.last && pagedMovies.hasNext} ? true : false">
-      <div th:replace="~{fragments/movie-card-container :: nowPlaying-movieCard-container (movie=${movie}, isLast=${isLast}, nextPage=${pagedMovies.nextPage})}"></div>
+      <div th:replace="~{fragments/movie-card-container :: nowPlaying-movieCard-container (movie=${movie}, isLast=${isLast}, nextCursor=${pagedMovies.nextCursor})}"></div>
     </th:block>
   </th:block>
 </th:block>
@@ -10,7 +9,7 @@
 <th:block th:fragment="upcomingPage (pagedMovies)">
   <th:block th:each="movie, iterStat : ${pagedMovies.movies}">
     <th:block th:with="isLast = ${iterStat.last && pagedMovies.hasNext} ? true : false">
-      <div th:replace="~{fragments/movie-card-container :: upcoming-movieCard-container (movie=${movie}, isLast=${isLast}, nextPage=${pagedMovies.nextPage})}"></div>
+      <div th:replace="~{fragments/movie-card-container :: upcoming-movieCard-container (movie=${movie}, isLast=${isLast}, nextCursor=${pagedMovies.nextCursor})}"></div>
     </th:block>
   </th:block>
 </th:block>
