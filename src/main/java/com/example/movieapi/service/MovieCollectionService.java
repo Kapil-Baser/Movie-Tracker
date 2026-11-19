@@ -9,6 +9,7 @@ import com.example.movieapi.entity.Movie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
+import com.example.movieapi.repository.MovieSpecifications;
 import com.example.movieapi.repository.MoviesRepository;
 import com.example.movieapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -230,6 +231,21 @@ public class MovieCollectionService {
                 .and(Sort.by("id").ascending()));
         Slice<Movie> pagedMovies = moviesRepository.findMoviesByCollectionName(collectionName, pageable);
         return pagedMovies.map(movieMapper::toMovieDto);
+    }
+
+    public Window<MovieDto> getMoviesByCollectionType(CollectionType collectionType, ScrollPosition scrollPosition, int limit) {
+        Sort sort = Sort.by("createdAt")
+                .descending()
+                .and(Sort.by("id")
+                        .ascending()
+                );
+
+        Window<Movie> movies = moviesRepository.findBy(MovieSpecifications.belongsToCollection(collectionType), query -> query
+                .sortBy(sort)
+                .limit(limit)
+                .scroll(scrollPosition));
+
+        return movies.map(movieMapper::toMovieDto);
     }
 
     public boolean toggleWatchListed(AuthenticatedUser authenticatedUser, Long movieId) {
