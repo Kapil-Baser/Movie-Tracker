@@ -1,15 +1,15 @@
-<div th:fragment="nowPlaying-movieCard-container(movie, isLast, nextPage)"
+<div th:fragment="nowPlaying-movieCard-container(movie, isLast, nextCursor)"
      class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800 flex flex-col justify-start"
-     th:attr="hx-get=${isLast} ? @{/nowPlaying/paged(page=${nextPage})} : null,
+     th:attr="hx-get=${isLast} ? @{/(cursor=${nextCursor})} : null,
                   hx-trigger=${isLast} ? 'revealed' : null,
                   hx-swap=${isLast} ? 'afterend' : null">
 
     <th:block th:replace="~{fragments/movie-card :: movieCard}"></th:block>
 </div>
 
-<div th:fragment="upcoming-movieCard-container(movie, isLast, nextPage)"
+<div th:fragment="upcoming-movieCard-container(movie, isLast, nextCursor)"
      class="max-w-47 rounded-xl p-0.5 shadow-xl bg-emerald-800 flex flex-col justify-start"
-     th:attr="hx-get=${isLast} ? @{/upcoming/paged(page=${nextPage})} : null,
+     th:attr="hx-get=${isLast} ? @{/upcoming(cursor=${nextCursor})} : null,
                   hx-trigger=${isLast} ? 'revealed' : null,
                   hx-swap=${isLast} ? 'afterend' : null">
 
