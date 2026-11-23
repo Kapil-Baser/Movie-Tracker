@@ -1,4 +1,4 @@
-package com.example.movieapi.repository;
+package com.example.movieapi.specification;
 
 import com.example.movieapi.entity.CollectionType;
 import com.example.movieapi.entity.Movie;

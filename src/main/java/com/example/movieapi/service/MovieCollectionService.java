@@ -9,7 +9,7 @@ import com.example.movieapi.entity.Movie;
 import com.example.movieapi.mapper.MovieMapper;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.CollectionRepository;
-import com.example.movieapi.repository.MovieSpecifications;
+import com.example.movieapi.specification.MovieSpecifications;
 import com.example.movieapi.repository.MoviesRepository;
 import com.example.movieapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
