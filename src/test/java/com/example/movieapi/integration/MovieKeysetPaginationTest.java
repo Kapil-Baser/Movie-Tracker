@@ -90,6 +90,17 @@ class MovieKeysetPaginationTest {
                 .scroll(scrollPosition));
 
         assertThat(secondWindow).hasSize(2);
+        assertThat(secondWindow.hasNext()).isTrue();
+
+        ScrollPosition nextScrollPosition = secondWindow.positionAt(secondWindow.size() - 1);
+
+        Window<Movie> thirdWindow = moviesRepository.findBy(MovieSpecifications.belongsToCollection(CollectionType.NOW_PLAYING), specificationFluentQuery -> specificationFluentQuery
+                .sortBy(sort)
+                .limit(2)
+                .scroll(nextScrollPosition));
+
+        assertThat(thirdWindow).hasSize(1);
+        assertThat(thirdWindow.hasNext()).isFalse();
 
         List<Long> firstWindowIds = firstWindow.getContent()
                 .stream()
