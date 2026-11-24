@@ -1,6 +1,8 @@
 package com.example.movieapi.integration;
 
+import com.example.movieapi.entity.Movie;
 import com.example.movieapi.repository.MoviesRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +13,9 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.*;
 
+@Transactional
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(properties = "spring.quartz.auto-startup=false")
 class TestContainersPostGreBootTest {
 
     @Container
@@ -27,5 +30,17 @@ class TestContainersPostGreBootTest {
         long count = moviesRepository.count();
 
         assertThat(count).isGreaterThanOrEqualTo(0);
+    }
+
+    @Test
+    void shouldRetrieveMovies() {
+        Movie movie = new Movie();
+        movie.setTitle("Resident Evil");
+
+        moviesRepository.save(movie);
+
+        var movies = moviesRepository.findAll();
+
+        assertThat(movies).hasSize(1).map(Movie::getTitle).containsExactly("Resident Evil");
     }
 }
