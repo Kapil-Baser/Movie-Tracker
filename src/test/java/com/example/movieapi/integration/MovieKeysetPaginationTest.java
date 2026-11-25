@@ -15,9 +15,10 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
+
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ class MovieKeysetPaginationTest {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:18-alpine");
+    static PostgreSQLContainer postgres =
+            new PostgreSQLContainer("postgres:18-alpine");
 
     @Autowired
     MoviesRepository moviesRepository;
