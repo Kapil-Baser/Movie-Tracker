@@ -10,12 +10,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.*;
 
 class MovieCursorCodecTest {
 
+    ObjectMapper objectMapper;
     MovieCursorCodec movieCursorCodec;
     static ValidatorFactory validatorFactory;
 
@@ -33,7 +36,7 @@ class MovieCursorCodecTest {
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
 
         Validator validator = validatorFactory.getValidator();
 
@@ -58,10 +61,44 @@ class MovieCursorCodecTest {
     }
 
     @Test
-    void decodeThrowsExceptionWhenGivenMalformedBase64String() {
+    void decodeThrowsInvalidCursorExceptionWhenGivenMalformedBase64String() {
         String malformedBase64String = "%%%invalid-base64%%%";
 
         assertThatThrownBy(() -> movieCursorCodec.decode(malformedBase64String))
+                .isInstanceOf(InvalidCursorException.class)
+                .hasMessage("Invalid movie cursor");
+    }
+
+    @Test
+    void decodeRejectsInvalidCursorData() {
+        String invalidJsonCursor = """
+                {
+                    "id":"",
+                    "createdAt":"2026-11-26T13:00"
+                }
+                """;
+
+        MovieCursor invalidCursor = objectMapper.readValue(invalidJsonCursor, MovieCursor.class);
+
+        String encoded = movieCursorCodec.encode(invalidCursor);
+
+        assertThatThrownBy(() -> movieCursorCodec.decode(encoded))
+                .isInstanceOf(InvalidCursorException.class)
+                .hasMessage("Invalid cursor data");
+    }
+
+    @Test
+    void decodeThrowsInvalidCursorExceptionWhenGivenJsonIsInvalid() {
+        String invalidJson = """
+                {
+                    "id
+                }
+                """;
+
+        byte[] invalidJsonBytes = invalidJson.getBytes(StandardCharsets.UTF_8);
+        String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(invalidJsonBytes);
+
+        assertThatThrownBy(() -> movieCursorCodec.decode(encoded))
                 .isInstanceOf(InvalidCursorException.class)
                 .hasMessage("Invalid movie cursor");
     }
