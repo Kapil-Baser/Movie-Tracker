@@ -215,4 +215,25 @@ class MovieKeysetPaginationTest {
 
         assertThat(actualIds).containsExactlyElementsOf(expectedIds);
     }
+
+    @Test
+    void keySetPaginationReturnsEmptyWindowWhenCollectionIsEmpty() {
+        MovieCollection collection = new MovieCollection();
+        collection.setName("Test Now Playing");
+        collection.setType(CollectionType.NOW_PLAYING);
+
+        collectionRepository.saveAndFlush(collection);
+
+        Sort sort = Sort.by(
+                Sort.Order.desc("createdAt"),
+                Sort.Order.asc("id")
+        );
+
+        Window<Movie> firstWindow = moviesRepository.findBy(MovieSpecifications.belongsToCollection(CollectionType.NOW_PLAYING), specificationFluentQuery -> specificationFluentQuery
+                .sortBy(sort)
+                .limit(2)
+                .scroll(ScrollPosition.keyset()));
+
+        assertThat(firstWindow).isEmpty();
+    }
 }
