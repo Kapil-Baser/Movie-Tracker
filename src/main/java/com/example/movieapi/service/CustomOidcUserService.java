@@ -5,7 +5,6 @@ import com.example.movieapi.entity.Provider;
 import com.example.movieapi.model.AuthenticatedUser;
 import com.example.movieapi.repository.RoleRepository;
 import com.example.movieapi.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -14,7 +13,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class CustomOidcUserService extends OidcUserService {
 
     private final UserRepository userRepository;
@@ -47,8 +45,6 @@ public class CustomOidcUserService extends OidcUserService {
                             return userRepository.save(newUser);
                         });
 
-
-        log.info("OidcUser loaded: {}", oidcUser);
         return new AuthenticatedUser(appUser, oidcUser.getAttributes(), oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 }
