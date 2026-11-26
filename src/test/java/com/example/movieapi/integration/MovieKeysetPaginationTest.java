@@ -235,5 +235,6 @@ class MovieKeysetPaginationTest {
                 .scroll(ScrollPosition.keyset()));
 
         assertThat(firstWindow).isEmpty();
+        assertThat(firstWindow.hasNext()).isFalse();
     }
 }
