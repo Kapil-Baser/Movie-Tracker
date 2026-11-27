@@ -103,4 +103,18 @@ class MovieCursorCodecTest {
                 .hasMessage("Invalid movie cursor");
     }
 
+    @Test
+    void decodeThrowsInvalidCursorExceptionWhenGivenEmptyString() {
+        assertThatThrownBy(() -> movieCursorCodec.decode(""))
+                .isInstanceOf(InvalidCursorException.class)
+                .hasMessage("Invalid movie cursor");
+    }
+
+    @Test
+    void decodeThrowsInvalidCursorExceptionWhenGivenNull() {
+        assertThatThrownBy(() -> movieCursorCodec.decode(null))
+                .isInstanceOf(InvalidCursorException.class)
+                .hasMessage("Invalid encoded cursor");
+    }
+
 }
