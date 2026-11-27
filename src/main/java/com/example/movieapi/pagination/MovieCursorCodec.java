@@ -56,6 +56,9 @@ public class MovieCursorCodec {
     }
 
     public MovieCursor decode(String encodedCursor) {
+        if (encodedCursor == null) {
+            throw new InvalidCursorException("Invalid encoded cursor");
+        }
         try {
             byte[] decodedBytes = Base64.getUrlDecoder()
                     .decode(encodedCursor);
